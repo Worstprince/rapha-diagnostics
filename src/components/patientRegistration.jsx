@@ -28,6 +28,16 @@ export default function NewPatientPage() {
   async function handleSubmit(e) {
     e.preventDefault();
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (
+        patient.email &&
+        !emailRegex.test(patient.email)
+    ) {
+        alert("Invalid email address");
+        return;
+    }
+
     await fetch("/api/patients", {
       method: "POST",
       headers: {
