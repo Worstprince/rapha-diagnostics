@@ -1,10 +1,5 @@
-import Image from "next/image";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return (
-    <main>
-      <h1>Hello World</h1>
-      <p>Start coding your app interface right here.</p>
-    </main>
-  );
+  redirect("/auth/login");
 }
