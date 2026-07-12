@@ -30,21 +30,30 @@ export default function NewPatientPage() {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (
-        patient.email &&
-        !emailRegex.test(patient.email)
-    ) {
+    if (patient.email && !emailRegex.test(patient.email)) {
         alert("Invalid email address");
         return;
     }
-
-    await fetch("/api/patients", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(patient),
+    try {
+    const response = await fetch("/api/patients", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(patient),
     });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+        alert(result.message);
+        return;
+    } 
+
+    alert("Patient registered successfully!");
+  } catch (error) {
+        console.error(error);
+        alert("Unable to connect to the server.");
   }
 
   return (
@@ -238,4 +247,5 @@ export default function NewPatientPage() {
 
     </div>
   );
+} 
 }

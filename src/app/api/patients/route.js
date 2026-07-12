@@ -5,6 +5,35 @@ export async function POST(request) {
 
     const patient = await request.json();
 
+    const [rows] = await db.query(
+        `
+        SELECT id 
+        FROM tblpatients
+        WHERE first_name = ?
+        AND last_name = ?
+        AND birth_date = ?
+        `,
+        [
+            patient.firstName,
+            patient.lastName,
+            patient.birthDate
+        ]
+    );
+
+    if (rows.length > 0) {
+
+        return NextResponse.json(
+            {
+                success: false,
+                message: "Patient already exists."
+            },
+            {
+                status: 409
+            }
+        );
+
+    }
+    
     await db.query(
         `
         INSERT INTO tblpatients
