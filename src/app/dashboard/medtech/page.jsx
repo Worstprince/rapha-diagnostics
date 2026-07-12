@@ -10,7 +10,7 @@ export default function MedtechDashboardPage() {
       <header className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
         <p className="text-sm font-semibold uppercase tracking-[0.35em] text-cyan-400">Medtech</p>
         <h1 className="mt-2 text-3xl font-semibold text-white">Lab workflow station</h1>
-        <p className="mt-2 text-sm text-slate-400">Track sample progress and equipment state without leaving the bench.</p>
+        <p className="mt-2 text-sm text-slate-400">Tracks sample progress and equipment state without leaving the bench.</p>
       </header>
 
       <section className="grid gap-4 md:grid-cols-3">
