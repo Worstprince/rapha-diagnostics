@@ -55,7 +55,7 @@ export default function NewPatientPage() {
         console.error(error);
         alert("Unable to connect to the server.");
   }
-
+  }
   return (
     <div className="max-w-5xl mx-auto p-8">
 
@@ -248,4 +248,3 @@ export default function NewPatientPage() {
     </div>
   );
 } 
-}
