@@ -28,7 +28,7 @@ export default function AdminDashboardPage() {
         <ul className="mt-4 space-y-3 text-sm text-slate-400">
           <li className="rounded-xl border border-slate-800 bg-slate-950/70 p-3">Inventory threshold reached for sample collection kits.</li>
           <li className="rounded-xl border border-slate-800 bg-slate-950/70 p-3">2 billing discrepancies require review.</li>
-          <li className="rounded-xl border border-slate-800 bg-slate-950/70 p-3">A doctor has requested a new report template.</li>
+          <li className="rounded-xl border border-slate-800 bg-slate-950/70 p-3">A doctor quack has requested a new report template.</li>
         </ul>
       </section>
     </div>
