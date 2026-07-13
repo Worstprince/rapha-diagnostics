@@ -1,3 +1,5 @@
+import PatientRegistration from "@/components/patientRegistration";
+
 export default function PatientRegistrationPage() {
   return (
     <div className="space-y-6">
@@ -8,8 +10,8 @@ export default function PatientRegistrationPage() {
       </header>
 
       <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
-        <h2 className="text-lg font-semibold text-white">Intake form</h2>
-        <p className="mt-2 text-sm text-slate-400">This view can be expanded later with patient demographics, insurance details, and appointment confirmation fields.</p>
+        <PatientRegistration />
+      
       </section>
     </div>
   );
