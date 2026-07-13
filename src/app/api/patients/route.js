@@ -9,9 +9,9 @@ export async function POST(request) {
         `
         SELECT id 
         FROM tblpatients
-        WHERE first_name = ?
-        AND last_name = ?
-        AND birth_date = ?
+        WHERE fname = ?
+        AND lname = ?
+        AND birthdate = ?
         `,
         [
             patient.firstName,
