@@ -38,7 +38,7 @@ export default function ActivityLogPage() {
       </header>
 
       <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
-        {}{logs.map(log => (
+        {logs.map(log => (
 
                 <div
                     key={log.id}
