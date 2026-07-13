@@ -1,5 +1,7 @@
 import db from "@/lib/db";
 import { NextResponse } from "next/server";
+import { logActivity } from "@/lib/logActivity";
+
 
 export async function POST(request) {
 
@@ -64,6 +66,12 @@ export async function POST(request) {
             patient.email,
             patient.address
         ]
+    );
+
+    await logActivity(
+        patient.userId,
+        "Patient registration",
+        `Registered new patient: ${patient.firstName} ${patient.lastName}`
     );
 
     return NextResponse.json({
