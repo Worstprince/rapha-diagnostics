@@ -136,7 +136,6 @@ export default function PatientRegistration() {
               Sex <span className="text-cyan-400">*</span>
             </label>
             <select id="sex" name="sex" value={patient.sex} onChange={handleChange} className={fieldClasses}>
-              <option value="">Select sex</option>
               <option value="Male">Male</option>
               <option value="Female">Female</option>
             </select>
@@ -147,7 +146,6 @@ export default function PatientRegistration() {
               Civil status <span className="text-cyan-400">*</span>
             </label>
             <select id="civilStatus" name="civilStatus" value={patient.civilStatus} onChange={handleChange} className={fieldClasses}>
-              <option value="">Select status</option>
               <option value="Single">Single</option>
               <option value="Married">Married</option>
               <option value="Widowed">Widowed</option>

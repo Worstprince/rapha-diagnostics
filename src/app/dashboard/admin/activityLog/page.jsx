@@ -19,8 +19,10 @@ export default function ActivityLogPage() {
             const response = await fetch("/api/activityLog");
 
             const data = await response.json();
-            
-            setLogs(data);
+
+           
+            const normalized = Array.isArray(data) ? data : (data?.rows ?? []);
+            setLogs(normalized);
 
         } catch (error) {
 
