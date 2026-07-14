@@ -9,9 +9,18 @@ const patientLinks = [
   { href: "/dashboard/reception/visitation", label: "Patient Visitation" },
 ];
 
+const userManagementLinks = [
+  {href: "/dashboard/admin/viewUsers", label: "View Users"},
+  {href: "/dashboard/admin/addUsers", label: "Add Users"},
+  {href: "/dashboard/admin/editUsers", label: "Edit Users"}
+];
+
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
   const [patientOpen, setPatientOpen] = useState(pathname?.startsWith("/dashboard/reception") ?? false);
+  const [userManagementOpen, setUserManagementOpen] = useState(
+    pathname?.startsWith("/dashboard/admin/") ?? false
+  );
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
@@ -50,16 +59,52 @@ export default function DashboardLayout({ children }) {
               )}
 
               {pathname.startsWith("/dashboard/admin") && (
-                <Link
-                  href="/dashboard/admin/userManagement"
-                  className={`flex items-center rounded-xl border px-3 py-2 text-sm font-medium transition ${
-                    pathname === "/dashboard/admin/userManagement"
-                      ? "border-cyan-500 bg-cyan-500/10 text-cyan-300"
-                      : "border-slate-800 bg-slate-950/60 text-slate-300 hover:border-cyan-500 hover:text-white"
-                  }`}
-                >
-                  User Management
-                </Link>
+                <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-2">
+
+                  <button
+                    type="button"
+                    aria-expanded={userManagementOpen}
+                    aria-controls="admin-user-links"
+                    className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-medium text-slate-300 transition hover:bg-slate-800/70 hover:text-white"
+                    onClick={() => setUserManagementOpen((value) => !value)}
+                  >
+                    <span>User Management</span>
+
+                    <span className="text-xs text-slate-500">
+                      {userManagementOpen ? "▾" : "▸"}
+                    </span>
+                  </button>
+
+                  {userManagementOpen && (
+                    <div
+                      id="admin-user-links"
+                      className="mt-2 space-y-1 px-2 pb-1"
+                    >
+                      {userManagementLinks.map((link) => {
+
+                        const isActive =
+                          pathname === link.href ||
+                          pathname.startsWith(`${link.href}/`);
+
+                        return (
+                          <Link
+                            key={link.href}
+                            href={link.href}
+                            className={`flex items-center rounded-lg px-3 py-2 text-sm transition ${
+                              isActive
+                                ? "bg-cyan-500/10 text-cyan-300"
+                                : "text-slate-400 hover:bg-slate-800/70 hover:text-white"
+                            }`}
+                          >
+                            {link.label}
+                          </Link>
+                        );
+
+                      })}
+                    </div>
+                  )}
+
+                </div>
               )}
 
               {pathname.startsWith("/dashboard/reception") && (

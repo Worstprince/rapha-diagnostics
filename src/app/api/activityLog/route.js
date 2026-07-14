@@ -7,12 +7,14 @@ export async function GET() {
         const [rows] = await db.query(
             `
             SELECT
-                id,
+                tblactivitylog.id,
                 action,
                 description,
                 userid,
-                datetime 
+                datetime,
+                username 
             FROM tblactivitylog 
+            INNER JOIN tblusers ON tblactivitylog.userid = tblusers.id
             ORDER BY datetime DESC
             `
         );

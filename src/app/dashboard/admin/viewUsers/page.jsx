@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import DisplayUsers from "@/components/userManagement/displayUsers";
 
 export default function UserManagementPage() {
 
@@ -12,7 +13,7 @@ export default function UserManagementPage() {
       </header>
 
       <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
-
+        <DisplayUsers />
       </div>
     </div>
   );
