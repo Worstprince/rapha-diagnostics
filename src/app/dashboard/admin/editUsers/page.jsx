@@ -23,7 +23,7 @@ export default function EditUser() {
 
     async function fetchUsers() {
 
-        const response = await fetch("/api/users");
+        const response = await fetch("/api/users/display");
 
         const data = await response.json();
 
@@ -31,35 +31,39 @@ export default function EditUser() {
 
     }
 
-    async function loadUser(id) {
+async function loadUser(id) {
 
-        setSelectedUser(id);
+    setSelectedUser(id);
 
-        if (!id) {
-
-            setUser({
-                username: "",
-                password: "",
-                email: "",
-                role: ""
-            });
-
-            return;
-
-        }
-
-        const response = await fetch(`/api/users/${id}`);
-
-        const data = await response.json();
+    if (!id) {
 
         setUser({
-            username: data.username,
+            username: "",
             password: "",
-            email: data.email,
-            role: data.role
+            email: "",
+            role: ""
         });
 
+        return;
     }
+
+    const response = await fetch(`/api/users/${id}`);
+
+    const result = await response.json();
+
+    if (!response.ok) {
+        alert(result.message);
+        return;
+    }
+
+    setUser({
+        username: result.data.username,
+        password: "",
+        email: result.data.email,
+        role: result.data.role
+    });
+
+}
 
     function handleChange(e) {
 
@@ -76,6 +80,11 @@ export default function EditUser() {
 
         e.preventDefault();
 
+        if (user.username.trim() === "" || user.email.trim() === "") {
+            alert("Please fill in all required fields.");
+            return;
+        }
+
         const response = await fetch(`/api/users/${selectedUser}`, {
 
             method: "PUT",
@@ -91,6 +100,17 @@ export default function EditUser() {
         const result = await response.json();
 
         alert(result.message);
+
+        if (response.ok) {
+
+            setUser(prev => ({
+                ...prev,
+                password: ""
+            }));
+
+            fetchUsers();
+
+        }
 
     }
 
