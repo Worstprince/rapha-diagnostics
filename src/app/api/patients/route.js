@@ -79,5 +79,10 @@ export async function POST(request) {
         success: true
     });
 
-}
-
+} catch (error) {
+    console.error(error);
+    return NextResponse.json({
+        success: false,
+        message: "Failed to add patient"
+    }, { status: 500 });
+}}
