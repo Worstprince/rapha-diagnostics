@@ -5,7 +5,7 @@ export async function GET() {
     try {
         const [rows] = await db.query(
             `
-            SELECT id, username, role, created_at, archivestatus 
+            SELECT id, username, password, role, created_at, archivestatus 
             FROM tblusers
             `
         );

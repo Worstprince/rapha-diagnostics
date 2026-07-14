@@ -55,7 +55,7 @@ export default function displayUsers() {
                             <td className="p-3">{user.username}</td>
                             <td className="p-3">{user.role}</td>
                             <td className="p-3">{user.created_at}</td>
-                            <td className="p-3">{user.status}</td>
+                            <td className="p-3">{user.archivestatus ? "Archived" : "Active"}</td>
 
                         </tr>
 
