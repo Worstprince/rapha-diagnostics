@@ -13,6 +13,6 @@ export default function PatientRegistrationPage() {
         <PatientRegistration />
       
       </section>
-    </div>
+    </div> 
   );
 }
