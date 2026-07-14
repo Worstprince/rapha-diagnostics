@@ -26,6 +26,14 @@ export default function AddUsers() {
 
         e.preventDefault();
 
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (user.email && !emailRegex.test(user.email)) {
+        alert("Invalid email address");
+        return;
+        }
+
+
         const response = await fetch("/api/users/add", {
             method: "POST",
             headers: {
