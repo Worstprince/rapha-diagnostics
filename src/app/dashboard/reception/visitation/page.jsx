@@ -1,3 +1,4 @@
+import PatientVisit from "@/components/VisitRegistrationForm";
 export default function PatientVisitationPage() {
   return (
     <div className="space-y-6">
@@ -11,6 +12,8 @@ export default function PatientVisitationPage() {
         <h2 className="text-lg font-semibold text-white">Visit tracking</h2>
         <p className="mt-2 text-sm text-slate-400">This view can host arrival logs, room assignment steps, and check-in completion states.</p>
       </section>
+
+      <PatientVisit />
     </div>
   );
 }
