@@ -11,15 +11,19 @@ export async function GET() {
         );
         return NextResponse.json(rows);
     } catch (error) {
-        return NextResponse.json(
-            {
-                success: false,
-                message: "Invalid request body."
-            },
-            {
-                status: 400
-            }
-        );
-    }
+
+    console.error(error);
+
+    return NextResponse.json(
+        {
+            success: false,
+            message: error.message
+        },
+        {
+            status: 500
+        }
+    );
+
+}
 
 }
