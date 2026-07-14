@@ -45,7 +45,7 @@ export default function AddUsers() {
         const result = await response.json();
 
         if (!response.ok) {
-            alert(result.message);
+            alert(result.message || result.error);
             return;
         }
 

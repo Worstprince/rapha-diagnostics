@@ -73,6 +73,9 @@ export async function POST(request) {
 
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ error: "Failed to add user" }, { status: 500 });
+        return NextResponse.json({
+            success: false,
+            message: "Failed to add user"
+        }, { status: 500 });
     }
 }
