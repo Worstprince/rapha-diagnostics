@@ -30,10 +30,26 @@ export default function NewPatientPage() {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+    //check if credentials are missing
+    if (
+      !patient.firstName ||
+      !patient.lastName ||
+      !patient.birthDate ||
+      !patient.sex ||
+      !patient.civilStatus
+    ) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+
+
+    //check if email is valid
     if (patient.email && !emailRegex.test(patient.email)) {
         alert("Invalid email address");
         return;
     }
+
+    //register patient
     try {
     const response = await fetch("/api/patients", {
         method: "POST",
