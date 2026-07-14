@@ -1,8 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+
 
 export default function EditUser() {
+
+    const searchParams = useSearchParams();
+    const userId = searchParams.get("id");
 
     const [users, setUsers] = useState([]);
 
@@ -20,6 +25,14 @@ export default function EditUser() {
         fetchUsers();
 
     }, []);
+
+    useEffect(() => {
+
+        if (userId) {
+            loadUser(userId);
+        }
+
+    }, [userId]);
 
     async function fetchUsers() {
 

@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function displayUsers() {
 
+    const router = useRouter();
+    
     const [users, setUsers] = useState([]);
     useEffect(() => {
         fetchUsers();
@@ -56,7 +59,17 @@ export default function displayUsers() {
                             <td className="p-3">{user.role}</td>
                             <td className="p-3">{user.created_at}</td>
                             <td className="p-3">{user.archivestatus ? "Archived" : "Active"}</td>
+                            <td className="p-3">
 
+                                <button
+                                    type="button"
+                                    className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                                    onClick={() => router.push(`/dashboard/admin/editUsers?id=${user.id}`)}
+                                >
+                                    Edit
+                                </button>
+
+                            </td>
                         </tr>
 
                     ))}
