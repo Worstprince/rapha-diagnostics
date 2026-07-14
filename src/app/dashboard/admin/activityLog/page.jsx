@@ -44,11 +44,12 @@ export default function ActivityLogPage() {
                     key={log.id}
                     className="mb-3 rounded border p-4"
                 >
+                    
                     <h2>{log.action}</h2>
 
                     <p>{log.description}</p>
 
-                    <small>{log.datetime}</small>
+                    <small>Performed by {log.username} on {log.datetime}</small>
                 </div>
             ))}
       </div>
