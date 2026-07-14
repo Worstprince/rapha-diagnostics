@@ -1,8 +1,11 @@
 import db from "@/lib/db";
 import { NextResponse } from "next/server";
+import { logActivity } from "@/lib/logActivity";
+
 
 export async function POST(request) {
-
+    try {
+ 
     const patient = await request.json();
 
     const [rows] = await db.query(
@@ -64,6 +67,12 @@ export async function POST(request) {
             patient.email,
             patient.address
         ]
+    );
+
+    await logActivity(
+        patient.userId , //to be changed to userId from session
+        "Patient registration",
+        `Registered new patient: ${patient.firstName} ${patient.lastName}`
     );
 
     return NextResponse.json({
