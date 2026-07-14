@@ -4,10 +4,10 @@ let db;
 
 try {
     db = await mysql.createPool({
-        port: 3307,
+        port: 3306,
         host: "localhost",
         user: "root",
-        password: "",
+        password: "root",
         database: "raphaschema",
     });
 } catch (error) {

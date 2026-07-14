@@ -1,4 +1,4 @@
-import PatientVisit from "@/components/VisitRegistrationForm";
+import PatientVisit from "@/components/patient/VisitRegistrationForm";
 export default function PatientVisitationPage() {
   return (
     <div className="space-y-6">
