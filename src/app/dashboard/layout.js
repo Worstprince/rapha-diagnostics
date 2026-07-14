@@ -10,7 +10,9 @@ const patientLinks = [
 ];
 
 const userManagementLinks = [
-  {href: "/dashboard/admin/viewUsers", label: "View Users"}
+  {href: "/dashboard/admin/viewUsers", label: "View Users"},
+  {href: "/dashboard/admin/addUsers", label: "Add Users"},
+  {href: "/dashboard/admin/editUsers", label: "Edit Users"}
 ];
 
 export default function DashboardLayout({ children }) {
