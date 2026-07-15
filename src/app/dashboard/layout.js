@@ -44,7 +44,7 @@ export default function DashboardLayout({ children }) {
               >
                 Overview
               </Link>
-
+                {/* activitylog */}
               {pathname.startsWith("/dashboard/admin") && (
                 <Link
                   href="/dashboard/admin/activityLog"
@@ -57,7 +57,7 @@ export default function DashboardLayout({ children }) {
                   Activity Log
                 </Link>
               )}
-
+              {/* User management dropdown */}
               {pathname.startsWith("/dashboard/admin") && (
                 <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-2">
 
@@ -107,6 +107,21 @@ export default function DashboardLayout({ children }) {
                 </div>
               )}
 
+              {/* doctor view visits */}
+              {pathname.startsWith("/dashboard/doctor") && (
+                <Link
+                  href="/dashboard/doctor/visitation"
+                  className={`flex items-center rounded-xl border px-3 py-2 text-sm font-medium transition ${
+                    pathname === "/dashboard/doctor/visitation"
+                      ? "border-cyan-500 bg-cyan-500/10 text-cyan-300"
+                      : "border-slate-800 bg-slate-950/60 text-slate-300 hover:border-cyan-500 hover:text-white"
+                  }`}
+                >
+                  View Visitations
+                </Link>
+              )}
+
+              {/* Reception dropdown */}
               {pathname.startsWith("/dashboard/reception") && (
                 <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-2">
                   <button
