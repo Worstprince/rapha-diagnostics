@@ -15,25 +15,13 @@ export default function DoctorVisitationPage() {
     async function fetchVisitations() {
 
         // Backend later
-        setVisitations([
-            {
-                id: 1,
-                patient: "Juan Dela Cruz",
-                age: 24,
-                sex: "Male",
-                date: "2026-07-15",
-                status: "Waiting"
-            },
-            {
-                id: 2,
-                patient: "Maria Santos",
-                age: 31,
-                sex: "Female",
-                date: "2026-07-15",
-                status: "Waiting"
-            }
-        ]);
-
+        try {
+            const response = await fetch("/api/doctor/visitationDisplay");
+            const data = await response.json();
+            setVisitations(data);
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     return (
@@ -78,9 +66,9 @@ export default function DoctorVisitationPage() {
                             <th className="p-3">Age</th>
                             <th className="p-3">Sex</th>
                             <th className="p-3">Visit Date</th>
-                            <th className="p-3">Status</th>
+                            <th className="p-3">Status</th> 
+                            <th className="p-3">Priority</th>
                             <th className="p-3">Action</th>
-
                         </tr>
 
                     </thead>
@@ -90,19 +78,27 @@ export default function DoctorVisitationPage() {
                         {visitations.map((visit) => (
 
                             <tr
-                                key={visit.id}
+                                key={visit.visitid}
                                 className="border-b border-slate-800 hover:bg-slate-800/40"
                             >
 
-                                <td className="p-3 text-white">{visit.patient}</td>
+                                <td className="p-3 text-white">{visit.name}</td>
                                 <td className="p-3 text-slate-300">{visit.age}</td>
                                 <td className="p-3 text-slate-300">{visit.sex}</td>
-                                <td className="p-3 text-slate-300">{visit.date}</td>
+                                <td className="p-3 text-slate-300">{new Date(visit.visited_at).toLocaleString()}</td>
 
                                 <td className="p-3">
 
                                     <span className="rounded-full bg-yellow-500/10 px-3 py-1 text-xs font-medium text-yellow-300">
                                         {visit.status}
+                                    </span>
+
+                                </td>
+
+                                <td className="p-3">
+
+                                    <span className="rounded-full bg-red-500/10 px-3 py-1 text-xs font-medium text-red-300">
+                                        {visit.priority}
                                     </span>
 
                                 </td>
