@@ -353,6 +353,47 @@
     cursor: pointer;
   }
 
+  /* Same shape as .rd-btn, but never the accent gradient — a destructive
+     confirm must not look like the primary action it's guarding. */
+  .rd-btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 12px 22px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--rd-danger-line);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 12px 30px -12px var(--rd-danger-edge);
+  }
+
+  .rd-btn-danger:hover:not(:disabled) {
+    filter: brightness(1.06);
+  }
+
+  .rd-dialog {
+    animation: rd-dialog-in 200ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  @keyframes rd-dialog-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rd-dialog {
+      animation: none;
+    }
+  }
+
   .rd-status {
     margin: 0;
     padding: 11px 14px;
@@ -391,6 +432,35 @@
 
     .rd-press:active {
       transform: none;
+    }
+  }
+
+  /* The drawer mounts on open rather than staying in the tree, so entry is a
+     keyframe — a transition has no previous value to animate from. */
+  .rd-scrim {
+    animation: rd-fade-in 180ms ease-out;
+  }
+
+  .rd-drawer {
+    animation: rd-slide-in 220ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  @keyframes rd-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes rd-slide-in {
+    from {
+      transform: translateX(-100%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rd-scrim,
+    .rd-drawer {
+      animation: none;
     }
   }
 

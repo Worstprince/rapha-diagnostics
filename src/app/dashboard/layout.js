@@ -1,22 +1,58 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
+import ConfirmDialog from "@/components/ConfirmDialog";
 import ThemeToggle from "@/components/ThemeToggle";
+import {
+  ActivityIcon,
+  CalendarCheckIcon,
+  ClipboardIcon,
+  CloseIcon,
+  GridIcon,
+  MenuIcon,
+  SignOutIcon,
+  UserCogIcon,
+  UserPlusIcon,
+  UsersIcon,
+} from "@/components/icons";
+import { signOut, useCurrentUser } from "@/lib/session";
 import { useTheme } from "@/lib/theme";
 
-const patientLinks = [
-  { href: "/dashboard/reception/registration", label: "Patient Registration" },
-  { href: "/dashboard/reception/visitation", label: "Patient Visitation" },
+const overview = { href: "/dashboard", label: "Overview", Icon: GridIcon };
+
+const adminSections = [
+  {
+    label: "General",
+    links: [
+      overview,
+      { href: "/dashboard/admin/activityLog", label: "Activity Log", Icon: ActivityIcon },
+    ],
+  },
+  {
+    label: "User Management",
+    links: [
+      { href: "/dashboard/admin/viewUsers", label: "View Users", Icon: UsersIcon },
+      { href: "/dashboard/admin/addUsers", label: "Add Users", Icon: UserPlusIcon },
+      { href: "/dashboard/admin/editUsers", label: "Edit Users", Icon: UserCogIcon },
+    ],
+  },
 ];
 
-const userManagementLinks = [
-  { href: "/dashboard/admin/viewUsers", label: "View Users" },
-  { href: "/dashboard/admin/addUsers", label: "Add Users" },
-  { href: "/dashboard/admin/editUsers", label: "Edit Users" },
+const receptionSections = [
+  { label: "General", links: [overview] },
+  {
+    label: "Patient",
+    links: [
+      { href: "/dashboard/reception/registration", label: "Registration", Icon: ClipboardIcon },
+      { href: "/dashboard/reception/visitation", label: "Visitation", Icon: CalendarCheckIcon },
+    ],
+  },
 ];
+
+const baseSections = [{ label: "General", links: [overview] }];
 
 function BrandMark() {
   return (
@@ -41,67 +77,133 @@ function BrandMark() {
   );
 }
 
-function Chevron({ open }) {
+function Wordmark() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      width="14"
-      height="14"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      className="transition-transform duration-200 ease-out"
-      style={{ transform: open ? "rotate(90deg)" : "rotate(0deg)" }}
-    >
-      <polyline points="9 6 15 12 9 18" />
-    </svg>
+    <div className="flex items-center gap-3">
+      <BrandMark />
+      <div className="leading-none">
+        <p className="text-base font-extrabold tracking-tight text-rd-title">Rapha</p>
+        <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-rd-muted">
+          Diagnostics
+        </p>
+      </div>
+    </div>
   );
 }
 
-const navBase =
-  "rd-press rd-focus flex items-center gap-2.5 rounded-xl border px-3 py-2 text-sm font-medium";
-const navIdle =
-  "border-rd-hair bg-rd-sunken text-rd-label hover:border-rd-hair-strong hover:text-rd-title";
-const navActive = "border-rd-cyan/50 bg-rd-cyan/10 text-rd-cyan";
+const rowBase =
+  "rd-press rd-focus relative flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium";
+const rowIdle = "text-rd-label hover:bg-rd-raised hover:text-rd-title";
+const rowActive =
+  "border border-rd-hair-strong bg-rd-raised text-rd-cyan shadow-[var(--rd-lift)]";
 
-const subBase = "rd-press rd-focus block rounded-lg px-3 py-2 text-sm";
-const subIdle = "text-rd-muted hover:bg-rd-raised hover:text-rd-title";
-const subActive = "bg-rd-cyan/10 font-medium text-rd-cyan";
+/* `/dashboard` redirects to `/dashboard/admin`, so Overview has to answer to both.
+   Prefix matching would light it up on every admin subpage instead. */
+function isLinkActive(href, pathname) {
+  if (href === "/dashboard") {
+    return pathname === "/dashboard" || pathname === "/dashboard/admin";
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
-function NavGroup({ label, open, onToggle, id, links, pathname }) {
+function SectionNav({ sections, pathname, onNavigate }) {
   return (
-    <div className="rounded-xl border border-rd-hair bg-rd-sunken p-2">
+    <nav aria-label="Dashboard navigation" className="space-y-6">
+      {sections.map((section) => (
+        <div key={section.label}>
+          <p className="px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-rd-muted">
+            {section.label}
+          </p>
+          <ul className="mt-2 space-y-1">
+            {section.links.map(({ href, label, Icon }) => {
+              const active = isLinkActive(href, pathname);
+              return (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    onClick={onNavigate}
+                    aria-current={active ? "page" : undefined}
+                    /* The active pill carries a border the idle row lacks, so it
+                       also claims a transparent one — otherwise every row shifts
+                       a pixel as the selection moves. */
+                    className={`${rowBase} ${active ? rowActive : `border border-transparent ${rowIdle}`}`}
+                  >
+                    {active && (
+                      <span
+                        aria-hidden="true"
+                        className="absolute -left-px h-5 w-0.5 rounded-full bg-rd-cyan"
+                      />
+                    )}
+                    <Icon />
+                    <span>{label}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </nav>
+  );
+}
+
+function initialsOf(name) {
+  if (!name) return "";
+  return name
+    .split(/[\s._-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join("");
+}
+
+function UserFooter() {
+  const router = useRouter();
+  const user = useCurrentUser();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const handleSignOut = () => {
+    setConfirmOpen(false);
+    signOut();
+    router.push("/auth/login");
+  };
+
+  /* Null on the server and on the first client paint, so the block is skipped
+     rather than flashing a guessed name. */
+  if (!user) return null;
+
+  return (
+    <div className="mt-6 flex items-center gap-3 rounded-xl border border-rd-hair bg-rd-sunken p-2.5">
+      <span
+        aria-hidden="true"
+        className="grid size-9 flex-none place-items-center rounded-full bg-rd-cyan/15 text-xs font-bold text-rd-cyan"
+      >
+        {initialsOf(user.username)}
+      </span>
+      <div className="min-w-0 leading-tight">
+        <p className="truncate text-sm font-semibold text-rd-title">{user.username}</p>
+        <p className="truncate text-xs text-rd-muted">{user.role}</p>
+      </div>
       <button
         type="button"
-        aria-expanded={open}
-        aria-controls={id}
-        onClick={onToggle}
-        className="rd-focus flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-medium text-rd-label transition-colors hover:bg-rd-raised hover:text-rd-title"
+        onClick={() => setConfirmOpen(true)}
+        aria-label="Sign out"
+        title="Sign out"
+        className="rd-press rd-focus ml-auto grid size-11 flex-none cursor-pointer place-items-center rounded-lg text-rd-muted hover:bg-rd-raised hover:text-rd-title"
       >
-        <span>{label}</span>
-        <Chevron open={open} />
+        <SignOutIcon />
       </button>
 
-      {open && (
-        <div id={id} className="mt-1 space-y-0.5 px-1 pb-1">
-          {links.map((link) => {
-            const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                aria-current={isActive ? "page" : undefined}
-                className={`${subBase} ${isActive ? subActive : subIdle}`}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </div>
-      )}
+      <ConfirmDialog
+        open={confirmOpen}
+        tone="danger"
+        title="Sign out?"
+        description={`You'll be signed out of ${user.username} and returned to the login page.`}
+        confirmLabel="Sign out"
+        cancelLabel="Stay signed in"
+        onConfirm={handleSignOut}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   );
 }
@@ -109,85 +211,109 @@ function NavGroup({ label, open, onToggle, id, links, pathname }) {
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
   const { theme, toggle } = useTheme();
-
-  const [patientOpen, setPatientOpen] = useState(
-    pathname?.startsWith("/dashboard/reception") ?? false,
-  );
-  const [userManagementOpen, setUserManagementOpen] = useState(
-    pathname?.startsWith("/dashboard/admin/") ?? false,
-  );
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuButtonRef = useRef(null);
+  const closeButtonRef = useRef(null);
 
   const isAdmin = pathname.startsWith("/dashboard/admin") || pathname === "/dashboard";
   const isReception = pathname.startsWith("/dashboard/reception");
-  const isOverview = pathname === "/dashboard" || pathname === "/dashboard/admin";
+  const sections = isAdmin ? adminSections : isReception ? receptionSections : baseSections;
+
+  /* Links close the drawer themselves via onNavigate — watching pathname instead
+     would miss a tap on the route you're already on. popstate covers the one exit
+     a link can't: the browser back button. */
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    closeButtonRef.current?.focus();
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    const onPopState = () => setMenuOpen(false);
+    document.addEventListener("keydown", onKeyDown);
+    window.addEventListener("popstate", onPopState);
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("popstate", onPopState);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [menuOpen]);
+
+  const closeMenu = () => {
+    setMenuOpen(false);
+    menuButtonRef.current?.focus();
+  };
 
   return (
     <div className="min-h-dvh bg-rd-canvas text-rd-text">
-      <div className="flex min-h-dvh flex-col lg:flex-row">
-        <aside className="border-b border-rd-hair bg-rd-card p-5 backdrop-blur-xl lg:w-72 lg:flex-none lg:border-b-0 lg:border-r lg:p-6">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <BrandMark />
-              <div className="leading-none">
-                <p className="text-base font-extrabold tracking-tight text-rd-title">Rapha</p>
-                <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-rd-muted">
-                  Diagnostics
-                </p>
-              </div>
+      <div className="flex min-h-dvh flex-col lg:flex-row lg:gap-4 lg:p-4">
+        {/* Flush bar on mobile; a floating panel once there's room to inset it. */}
+        <aside className="border-b border-rd-hair bg-rd-card backdrop-blur-xl lg:sticky lg:top-4 lg:flex lg:h-[calc(100dvh-2rem)] lg:w-72 lg:flex-none lg:flex-col lg:rounded-2xl lg:border lg:shadow-[var(--rd-card-shadow)]">
+          <div className="flex items-center justify-between gap-3 p-5 lg:p-4">
+            <Wordmark />
+            <div className="flex items-center gap-2">
+              <ThemeToggle theme={theme} onToggle={toggle} />
+              <button
+                ref={menuButtonRef}
+                type="button"
+                onClick={() => setMenuOpen(true)}
+                aria-label="Open navigation menu"
+                aria-expanded={menuOpen}
+                aria-controls="dashboard-menu"
+                className="rd-press rd-focus grid size-11 cursor-pointer place-items-center rounded-lg text-rd-label hover:bg-rd-raised hover:text-rd-title lg:hidden"
+              >
+                <MenuIcon />
+              </button>
             </div>
-            <ThemeToggle theme={theme} onToggle={toggle} />
           </div>
 
-          <p className="mt-4 text-sm text-rd-muted">
-            Focused workflow views for every department.
-          </p>
-
-          <nav aria-label="Dashboard navigation" className="mt-6 space-y-2">
-            <Link
-              href="/dashboard"
-              aria-current={isOverview ? "page" : undefined}
-              className={`${navBase} ${isOverview ? navActive : navIdle}`}
-            >
-              Overview
-            </Link>
-
-            {isAdmin && (
-              <Link
-                href="/dashboard/admin/activityLog"
-                aria-current={pathname === "/dashboard/admin/activityLog" ? "page" : undefined}
-                className={`${navBase} ${
-                  pathname === "/dashboard/admin/activityLog" ? navActive : navIdle
-                }`}
-              >
-                Activity Log
-              </Link>
-            )}
-
-            {isAdmin && (
-              <NavGroup
-                label="User Management"
-                id="admin-user-links"
-                open={userManagementOpen}
-                onToggle={() => setUserManagementOpen((v) => !v)}
-                links={userManagementLinks}
-                pathname={pathname}
-              />
-            )}
-
-            {isReception && (
-              <NavGroup
-                label="Patient"
-                id="reception-patient-links"
-                open={patientOpen}
-                onToggle={() => setPatientOpen((v) => !v)}
-                links={patientLinks}
-                pathname={pathname}
-              />
-            )}
-          </nav>
+          <div className="hidden min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-4 pt-4 lg:flex">
+            <SectionNav sections={sections} pathname={pathname} />
+            <div className="mt-auto">
+              <UserFooter />
+            </div>
+          </div>
         </aside>
 
-        <main className="min-w-0 flex-1 p-5 lg:p-8">{children}</main>
+        {menuOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <div className="rd-scrim absolute inset-0 bg-black/50" onClick={closeMenu} aria-hidden="true" />
+            <div
+              id="dashboard-menu"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Dashboard navigation"
+              className="rd-drawer absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col border-r border-rd-hair bg-rd-card backdrop-blur-xl"
+            >
+              <div className="flex items-center justify-between gap-3 p-5">
+                <Wordmark />
+                <button
+                  ref={closeButtonRef}
+                  type="button"
+                  onClick={closeMenu}
+                  aria-label="Close navigation menu"
+                  className="rd-press rd-focus grid size-11 cursor-pointer place-items-center rounded-lg text-rd-label hover:bg-rd-raised hover:text-rd-title"
+                >
+                  <CloseIcon />
+                </button>
+              </div>
+
+              <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-5 pt-4">
+                <SectionNav sections={sections} pathname={pathname} onNavigate={closeMenu} />
+                <div className="mt-auto">
+                  <UserFooter />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <main className="min-w-0 flex-1 p-5 lg:p-4">{children}</main>
       </div>
     </div>
   );

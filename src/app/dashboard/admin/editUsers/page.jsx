@@ -3,6 +3,8 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
+import ConfirmDialog from "@/components/ConfirmDialog";
+
 const ROLES = [
   "Administrator",
   "Receptionist",
@@ -30,6 +32,7 @@ function EditUserForm() {
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const [user, setUser] = useState({
     username: "",
@@ -125,13 +128,20 @@ function EditUserForm() {
     return Object.keys(found).length === 0;
   }
 
-  async function handleSubmit(e) {
+  /* Validation runs before the dialog, not after: asking "are you sure?" about a
+     form that's about to fail its own checks wastes a click. */
+  function handleSubmit(e) {
     e.preventDefault();
     if (submitting) return;
 
     setStatus(null);
     if (!validate()) return;
 
+    setConfirmOpen(true);
+  }
+
+  async function saveChanges() {
+    setConfirmOpen(false);
     setSubmitting(true);
 
     try {
@@ -163,7 +173,14 @@ function EditUserForm() {
 
   const locked = !selectedUser;
 
+  /* A blank password means "keep the current one", so a reset is only worth
+     calling out when they actually typed a new one. */
+  const confirmDescription = user.password
+    ? `Changes to “${user.username}” will be saved, including a new password.`
+    : `Changes to “${user.username}” will be saved. Their password stays the same.`;
+
   return (
+    <>
     <section className="rd-panel p-6">
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           <div>
@@ -310,6 +327,16 @@ function EditUserForm() {
           </div>
         </form>
     </section>
+
+    <ConfirmDialog
+      open={confirmOpen}
+      title="Save changes?"
+      description={confirmDescription}
+      confirmLabel="Save changes"
+      onConfirm={saveChanges}
+      onCancel={() => setConfirmOpen(false)}
+    />
+    </>
   );
 }
 

@@ -2,6 +2,8 @@
 
 import { useState, useSyncExternalStore } from "react";
 
+import ConfirmDialog from "@/components/ConfirmDialog";
+
 const ROLES = [
   { value: "Administrator", label: "Administrator" },
   { value: "Receptionist", label: "Receptionist" },
@@ -70,6 +72,7 @@ export default function AddUsers() {
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -113,13 +116,20 @@ export default function AddUsers() {
     return Object.keys(found).length === 0;
   }
 
-  async function handleSubmit(e) {
+  /* Validation runs before the dialog, not after: asking "are you sure?" about a
+     form that's about to fail its own checks wastes a click. */
+  function handleSubmit(e) {
     e.preventDefault();
     if (submitting) return;
 
     setStatus(null);
     if (!validate()) return;
 
+    setConfirmOpen(true);
+  }
+
+  async function addUser() {
+    setConfirmOpen(false);
     setSubmitting(true);
 
     try {
@@ -147,6 +157,10 @@ export default function AddUsers() {
       setSubmitting(false);
     }
   }
+
+  /* "Pathologist" is stored but shown as "Physician", so the dialog has to echo
+     the label the user actually picked. */
+  const roleLabel = ROLES.find((entry) => entry.value === user.role)?.label ?? user.role;
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
@@ -282,6 +296,15 @@ export default function AddUsers() {
           </div>
         </form>
       </section>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Add this user?"
+        description={`“${user.username}” will be created with the ${roleLabel} role and can sign in immediately.`}
+        confirmLabel="Add user"
+        onConfirm={addUser}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   );
 }
