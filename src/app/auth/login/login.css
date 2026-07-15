@@ -1,35 +1,7 @@
+/* Palette tokens live in globals.css so the dashboard shares them. Only what's
+   specific to this page is declared here. */
 .rd-page {
-  --rd-cyan: #22d3ee;
-  --rd-cyan-deep: #0e9fb8;
-  --rd-cyan-soft: #67e8f9;
-
-  --rd-canvas: #05080f;
-  --rd-card: rgba(13, 21, 38, 0.82);
-  --rd-field: rgba(30, 41, 59, 0.55);
-  --rd-field-focus: rgba(30, 41, 59, 0.78);
-  --rd-hair: rgba(148, 163, 184, 0.14);
-  --rd-text: #f1f5f9;
-  --rd-title: #ffffff;
-  --rd-label: #cbd5e1;
-  --rd-muted: #93a4bb;
-  --rd-placeholder: #6d7f96;
-
-  --rd-card-shadow: 0 50px 90px -34px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  --rd-toggle-bg: rgba(15, 23, 42, 0.6);
-  --rd-toggle-border: rgba(148, 163, 184, 0.22);
-
   --rd-noise-opacity: 0.04;
-  --rd-orb-1: rgba(42, 138, 162, 0.28);
-  --rd-orb-2: rgba(62, 100, 158, 0.24);
-  --rd-orb-3: rgba(104, 90, 158, 0.2);
-  --rd-orb-opacity: 0.5;
-
-  --rd-bg-1: rgba(42, 138, 162, 0.11);
-  --rd-bg-2: rgba(62, 100, 158, 0.12);
-  --rd-bg-3: rgba(104, 90, 158, 0.08);
-  --rd-bg-base-a: #080d18;
-  --rd-bg-base-b: #060a12;
-  --rd-bg-base-c: #05080f;
 
   --rd-brand-grad: linear-gradient(
     155deg,
@@ -55,38 +27,8 @@
   transition: background-color 400ms ease, color 400ms ease;
 }
 
-.rd-page[data-theme="light"] {
-  --rd-cyan: #0e9fb8;
-  --rd-cyan-deep: #0b7f95;
-  --rd-cyan-soft: #22b8e6;
-
-  --rd-canvas: #eef3fb;
-  --rd-card: rgba(255, 255, 255, 0.86);
-  --rd-field: rgba(255, 255, 255, 0.72);
-  --rd-field-focus: #ffffff;
-  --rd-hair: rgba(15, 45, 85, 0.12);
-  --rd-text: #17324a;
-  --rd-title: #0b2137;
-  --rd-label: #3d5266;
-  --rd-muted: #5c7189;
-  --rd-placeholder: #9aa9bd;
-
-  --rd-card-shadow: 0 44px 80px -40px rgba(23, 60, 110, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  --rd-toggle-bg: rgba(255, 255, 255, 0.8);
-  --rd-toggle-border: rgba(15, 45, 85, 0.14);
-
+html[data-theme="light"] .rd-page {
   --rd-noise-opacity: 0.02;
-  --rd-orb-1: rgba(56, 189, 248, 0.5);
-  --rd-orb-2: rgba(96, 165, 250, 0.42);
-  --rd-orb-3: rgba(167, 139, 250, 0.4);
-  --rd-orb-opacity: 0.6;
-
-  --rd-bg-1: rgba(56, 189, 248, 0.28);
-  --rd-bg-2: rgba(59, 130, 246, 0.2);
-  --rd-bg-3: rgba(167, 139, 250, 0.18);
-  --rd-bg-base-a: #f5f9fe;
-  --rd-bg-base-b: #e9f1fb;
-  --rd-bg-base-c: #e2ecf8;
 
   --rd-brand-grad: linear-gradient(
     155deg,
@@ -122,7 +64,7 @@
   animation: rd-dna-in 600ms cubic-bezier(0.22, 0.68, 0.24, 1) backwards;
 }
 
-.rd-page[data-theme="light"] .rd-dnafield {
+html[data-theme="light"] .rd-dnafield {
   --rd-dna-opacity: 0.82;
 }
 
@@ -131,63 +73,13 @@
   to   { opacity: var(--rd-dna-opacity); }
 }
 
+/* The toggle itself is shared (globals.css). Login is the only place it floats
+   over the page rather than sitting in chrome. */
 .rd-theme {
   position: fixed;
   top: 22px;
   right: 22px;
   z-index: 6;
-  width: 68px;
-  height: 34px;
-  padding: 0;
-  border-radius: 999px;
-  border: 1px solid var(--rd-toggle-border);
-  background: var(--rd-toggle-bg);
-  backdrop-filter: blur(10px);
-  cursor: pointer;
-  box-shadow: 0 10px 28px -14px rgba(0, 0, 0, 0.55);
-  transition: background 300ms ease, border-color 300ms ease;
-}
-
-.rd-theme:focus-visible {
-  outline: 2px solid var(--rd-cyan);
-  outline-offset: 3px;
-}
-
-.rd-theme-i {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--rd-muted);
-  pointer-events: none;
-  transition: opacity 220ms ease;
-}
-.rd-theme-sun { left: 10px; }
-.rd-theme-moon { right: 10px; }
-
-.rd-page[data-theme="light"] .rd-theme-sun { opacity: 0; }
-.rd-page[data-theme="dark"] .rd-theme-moon { opacity: 0; }
-
-.rd-theme-knob {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  color: #04222c;
-  background: linear-gradient(180deg, #22d3ee, #0e9fb8);
-  box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.35);
-  transition: transform 280ms cubic-bezier(0.34, 1.26, 0.58, 1), background 300ms ease;
-}
-
-.rd-page[data-theme="dark"] .rd-theme-knob { transform: translateX(34px); }
-
-.rd-page[data-theme="light"] .rd-theme-knob {
-  transform: translateX(0);
-  color: #0b2137;
-  background: linear-gradient(180deg, #ffffff, #dbeafe);
 }
 
 .rd-shell {
@@ -373,34 +265,7 @@
   gap: 18px;
 }
 
-.rd-label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--rd-label);
-}
-
-.rd-input {
-  width: 100%;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid var(--rd-hair);
-  background: var(--rd-field);
-  color: var(--rd-text);
-  font-size: 15px;
-  font-family: inherit;
-  outline: none;
-  transition: border-color 160ms, box-shadow 160ms, background 160ms, color 300ms;
-}
-
-.rd-input::placeholder { color: var(--rd-placeholder); }
-
-.rd-input:focus {
-  border-color: rgba(34, 211, 238, 0.7);
-  background: var(--rd-field-focus);
-  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.14);
-}
+/* .rd-label and .rd-input are shared (globals.css). */
 
 .rd-pw { position: relative; }
 .rd-pw .rd-input { padding-right: 52px; }
@@ -469,26 +334,7 @@
   outline-offset: 3px;
 }
 
-.rd-status {
-  margin: 0;
-  padding: 11px 14px;
-  border-radius: 12px;
-  border: 1px solid transparent;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.rd-status--success {
-  border-color: rgba(34, 211, 238, 0.28);
-  background: rgba(34, 211, 238, 0.1);
-  color: #a5f3fc;
-}
-
-.rd-status--error {
-  border-color: rgba(248, 113, 113, 0.36);
-  background: rgba(248, 113, 113, 0.12);
-  color: #fecaca;
-}
+/* .rd-status and its tones are shared (globals.css). */
 
 .rd-submit {
   width: 100%;
@@ -684,22 +530,3 @@
   }
 }
 
-.rd-page[data-theme="light"] .rd-status--success {
-  border-color: rgba(14, 159, 184, 0.32);
-  background: rgba(34, 211, 238, 0.12);
-  color: #0b6577;
-}
-
-.rd-page[data-theme="light"] .rd-status--error {
-  border-color: rgba(220, 38, 38, 0.3);
-  background: rgba(248, 113, 113, 0.14);
-  color: #b42318;
-}
-
-.rd-page[data-theme="light"] .rd-input:-webkit-autofill,
-.rd-page[data-theme="light"] .rd-input:-webkit-autofill:hover,
-.rd-page[data-theme="light"] .rd-input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
-  box-shadow: 0 0 0 1000px #ffffff inset !important;
-  -webkit-text-fill-color: #17324a !important;
-}

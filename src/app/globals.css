@@ -1,74 +1,474 @@
 @import "tailwindcss";
 
-@layer base {
-	input,
-	textarea,
-	select {
-		background-color: rgba(15, 23, 42, 0.5);
-		color: #ffffff;
-		font-weight: 600;
-	}
 
-	input:focus,
-	textarea:focus,
-	select:focus {
-		background-color: rgba(15, 23, 42, 0.5);
-		box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.12);
-	}
+:root {
+  --rd-cyan: #22d3ee;
+  --rd-cyan-strong: #67e8f9;
+  --rd-on-cyan: #04222c;
 
-	
-	input:-webkit-autofill,
-	input:-webkit-autofill:hover,
-	input:-webkit-autofill:focus,
-	textarea:-webkit-autofill,
-	textarea:-webkit-autofill:hover,
-	textarea:-webkit-autofill:focus,
-	select:-webkit-autofill,
-	select:-webkit-autofill:hover,
-	select:-webkit-autofill:focus,
-	input::-webkit-autofill,
-	textarea::-webkit-autofill,
-	select::-webkit-autofill {
-		-webkit-box-shadow: 0 0 0 1000px rgba(15, 23, 42, 0.5) inset !important;
-		box-shadow: 0 0 0 1000px rgba(15, 23, 42, 0.5) inset !important;
-		-webkit-text-fill-color: #ffffff !important;
-		transition: background-color 5000s ease-in-out 0s !important;
-	}
+  --rd-canvas: #05080f;
+  --rd-card: rgba(13, 21, 38, 0.82);
+  --rd-sunken: rgba(6, 11, 22, 0.6);
+  --rd-raised: rgba(30, 41, 59, 0.5);
+  --rd-field: rgba(30, 41, 59, 0.55);
+  --rd-field-focus: rgba(30, 41, 59, 0.78);
+ 
+  --rd-popover: #101a2c;
+  --rd-hair: rgba(148, 163, 184, 0.14);
+  --rd-hair-strong: rgba(148, 163, 184, 0.24);
 
-	
-	select {
-		-webkit-appearance: none;
-		-moz-appearance: none;
-		appearance: none;
-		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-		background-repeat: no-repeat;
-		background-position: right 0.75rem center;
-		background-size: 1rem;
-		padding-right: 2.5rem;
-	}
+  --rd-text: #f1f5f9;
+  --rd-title: #ffffff;
+  --rd-label: #cbd5e1;
+  --rd-muted: #93a4bb;
+  --rd-placeholder: #6d7f96;
 
-	
-	input[type="date"] {
-		padding-right: 2.5rem;
-		position: relative;
-		-webkit-appearance: none;
-		-moz-appearance: textfield;
-		appearance: none;
-		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
-		background-repeat: no-repeat;
-		background-position: right 0.75rem center;
-		background-size: 1.2rem;
-	}
+  --rd-danger: #fecaca;
+  --rd-danger-edge: rgba(248, 113, 113, 0.36);
+  --rd-danger-bg: rgba(248, 113, 113, 0.12);
+  --rd-danger-line: #f87171;
+  --rd-ok: #a5f3fc;
+  --rd-ok-edge: rgba(34, 211, 238, 0.28);
+  --rd-ok-bg: rgba(34, 211, 238, 0.1);
 
-	input[type="date"]::-webkit-calendar-picker-indicator {
-		opacity: 0;
-		position: absolute;
-		top: 0;
-		right: 0;
-		width: 100%;
-		height: 100%;
-		cursor: pointer;
-	}
+  --rd-card-shadow: 0 50px 90px -34px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --rd-lift: 0 24px 48px -28px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --rd-toggle-bg: rgba(15, 23, 42, 0.6);
+  --rd-toggle-border: rgba(148, 163, 184, 0.22);
+
+  --rd-blur: 20px;
+  --rd-accent-grad: linear-gradient(180deg, #3ddced 0%, #16b6d4 100%);
 }
 
- 
+:root[data-theme="light"] {
+  --rd-cyan: #0e9fb8;
+  --rd-cyan-strong: #0b7f95;
+  --rd-on-cyan: #ffffff;
+
+  --rd-canvas: #eef3fb;
+  --rd-card: rgba(255, 255, 255, 0.86);
+  --rd-sunken: rgba(226, 236, 248, 0.72);
+  --rd-raised: rgba(255, 255, 255, 0.66);
+  --rd-field: rgba(255, 255, 255, 0.72);
+  --rd-field-focus: #ffffff;
+  --rd-popover: #ffffff;
+  --rd-hair: rgba(15, 45, 85, 0.12);
+  --rd-hair-strong: rgba(15, 45, 85, 0.2);
+
+  --rd-text: #17324a;
+  --rd-title: #0b2137;
+  --rd-label: #3d5266;
+  --rd-muted: #5c7189;
+  --rd-placeholder: #9aa9bd;
+
+  --rd-danger: #b42318;
+  --rd-danger-edge: rgba(220, 38, 38, 0.3);
+  --rd-danger-bg: rgba(248, 113, 113, 0.14);
+  --rd-danger-line: #dc2626;
+  --rd-ok: #0b6577;
+  --rd-ok-edge: rgba(14, 159, 184, 0.32);
+  --rd-ok-bg: rgba(34, 211, 238, 0.12);
+
+  --rd-card-shadow: 0 44px 80px -40px rgba(23, 60, 110, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --rd-lift: 0 20px 40px -30px rgba(23, 60, 110, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --rd-toggle-bg: rgba(255, 255, 255, 0.8);
+  --rd-toggle-border: rgba(15, 45, 85, 0.14);
+}
+
+/* `inline` matters: it compiles utilities down to var(--rd-*) rather than
+   freezing the value, so bg-rd-card re-resolves when the theme flips instead of
+   staying stuck on whichever palette was current at build time. */
+@theme inline {
+  --color-rd-canvas: var(--rd-canvas);
+  --color-rd-card: var(--rd-card);
+  --color-rd-sunken: var(--rd-sunken);
+  --color-rd-raised: var(--rd-raised);
+  --color-rd-field: var(--rd-field);
+  --color-rd-hair: var(--rd-hair);
+  --color-rd-hair-strong: var(--rd-hair-strong);
+  --color-rd-text: var(--rd-text);
+  --color-rd-title: var(--rd-title);
+  --color-rd-label: var(--rd-label);
+  --color-rd-muted: var(--rd-muted);
+  --color-rd-placeholder: var(--rd-placeholder);
+  --color-rd-cyan: var(--rd-cyan);
+  --color-rd-cyan-strong: var(--rd-cyan-strong);
+  --color-rd-on-cyan: var(--rd-on-cyan);
+  --color-rd-danger: var(--rd-danger);
+  --color-rd-danger-edge: var(--rd-danger-edge);
+  --color-rd-danger-bg: var(--rd-danger-bg);
+  --color-rd-danger-line: var(--rd-danger-line);
+  --color-rd-ok: var(--rd-ok);
+  --color-rd-ok-edge: var(--rd-ok-edge);
+  --color-rd-ok-bg: var(--rd-ok-bg);
+}
+
+@layer base {
+  html {
+    background-color: var(--rd-canvas);
+    color-scheme: dark;
+  }
+
+  html[data-theme="light"] {
+    color-scheme: light;
+  }
+
+  input,
+  textarea,
+  select {
+    background-color: var(--rd-field);
+    color: var(--rd-text);
+    font-weight: 600;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--rd-placeholder);
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    background-color: var(--rd-field-focus);
+    box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.14);
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--rd-field-focus) inset !important;
+    box-shadow: 0 0 0 1000px var(--rd-field-focus) inset !important;
+    -webkit-text-fill-color: var(--rd-text) !important;
+    transition: background-color 5000s ease-in-out 0s !important;
+  }
+
+  /* A data URI can't read a CSS variable, so the stroke colour is baked into
+     the URL and the whole declaration is restated per theme. */
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    padding-right: 2.5rem;
+  }
+
+  html[data-theme="light"] select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235c7189' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  }
+
+  input[type="date"] {
+    padding-right: 2.5rem;
+    position: relative;
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.2rem;
+  }
+
+  html[data-theme="light"] input[type="date"] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235c7189' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+}
+
+@layer components {
+  .rd-panel {
+    border: 1px solid var(--rd-hair);
+    border-radius: 20px;
+    background: var(--rd-card);
+    backdrop-filter: blur(var(--rd-blur));
+    box-shadow: var(--rd-lift);
+  }
+
+  .rd-focus:focus-visible {
+    outline: 2px solid var(--rd-cyan);
+    outline-offset: 2px;
+  }
+
+  /* Fields and buttons are shared with the login so a form looks the same on
+     both sides of sign-in. Login only adds what's specific to it. */
+  .rd-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--rd-label);
+  }
+
+  /* background-color, never the `background` shorthand: the shorthand resets
+     background-image, and this class sits in a later layer than the base rule
+     that draws the chevron on a <select>. Using it would leave an appearance:none
+     select with no arrow at all. */
+  .rd-input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--rd-hair);
+    background-color: var(--rd-field);
+    color: var(--rd-text);
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 160ms ease-out, box-shadow 160ms ease-out,
+      background-color 160ms ease-out, color 300ms ease;
+  }
+
+  .rd-input::placeholder {
+    color: var(--rd-placeholder);
+  }
+
+  .rd-input:focus {
+    border-color: rgba(34, 211, 238, 0.7);
+    background-color: var(--rd-field-focus);
+    box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.14);
+  }
+
+  .rd-input:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  /* .rd-input's `padding` shorthand overrides the base rule that reserves room
+     for the chevron, so anything with a background icon has to claim it back. */
+  select.rd-input,
+  input[type="date"].rd-input {
+    padding-right: 2.5rem;
+  }
+
+  select.rd-input {
+    cursor: pointer;
+  }
+
+  /* The popup is drawn by the OS and inherits from the select, so it needs an
+     opaque background and a weight of its own — the 600 the field carries reads
+     heavy in a list. */
+  select.rd-input option {
+    background-color: var(--rd-popover);
+    color: var(--rd-text);
+    font-weight: 500;
+  }
+
+  /* Nothing chosen yet, so the visible text is a prompt, not a value. Driven by
+     the attribute rather than :invalid, which never fires here — these selects
+     validate in JS and carry no `required`. */
+  select.rd-input[data-empty="true"] {
+    color: var(--rd-placeholder);
+  }
+
+  .rd-input--error {
+    border-color: var(--rd-danger-line);
+  }
+
+  .rd-input--error:focus {
+    border-color: var(--rd-danger-line);
+    box-shadow: 0 0 0 4px var(--rd-danger-bg);
+  }
+
+  .rd-fieldset {
+    width: 100%;
+    border: 1px solid var(--rd-hair);
+    border-radius: 16px;
+    background: var(--rd-sunken);
+    padding: 16px;
+  }
+
+  @media (min-width: 640px) {
+    .rd-fieldset {
+      padding: 24px;
+    }
+  }
+
+  .rd-legend {
+    padding: 0 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--rd-cyan);
+  }
+
+  .rd-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 12px 22px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--rd-accent-grad);
+    color: #04222c;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 12px 30px -12px rgba(34, 211, 238, 0.7);
+  }
+
+  .rd-btn:hover:not(:disabled) {
+    filter: brightness(1.06);
+    box-shadow: 0 18px 38px -14px rgba(34, 211, 238, 0.85);
+  }
+
+  .rd-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .rd-btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 22px;
+    border: 1px solid var(--rd-hair-strong);
+    border-radius: 12px;
+    background: var(--rd-raised);
+    color: var(--rd-label);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  .rd-status {
+    margin: 0;
+    padding: 11px 14px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .rd-status--success {
+    border-color: var(--rd-ok-edge);
+    background: var(--rd-ok-bg);
+    color: var(--rd-ok);
+  }
+
+  .rd-status--error {
+    border-color: var(--rd-danger-edge);
+    background: var(--rd-danger-bg);
+    color: var(--rd-danger);
+  }
+
+  .rd-press {
+    transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms ease,
+      border-color 160ms ease, color 160ms ease, box-shadow 180ms ease, filter 160ms ease;
+  }
+
+  .rd-press:active {
+    transform: scale(0.97);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rd-press {
+      transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease,
+        box-shadow 180ms ease, filter 160ms ease;
+    }
+
+    .rd-press:active {
+      transform: none;
+    }
+  }
+
+  /* Shared by the login and the dashboard sidebar. Base sits in normal flow;
+     login pins it to the viewport itself. */
+  .rd-theme {
+    position: relative;
+    flex: none;
+    width: 68px;
+    height: 34px;
+    padding: 0;
+    border-radius: 999px;
+    border: 1px solid var(--rd-toggle-border);
+    background: var(--rd-toggle-bg);
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    box-shadow: 0 10px 28px -14px rgba(0, 0, 0, 0.55);
+    transition: background 300ms ease, border-color 300ms ease;
+  }
+
+  .rd-theme:focus-visible {
+    outline: 2px solid var(--rd-cyan);
+    outline-offset: 3px;
+  }
+
+  .rd-theme-i {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--rd-muted);
+    pointer-events: none;
+    transition: opacity 220ms ease;
+  }
+
+  .rd-theme-sun {
+    left: 10px;
+  }
+
+  .rd-theme-moon {
+    right: 10px;
+  }
+
+  html[data-theme="light"] .rd-theme-sun {
+    opacity: 0;
+  }
+
+  html[data-theme="dark"] .rd-theme-moon {
+    opacity: 0;
+  }
+
+  .rd-theme-knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    color: #04222c;
+    background: linear-gradient(180deg, #22d3ee, #0e9fb8);
+    box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.35);
+    transition: transform 280ms cubic-bezier(0.34, 1.26, 0.58, 1), background 300ms ease;
+  }
+
+  html[data-theme="dark"] .rd-theme-knob {
+    transform: translateX(34px);
+  }
+
+  html[data-theme="light"] .rd-theme-knob {
+    transform: translateX(0);
+    color: #0b2137;
+    background: linear-gradient(180deg, #ffffff, #dbeafe);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rd-theme-knob {
+      transition: background 300ms ease;
+    }
+  }
+}
