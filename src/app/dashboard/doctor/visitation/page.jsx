@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import Link from "next/link";
 export default function DoctorVisitationPage() {
 
     const [visitations, setVisitations] = useState([]);
@@ -105,11 +105,12 @@ export default function DoctorVisitationPage() {
 
                                 <td className="p-3">
 
-                                    <button
-                                        className="rounded-lg bg-cyan-600 px-4 py-2 text-sm text-white transition hover:bg-cyan-500"
-                                    >
-                                        Open
-                                    </button>
+                                <Link
+                                    href={`/dashboard/doctor/visitation/${visit.id}`}
+                                    className="rounded-lg bg-cyan-600 px-4 py-2 text-sm text-white hover:bg-cyan-500"
+                                >
+                                    Open
+                                </Link>
 
                                 </td>
 
