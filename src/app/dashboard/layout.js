@@ -271,7 +271,7 @@ export default function DashboardLayout({ children }) {
               </button>
             </div>
           </div>
-
+        
           <div className="hidden min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-4 pt-4 lg:flex">
             <SectionNav sections={sections} pathname={pathname} />
             <div className="mt-auto">
@@ -279,7 +279,18 @@ export default function DashboardLayout({ children }) {
             </div>
           </div>
         </aside>
-
+              {pathname.startsWith("/dashboard/doctor") && (
+                <Link
+                  href="/dashboard/doctor/visitation"
+                  className={`flex items-center rounded-xl border px-3 py-2 text-sm font-medium transition ${
+                    pathname === "/dashboard/doctor/visitation"
+                      ? "border-cyan-500 bg-cyan-500/10 text-cyan-300"
+                      : "border-slate-800 bg-slate-950/60 text-slate-300 hover:border-cyan-500 hover:text-white"
+                  }`}
+                >
+                  View Visitations
+                </Link>
+              )}
         {menuOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
             <div className="rd-scrim absolute inset-0 bg-black/50" onClick={closeMenu} aria-hidden="true" />
