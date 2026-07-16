@@ -11,7 +11,7 @@ export default function VisitationDetailsPage() {
 
     const [tests, setTests] = useState([]);
 
-        const [medtechs, setMedtechs] = useState([]);
+    const [medtechs, setMedtechs] = useState([]);
 
     useEffect(() => {
 
@@ -77,13 +77,27 @@ export default function VisitationDetailsPage() {
 
     }
 
-    async function handleSave() {
+async function handleSave() {
 
-        console.log(tests);
+    const response = await fetch("/api/doctor/assignMedTech", {
 
-        // POST to backend later
+        method: "POST",
 
-    }
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+body: JSON.stringify({
+    tests
+})
+
+    });
+
+    const result = await response.json();
+
+    alert(result.message);
+
+}
 
     if (!patient) {
 
