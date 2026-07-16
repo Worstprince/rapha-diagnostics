@@ -5,23 +5,25 @@ import Link from "next/link";
 export default function DoctorVisitationPage() {
 
     const [visitations, setVisitations] = useState([]);
-
+    const [search, setSearch] = useState("");
     useEffect(() => {
 
-        fetchVisitations();
+        fetchVisitations(search);
 
-    }, []);
+    }, [search]);
 
-    async function fetchVisitations() {
+    async function fetchVisitations(searchText = "") {
 
-        // Backend later
         try {
-            const response = await fetch("/api/doctor/visitationDisplay");
+            const response = await fetch(
+                `/api/doctor/visitationDisplay?search=${encodeURIComponent(searchText)}`
+            );
             const data = await response.json();
             setVisitations(data);
         } catch (error) {
             console.error(error);
         }
+
     }
 
     return (
@@ -51,6 +53,8 @@ export default function DoctorVisitationPage() {
                     <input
                         type="text"
                         placeholder="Search patient..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
                         className="rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-white outline-none"
                     />
 
