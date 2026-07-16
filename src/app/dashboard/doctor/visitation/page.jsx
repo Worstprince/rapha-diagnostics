@@ -106,7 +106,7 @@ export default function DoctorVisitationPage() {
                                 <td className="p-3">
 
                                 <Link
-                                    href={`/dashboard/doctor/visitation/${visit.id}`}
+                                    href={`/dashboard/doctor/visitation/${visit.visitid}`}
                                     className="rounded-lg bg-cyan-600 px-4 py-2 text-sm text-white hover:bg-cyan-500"
                                 >
                                     Open

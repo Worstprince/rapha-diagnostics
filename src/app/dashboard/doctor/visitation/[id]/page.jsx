@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 
 export default function VisitationDetailsPage() {
+
+    const { id } = useParams();
 
     const [patient, setPatient] = useState(null);
 
@@ -16,50 +19,45 @@ export default function VisitationDetailsPage() {
 
     useEffect(() => {
 
-        // Replace with backend fetch later
+        if (id) {
+            fetchVisitation();
+        }
 
-        setPatient({
-            id: 1,
-            name: "Juan Dela Cruz",
-            age: 24,
-            sex: "Male",
-            birthdate: "2002-01-05",
-            mobile: "09123456789",
-            address: "Kidapawan City",
-            visited_at: "2026-07-16",
-            priority: "High",
-            status: "Waiting"
-        });
+    }, [id]);
 
-        setTests([
-            {
-                id: 1,
-                test: "Complete Blood Count",
-                status: "Pending",
-                assignedTo: ""
-            },
-            {
-                id: 2,
-                test: "Urinalysis",
-                status: "Pending",
-                assignedTo: ""
-            },
-            {
-                id: 3,
-                test: "Blood Chemistry",
-                status: "Pending",
-                assignedTo: ""
+    async function fetchVisitation() {
+
+        try {
+
+            const response = await fetch(`/api/doctor/visitationDisplay/${id}`);
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                alert(result.message);
+                return;
             }
-        ]);
 
-    }, []);
+            setPatient(result.patient);
+            setTests(result.tests);
 
-    function assignMedtech(id, medtech) {
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
+    }
+
+    function assignMedtech(testId, medtechId) {
 
         setTests(prev =>
             prev.map(test =>
-                test.id === id
-                    ? { ...test, assignedTo: medtech }
+                test.id === testId
+                    ? {
+                        ...test,
+                        medtechid: medtechId
+                    }
                     : test
             )
         );
@@ -70,11 +68,19 @@ export default function VisitationDetailsPage() {
 
         console.log(tests);
 
-        // POST assignment to backend later
+        // POST to backend later
 
     }
 
-    if (!patient) return null;
+    if (!patient) {
+
+        return (
+            <div className="p-6 text-white">
+                Loading...
+            </div>
+        );
+
+    }
 
     return (
 
@@ -86,7 +92,7 @@ export default function VisitationDetailsPage() {
                     Patient Laboratory Request
                 </h1>
 
-                <p className="text-slate-400 mt-2">
+                <p className="mt-2 text-slate-400">
                     Review patient information and assign laboratory tests.
                 </p>
 
@@ -110,7 +116,7 @@ export default function VisitationDetailsPage() {
 
                         <p><strong>Birthdate:</strong> {patient.birthdate}</p>
 
-                        <p><strong>Mobile:</strong> {patient.mobile}</p>
+                        <p><strong>Mobile:</strong> {patient.mobileNum}</p>
 
                         <p><strong>Address:</strong> {patient.address}</p>
 
@@ -162,7 +168,7 @@ export default function VisitationDetailsPage() {
                                 >
 
                                     <td className="p-3 text-white">
-                                        {test.test}
+                                        {test.name}
                                     </td>
 
                                     <td className="p-3 text-yellow-300">
@@ -172,7 +178,7 @@ export default function VisitationDetailsPage() {
                                     <td className="p-3">
 
                                         <select
-                                            value={test.assignedTo}
+                                            value={test.medtechid ?? ""}
                                             onChange={(e) =>
                                                 assignMedtech(test.id, e.target.value)
                                             }
