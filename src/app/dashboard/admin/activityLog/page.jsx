@@ -37,7 +37,7 @@ export default function ActivityLogPage() {
         </p>
       </header>
 
-      <section className="rd-panel p-6 overflow-y-auto max-h-[70vh] activity-log-scroll">
+      <section className="rd-panel p-6 overflow-y-auto max-h-[70vh] rd-scroll-thin">
         {loading && <p className="py-10 text-center text-sm text-rd-muted">Loading activity…</p>}
 
         {!loading && logs.length === 0 && (
@@ -68,30 +68,6 @@ export default function ActivityLogPage() {
           ))}
         </ol>
       </section>
-      <style jsx>{`
-        .activity-log-scroll {
-          scrollbar-width: thin;
-          scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
-        }
-
-        .activity-log-scroll::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-
-        .activity-log-scroll::-webkit-scrollbar-track {
-          background: transparent;
-        }
-
-        .activity-log-scroll::-webkit-scrollbar-thumb {
-          background: rgba(148, 163, 184, 0.35);
-          border-radius: 9999px;
-        }
-
-        .activity-log-scroll::-webkit-scrollbar-thumb:hover {
-          background: rgba(148, 163, 184, 0.55);
-        }
-      `}</style>
     </div>
   );
 }

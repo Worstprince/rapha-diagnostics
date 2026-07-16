@@ -1,8 +1,6 @@
 import "./globals.css";
 
-// Runs before first paint, so the stored theme is on <html> by the time anything
-// renders. Doing this in React instead would paint dark, hydrate, then correct —
-// a visible flash on every load for anyone using light.
+
 const THEME_BOOTSTRAP = `
 (function () {
   try {
