@@ -11,17 +11,14 @@ export default function VisitationDetailsPage() {
 
     const [tests, setTests] = useState([]);
 
-    const medtechs = [
-        "John Smith",
-        "Jane Cruz",
-        "Michael Reyes"
-    ];
+        const [medtechs, setMedtechs] = useState([]);
 
     useEffect(() => {
 
-        if (id) {
-            fetchVisitation();
-        }
+        if (!id) return;
+
+        fetchVisitation();
+        fetchMedtechs();
 
     }, [id]);
 
@@ -40,6 +37,22 @@ export default function VisitationDetailsPage() {
 
             setPatient(result.patient);
             setTests(result.tests);
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
+    }
+
+    async function fetchMedtechs() {
+        try {
+            const response = await fetch("/api/medtech/display");
+
+            const data = await response.json();
+
+            setMedtechs(data);
 
         } catch (error) {
 
@@ -189,13 +202,13 @@ export default function VisitationDetailsPage() {
                                                 Select Medical Technologist
                                             </option>
 
-                                            {medtechs.map(name => (
+                                            {medtechs.map(medtech => (
 
                                                 <option
-                                                    key={name}
-                                                    value={name}
+                                                    key={medtech.id}
+                                                    value={medtech.id}
                                                 >
-                                                    {name}
+                                                    {medtech.username}
                                                 </option>
 
                                             ))}
