@@ -8,6 +8,7 @@ export async function GET() {
         SELECT
             pt.id,
             CONCAT(fname, ' ', lname) as patientname,
+            t.id,
             t.name,
             visited_at,
             pt.status
