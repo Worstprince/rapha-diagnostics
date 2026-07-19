@@ -9,8 +9,7 @@ export async function POST(request) {
             `
             UPDATE tblpatienttests
             SET
-                medtechid = ?,
-                status = 'Assigned'
+                medtechid = ?
             WHERE id = ?
             `,
             [
