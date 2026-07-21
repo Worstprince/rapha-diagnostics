@@ -1,46 +1,71 @@
 import db from "@/lib/db";
-
 import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
 
-    const { id } = await params;
+    try {
 
-    const [rows] = await db.query(
+        const { id } = await params;
 
-        `
-        SELECT
+        const [rows] = await db.query(
+            `
+            SELECT
+                pt.id,
+                pt.testid,
+                pt.visitid,
+                pt.status,
+                pt.medtechid,
 
-            pt.id,
+                p.id AS patientid,
+                CONCAT(p.fname,' ',p.lname) AS patientname,
+                p.birthdate,
+                TIMESTAMPDIFF(YEAR,p.birthdate,CURDATE()) AS age,
+                p.sex,
+                p.address
 
-            pt.testid,
+            FROM tblpatienttests pt
 
-            pt.status,
+            INNER JOIN tblpatientvisitation v
+                ON pt.visitid = v.id
 
-            pt.medtechid,
+            INNER JOIN tblpatients p
+                ON v.patientid = p.id
 
-            tt.name,
+            WHERE pt.id = ?
+            `,
+            [id]
+        );
 
-            CONCAT(p.fname,' ',p.lname) AS patient
+        if (rows.length === 0) {
 
-        FROM tblpatienttests pt
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Test not found."
+                },
+                {
+                    status: 404
+                }
+            );
 
-        INNER JOIN tbltests tt
-        ON tt.id = pt.testid
+        }
 
-        INNER JOIN tblpatientvisitation v
-        ON v.id = pt.visitid
+        return NextResponse.json(rows[0]);
 
-        INNER JOIN tblpatients p
-        ON p.id = v.patientid
+    } catch (error) {
 
-        WHERE pt.id = ?
+        console.error(error);
 
-        `,
-        [id]
+        return NextResponse.json(
+            {
+                success: false,
+                message: error.message
+            },
+            {
+                status: 500
+            }
+        );
 
-    );
-
-    return NextResponse.json(rows[0]);
+    }
 
 }

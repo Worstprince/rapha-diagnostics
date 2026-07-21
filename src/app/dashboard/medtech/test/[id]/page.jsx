@@ -6,19 +6,32 @@ import { useParams } from "next/navigation";
 
 import bloodtypeform from "@/components/labforms/bloodtypeform";
 import chemistryform from "@/components/labforms/chemistryform";
+import hematology from "@/components/labforms/hematology";
 
 const forms = {
 
     1: bloodtypeform,
 
-    2: chemistryform
+    2: chemistryform,
+
+    3: hematology
 
 };
+
+async function handleSubmit(result) {
+
+    console.log({
+        patient,
+        test,
+        result
+    });
+}
 
 export default function TestPage() {
 
     const { id } = useParams();
 
+    const [patient, setPatient] = useState(null);
     const [test, setTest] = useState(null);
 
     useEffect(() => {
@@ -35,13 +48,27 @@ export default function TestPage() {
 
         const response = await fetch(`/api/medtech/test/${id}`);
 
-        const data = await response.json();
+        const result = await response.json();
 
-        setTest(data);
+        setPatient({
+            patientid: result.patientid,
+            name: result.patientname,
+            birthdate: result.birthdate,
+            age: result.age,
+            sex: result.sex,
+            address: result.address
+        });
 
+        setTest({
+            id: result.id,
+            testid: result.testid,
+            visitid: result.visitid,
+            status: result.status,
+            medtechid: result.medtechid
+        });
     }
 
-    if (!test) {
+    if (!test || !patient) {
 
         return <p>Loading...</p>;
 
@@ -55,6 +82,12 @@ export default function TestPage() {
 
     }
 
-    return <FormComponent test={test} />;
+    return (
+    <FormComponent
+        patient={patient}
+        test={test}
+        onSubmit={handleSubmit}
+    />
+);
 
 }
