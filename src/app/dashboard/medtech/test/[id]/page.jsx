@@ -54,7 +54,7 @@ export default function TestPage() {
             } catch (error) {
                 console.error(error);
                 alert("Failed to save test result.");
-        }
+        } // BLOOD TYPE RESULT
     }
     useEffect(() => {
 

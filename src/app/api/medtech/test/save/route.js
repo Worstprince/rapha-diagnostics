@@ -8,7 +8,17 @@ export async function POST(request) {
     switch (testId) {
 
         case 1: // Blood Typing
-
+        if (!result.bloodType || !result.rhFactor) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Complete the Blood Typing result."
+                },
+                {
+                    status: 400
+                }
+            );
+        }
             await db.query(`
                 INSERT INTO test_bloodtyperesult
                 (
