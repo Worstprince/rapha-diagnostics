@@ -18,15 +18,6 @@ const forms = {
 
 };
 
-async function handleSubmit(result) {
-
-    console.log({
-        patient,
-        test,
-        result
-    });
-}
-
 export default function TestPage() {
 
     const { id } = useParams();
@@ -34,6 +25,37 @@ export default function TestPage() {
     const [patient, setPatient] = useState(null);
     const [test, setTest] = useState(null);
 
+    async function handleSubmit(result) {
+        try {
+        const response = await fetch("/api/medtech/test/save", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                patientId: patient.patientid,
+                testId: test.testid,
+                visitId: test.visitid,
+                result
+            })
+        });
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert(data.message);
+                    return;
+                }
+
+                alert("Test result saved successfully!");
+
+                // Optional:
+                // router.push("/dashboard/medtech/assignments");
+
+            } catch (error) {
+                console.error(error);
+                alert("Failed to save test result.");
+        }
+    }
     useEffect(() => {
 
         if (id) {
