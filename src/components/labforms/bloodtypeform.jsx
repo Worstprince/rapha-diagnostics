@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import LabReportHeader from "./labReportHeader";
 
 export default function BloodTypeForm({ patient, onSubmit }) {
 
@@ -34,55 +35,10 @@ export default function BloodTypeForm({ patient, onSubmit }) {
             onSubmit={handleSubmit}
             className="space-y-8 rounded-2xl border border-slate-800 bg-slate-900 p-8"
         >
-
-            <div className="text-center">
-
-                <h1 className="text-4xl font-bold tracking-wide">
-                    RAPHA DIAGNOSTIC LABORATORY
-                </h1>
-
-                <p className="italic">
-                    "Your Health, Our Priority"
-                </p>
-
-                <p>
-                    Esperanza Building, Quezon Boulevard, Kidapawan City
-                </p>
-
-                <h2 className="mt-6 text-3xl font-bold text-red-300">
-                    HEMATOLOGY
-                </h2>
-
-            </div>
-
-            <div className="grid grid-cols-2 gap-6 border p-4">
-
-                <div>
-                    <b>Name:</b> {patient.name}
-                </div>
-
-                <div>
-                    <b>Age:</b> {patient.age}
-                </div>
-
-                <div>
-                    <b>Address:</b> {patient.address}
-                </div>
-
-                <div>
-                    <b>Sex:</b> {patient.sex}
-                </div>
-
-                <div>
-                    <b>Date:</b> {patient.date}
-                </div>
-
-                <div>
-                    <b>Physician:</b> {patient.physician}
-                </div>
-
-            </div>
-
+            <LabReportHeader
+                patient={patient}
+                title="HEMATOLOGY"
+            />
             <table className="w-full border border-collapse text-center">
 
                 <thead>
