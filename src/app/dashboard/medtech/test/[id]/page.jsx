@@ -49,9 +49,6 @@ export default function TestPage() {
 
                 alert("Test result saved successfully!");
 
-                // Optional:
-                // router.push("/dashboard/medtech/assignments");
-
             } catch (error) {
                 console.error(error);
                 alert("Failed to save test result.");

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import LabReportHeader from "./labReportHeader";
 
-export default function HematologyResult() {
+export default function HematologyResult({ patient, onSubmit }) {
 
     const [result, setResult] = useState({
         hemoglobin: "",
@@ -31,19 +32,21 @@ export default function HematologyResult() {
     });
 
     function handleChange(e) {
+
         const { name, value } = e.target;
 
         setResult(prev => ({
             ...prev,
             [name]: value
         }));
+
     }
 
-    async function handleSave() {
+    function handleSubmit(e) {
 
-        console.log(result);
+        e.preventDefault();
 
-        // save to backend later
+        onSubmit(result);
 
     }
 
@@ -51,85 +54,10 @@ export default function HematologyResult() {
 
         <div className="space-y-6">
 
-            <div className="rounded-2xl border border-slate-700 bg-slate-900 p-6">
-
-                <h1 className="text-3xl font-bold text-center text-white">
-                    RAPHA DIAGNOSTIC LABORATORY
-                </h1>
-
-                <p className="text-center italic text-slate-400">
-                    "Your Health, Our Priority"
-                </p>
-
-                <p className="text-center text-slate-300">
-                    Esperanza Building, Quezon Boulevard, Kidapawan City
-                </p>
-
-                <h2 className="mt-6 text-center text-2xl font-bold text-red-300">
-                    HEMATOLOGY
-                </h2>
-
-            </div>
-
-            {/* Patient Information */}
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 rounded-xl border border-slate-700 bg-slate-900 p-4">
-
-                <div>
-                    <label>Name</label>
-                    <input
-                        value="Juan Dela Cruz"
-                        readOnly
-                        className="w-full rounded bg-slate-800 p-2 text-white"
-                    />
-                </div>
-
-                <div>
-                    <label>Age</label>
-                    <input
-                        value="20"
-                        readOnly
-                        className="w-full rounded bg-slate-800 p-2 text-white"
-                    />
-                </div>
-
-                <div>
-                    <label>Date</label>
-                    <input
-                        value="2026-07-20"
-                        readOnly
-                        className="w-full rounded bg-slate-800 p-2 text-white"
-                    />
-                </div>
-
-                <div>
-                    <label>Sex</label>
-                    <input
-                        value="Male"
-                        readOnly
-                        className="w-full rounded bg-slate-800 p-2 text-white"
-                    />
-                </div>
-
-                <div className="md:col-span-3">
-                    <label>Address</label>
-                    <input
-                        value="Kidapawan City"
-                        readOnly
-                        className="w-full rounded bg-slate-800 p-2 text-white"
-                    />
-                </div>
-
-                <div>
-                    <label>Physician</label>
-                    <input
-                        value="Dr. Cruz"
-                        readOnly
-                        className="w-full rounded bg-slate-800 p-2 text-white"
-                    />
-                </div>
-
-            </div>
+            <LabReportHeader
+                patient={patient}
+                title="HEMATOLOGY"
+            />
 
             {/* Results */}
 
@@ -313,7 +241,7 @@ export default function HematologyResult() {
             <div className="flex justify-end">
 
                 <button
-                    onClick={handleSave}
+                    onClick={handleSubmit}
                     className="rounded-lg bg-cyan-600 px-6 py-3 text-white hover:bg-cyan-500"
                 >
                     Save Result

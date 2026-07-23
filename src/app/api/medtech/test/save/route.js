@@ -53,9 +53,68 @@ const {
 
             break;
 
-        case 3: // Hematology
+        case 6: // Hematology
 
-            await db.query();
+            await db.query(
+    `
+    INSERT INTO test_hematologyresult
+    (
+        hemoglobinMass,
+        rbcNumConcentration,
+        wbcNumConcentration,
+        bleedingTime,
+        clottingTime,
+        bloodGroup,
+        plateletCount,
+        hematoCrit,
+        bsmp,
+        segmenters,
+        band,
+        juvenile,
+        lymphocytes,
+        monocytes,
+        eosinophils,
+        basophils,
+        mcv,
+        mch,
+        mchc,
+        rdwCv,
+        date,
+        other,
+        visitid
+    )
+    VALUES
+    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), ?, ?)
+    `,
+    [
+        result.hemoglobin,
+        result.rbc,
+        result.wbc,
+        result.bleedingTime,
+        result.clottingTime,
+        result.bloodGroup,
+        result.platelet,
+        result.hematocrit,
+        result.bsmp,
+        result.segmenters,
+        result.band,
+        result.juvenile,
+        result.lymphocytes,
+        result.monocytes,
+        result.eosinophils,
+        result.basophils,
+        result.mcv,
+        result.mch,
+        result.mchc,
+        result.rdw,
+        result.others,
+        visitId
+    ]);
+        await db.query(`
+                UPDATE tblpatienttests
+                SET status = 'Done'
+                WHERE id = ?
+            `, [assignmentId]);
 
             break;
 
