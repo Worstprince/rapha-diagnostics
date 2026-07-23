@@ -14,7 +14,7 @@ const forms = {
 
     2: chemistryform,
 
-    3: hematology
+    6: hematology,
 
 };
 
@@ -34,6 +34,7 @@ export default function TestPage() {
             },
             body: JSON.stringify({
                 patientId: patient.patientid,
+                assignmentId: test.id, 
                 testId: test.testid,
                 visitId: test.visitid,
                 result

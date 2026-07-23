@@ -16,7 +16,7 @@ export default function MedTechAssignmentsPage() {
         const response = await fetch("/api/medtech/assignments");
 
         const result = await response.json();
-
+console.log(result);
         setTests(result);
 
     }
@@ -60,7 +60,7 @@ export default function MedTechAssignmentsPage() {
                         {tests.map(test => (
 
                             <tr
-                                key={test.id}
+                                key={test.assignmentid}
                                 className="border-b border-slate-800"
                             >
 
@@ -79,7 +79,7 @@ export default function MedTechAssignmentsPage() {
                                 <td className="p-3">
 
                                     <Link
-                                        href={`/dashboard/medtech/test/${test.id}`}
+                                        href={`/dashboard/medtech/test/${test.assignmentid}`}
                                         className="rounded-lg bg-cyan-600 px-4 py-2 text-white"
                                     >
                                         Open

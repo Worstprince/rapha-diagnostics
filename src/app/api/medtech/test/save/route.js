@@ -3,7 +3,13 @@ import { NextResponse } from "next/server";
 
 export async function POST(request) {
 
-    const { testId, visitId, result } = await request.json();
+const {
+    patientId,
+    assignmentId,
+    testId,
+    visitId,
+    result
+} = await request.json();
 
     switch (testId) {
 
@@ -32,6 +38,12 @@ export async function POST(request) {
                 result.bloodType,
                 result.rhFactor
             ]);
+
+            await db.query(`
+                UPDATE tblpatienttests
+                SET status = 'Done'
+                WHERE id = ?
+            `, [assignmentId]);
 
             break;
 

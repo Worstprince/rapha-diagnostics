@@ -6,16 +6,17 @@ export async function GET() {
     const [rows] = await db.query(
         `
         SELECT
-            pt.id,
+            pt.id as assignmentid,
             CONCAT(fname, ' ', lname) as patientname,
-            t.id,
+            t.id as testid,
             t.name,
             visited_at,
             pt.status
         FROM tblpatienttests pt
         INNER JOIN tblpatientvisitation pv ON pt.visitid = pv.id
         INNER JOIN tbltests t ON t.id = pt.testid
-        INNER JOIN tblpatients p ON p.id = pv.patientid;
+        INNER JOIN tblpatients p ON p.id = pv.patientid
+        WHERE pt.status = 'Pending';
         `
     );
 
