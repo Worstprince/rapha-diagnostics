@@ -7,12 +7,15 @@ import { useParams } from "next/navigation";
 import bloodtypeform from "@/components/labforms/bloodtypeform";
 import chemistryform from "@/components/labforms/chemistryform";
 import hematology from "@/components/labforms/hematology";
+import dengueform from "@/components/labforms/dengueform";
 
 const forms = {
 
     1: bloodtypeform,
 
     2: chemistryform,
+
+    3: dengueform,
 
     6: hematology,
 

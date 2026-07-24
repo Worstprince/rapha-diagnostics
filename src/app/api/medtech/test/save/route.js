@@ -103,6 +103,52 @@ const {
 
         break;
 
+        case 3: // Dengue
+
+            if (!result.ns1 || !result.igg || !result.igm) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        message: "Complete the Dengue result."
+                    },
+                    {
+                        status: 400
+                    }
+                );
+            }
+
+            await db.query(
+                `
+                INSERT INTO test_dengueresult
+                (
+                    ns1,
+                    igg,
+                    igm,
+                    date,
+                    visitid
+                )
+                VALUES
+                (?, ?, ?, CURDATE(), ?)
+                `,
+                [
+                    result.ns1,
+                    result.igg,
+                    result.igm,
+                    visitId
+                ]
+            );
+
+            await db.query(
+                `
+                UPDATE tblpatienttests
+                SET status = 'Done'
+                WHERE id = ?
+                `,
+                [assignmentId]
+            );
+
+            break;
+
         case 6: // Hematology
 
             await db.query(
