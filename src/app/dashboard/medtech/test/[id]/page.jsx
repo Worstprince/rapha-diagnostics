@@ -9,6 +9,7 @@ import chemistryform from "@/components/labforms/chemistryform";
 import hematology from "@/components/labforms/hematology";
 import dengueform from "@/components/labforms/dengueform";
 import fobtform from "@/components/labforms/fobtform";
+import hbsagform from "@/components/labforms/hbsagform";
 
 const forms = {
 
@@ -19,6 +20,8 @@ const forms = {
     3: dengueform,
 
     4: fobtform,
+
+    5:hbsagform,
 
     6: hematology,
 

@@ -191,6 +191,47 @@ const {
 
             break;
 
+        case 5: //hbsag
+            if (!result.hbsag) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        message: "Complete the HBSAG result."
+                    },
+                    {
+                        status: 400
+                    }
+                );
+            }
+
+            await db.query(
+                `
+                INSERT INTO test_hbsagresult
+                (
+                    hbsagResult,
+                    date,
+                    visitid
+                )
+                VALUES
+                (?, CURDATE(), ?)
+                `,
+                [
+                    result.hbsag,
+                    visitId
+                ]
+            );
+
+            await db.query(
+                `
+                UPDATE tblpatienttests
+                SET status = 'Done'
+                WHERE id = ?
+                `,
+                [assignmentId]
+            );
+
+            break;
+
         case 6: // Hematology
 
             await db.query(
