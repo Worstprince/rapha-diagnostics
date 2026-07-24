@@ -149,6 +149,48 @@ const {
 
             break;
 
+        case 4: // FOBT
+
+            if (!result.fobt) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        message: "Complete the FOBT result."
+                    },
+                    {
+                        status: 400
+                    }
+                );
+            }
+
+            await db.query(
+                `
+                INSERT INTO test_fobtresult
+                (
+                    fobtResult,
+                    date,
+                    visitid
+                )
+                VALUES
+                (?, CURDATE(), ?)
+                `,
+                [
+                    result.fobt,
+                    visitId
+                ]
+            );
+
+            await db.query(
+                `
+                UPDATE tblpatienttests
+                SET status = 'Done'
+                WHERE id = ?
+                `,
+                [assignmentId]
+            );
+
+            break;
+
         case 6: // Hematology
 
             await db.query(
