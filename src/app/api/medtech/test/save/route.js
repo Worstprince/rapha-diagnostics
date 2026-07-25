@@ -343,6 +343,50 @@ const {
             );
             await checkVisitComplete(visitId);
             break;
+  
+        case 8: // Pregnancy Test
+
+            if (!result.pregnancyResult) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        message: "Complete the Pregnancy Test result."
+                    },
+                    {
+                        status: 400
+                    }
+                );
+            }
+
+            await db.query(
+                `
+                INSERT INTO test_pregnancytestresult
+                (
+                    ptHCGSerum,
+                    date,
+                    visitid
+                )
+                VALUES
+                (?, CURDATE(), ?)
+                `,
+                [
+                    result.pregnancyResult,
+                    visitId
+                ]
+            );
+
+            await db.query(
+                `
+                UPDATE tblpatienttests
+                SET status = 'Done'
+                WHERE id = ?
+                `,
+                [assignmentId]
+            );
+
+            break;
+  
+  
         default:
 
             return NextResponse.json(
