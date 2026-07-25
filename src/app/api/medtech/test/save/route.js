@@ -1,6 +1,6 @@
 import db from "@/lib/db";
 import { NextResponse } from "next/server";
-
+import checkVisitComplete from "@/lib/checkVisitComplete";
 export async function POST(request) {
 
 const {
@@ -44,63 +44,63 @@ const {
                 SET status = 'Done'
                 WHERE id = ?
             `, [assignmentId]);
-
+            await checkVisitComplete(visitId);
             break;
 
         case 2: // Chemistry
 
-    await db.query(
-            `
-            INSERT INTO test_chemistryresult
-            (
-                glucose,
-                creatinine,
-                uricAcid,
-                totalCholesterol,
-                triglycerides,
-                hdlCholesterol,
-                ldlCholesterol,
-                sgot,
-                sgpt,
-                totalBilirubin,
-                directBilirubin,
-                indirectBilirubin,
-                hba1c,
-                bun,
-                date,
-                visitid
-            )
-            VALUES
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), ?)
-            `,
-            [
-                result.glucose,
-                result.creatinine,
-                result.uricAcid,
-                result.totalCholesterol,
-                result.triglycerides,
-                result.hdlCholesterol,
-                result.ldlCholesterol,
-                result.sgot,
-                result.sgpt,
-                result.totalBilirubin,
-                result.directBilirubin,
-                result.indirectBilirubin,
-                result.hba1c,
-                result.bun,
-                visitId
-            ]
-        );
+            await db.query(
+                    `
+                    INSERT INTO test_chemistryresult
+                    (
+                        glucose,
+                        creatinine,
+                        uricAcid,
+                        totalCholesterol,
+                        triglycerides,
+                        hdlCholesterol,
+                        ldlCholesterol,
+                        sgot,
+                        sgpt,
+                        totalBilirubin,
+                        directBilirubin,
+                        indirectBilirubin,
+                        hba1c,
+                        bun,
+                        date,
+                        visitid
+                    )
+                    VALUES
+                    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), ?)
+                    `,
+                    [
+                        result.glucose,
+                        result.creatinine,
+                        result.uricAcid,
+                        result.totalCholesterol,
+                        result.triglycerides,
+                        result.hdlCholesterol,
+                        result.ldlCholesterol,
+                        result.sgot,
+                        result.sgpt,
+                        result.totalBilirubin,
+                        result.directBilirubin,
+                        result.indirectBilirubin,
+                        result.hba1c,
+                        result.bun,
+                        visitId
+                    ]
+                );
 
-        await db.query(
-            `
-            UPDATE tblpatienttests
-            SET status = 'Done'
-            WHERE id = ?
-            `,
-            [assignmentId]
-        );
-
+                await db.query(
+                    `
+                    UPDATE tblpatienttests
+                    SET status = 'Done'
+                    WHERE id = ?
+                    `,
+                    [assignmentId]
+                );
+                await checkVisitComplete(visitId);
         break;
 
         case 3: // Dengue
@@ -146,7 +146,7 @@ const {
                 `,
                 [assignmentId]
             );
-
+            await checkVisitComplete(visitId);
             break;
 
         case 4: // FOBT
@@ -188,7 +188,7 @@ const {
                 `,
                 [assignmentId]
             );
-
+            await checkVisitComplete(visitId);
             break;
 
         case 5: //hbsag
@@ -229,7 +229,7 @@ const {
                 `,
                 [assignmentId]
             );
-
+            await checkVisitComplete(visitId);
             break;
 
         case 6: // Hematology
