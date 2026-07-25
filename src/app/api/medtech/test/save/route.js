@@ -1,6 +1,8 @@
 import db from "@/lib/db";
 import { NextResponse } from "next/server";
 import checkVisitComplete from "@/lib/checkVisitComplete";
+
+
 export async function POST(request) {
 
 const {
@@ -297,6 +299,50 @@ const {
 
             break;
 
+        case 7: //ogtt 
+            if (!result.fbs || !result.firstHour || !result.secondHour) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        message: "Complete the OGTT test."
+                    },
+                    {
+                        status: 400
+                    }
+                );
+            }
+
+            await db.query(
+                `
+                INSERT INTO test_ogttresult
+                (
+                    fbs,
+                    firstHour,
+                    secondHour,
+                    date,
+                    visitid
+                )
+                VALUES
+                (?, ?, ?, CURDATE(), ?)
+                `,
+                [
+                    result.fbs,
+                    result.firstHour,
+                    result.secondHour,
+                    visitId
+                ]
+            );
+
+            await db.query(
+                `
+                UPDATE tblpatienttests
+                SET status = 'Done'
+                WHERE id = ?
+                `,
+                [assignmentId]
+            );
+            await checkVisitComplete(visitId);
+            break;
         default:
 
             return NextResponse.json(
