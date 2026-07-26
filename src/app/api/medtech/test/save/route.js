@@ -296,7 +296,8 @@ const {
                 SET status = 'Done'
                 WHERE id = ?
             `, [assignmentId]);
-
+            
+            await checkVisitComplete(visitId);
             break;
 
         case 7: //ogtt 
@@ -384,9 +385,10 @@ const {
                 [assignmentId]
             );
 
+            await checkVisitComplete(visitId);
             break;
 
-case 9: // Semen Analysis
+        case 9: // Semen Analysis
 
     await db.query(
         `
@@ -464,8 +466,59 @@ case 9: // Semen Analysis
         [assignmentId]
     );
 
+    await checkVisitComplete(visitId);
     break;
-        default:
+        
+    case 10: // Stool Exam
+
+    await db.query(
+        `
+        INSERT INTO test_stoolexamresult
+        (
+            color,
+            parasiticOva,
+            consistency,
+            pussCells,
+            bacteria,
+            rbc,
+            fatGlobules,
+            occultBlood,
+            others,
+            fecalysisNo,
+            date,
+            visitid
+        )
+        VALUES
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), ?)
+        `,
+        [
+            result.color,
+            result.parasiticOva,
+            result.consistency,
+            result.pussCells,
+            result.bacteria,
+            result.rbc,
+            result.fatGlobules,
+            result.occultBlood,
+            result.others,
+            result.fecalysisNo,
+            visitId
+        ]
+    );
+
+    await db.query(
+        `
+        UPDATE tblpatienttests
+        SET status = 'Done'
+        WHERE id = ?
+        `,
+        [assignmentId]
+    );
+
+        await checkVisitComplete(visitId);
+    break;
+    
+    default:
 
             return NextResponse.json(
                 { message: "Unknown test." },

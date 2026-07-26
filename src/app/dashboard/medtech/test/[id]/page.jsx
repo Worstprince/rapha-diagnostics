@@ -13,6 +13,7 @@ import hbsagform from "@/components/labforms/hbsagform";
 import ogttform from "@/components/labforms/ogttform";
 import pregnancyform from "@/components/labforms/pregnancyform";
 import semenalysisform from "@/components/labforms/semenalysisform";
+import stoolexam from "@/components/labforms/stoolexamform";
 
 const forms = {
 
@@ -32,7 +33,9 @@ const forms = {
 
     8: pregnancyform,
 
-    9: semenalysisform
+    9: semenalysisform,
+    
+    10: stoolexam
 
 };
 
