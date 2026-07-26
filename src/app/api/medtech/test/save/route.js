@@ -653,6 +653,7 @@ const {
         `,
         [assignmentId]
     );
+    await checkVisitComplete(visitId);
 
     break;
     
