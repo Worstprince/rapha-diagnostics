@@ -469,7 +469,7 @@ const {
     await checkVisitComplete(visitId);
     break;
         
-    case 10: // Stool Exam
+        case 10: // Stool Exam
 
     await db.query(
         `
@@ -518,6 +518,52 @@ const {
         await checkVisitComplete(visitId);
     break;
     
+        case 11: // Thyroid Panel
+
+    if (!result.tsh || !result.ft4) {
+        return NextResponse.json(
+            {
+                success: false,
+                message: "Complete the Thyroid Panel result."
+            },
+            {
+                status: 400
+            }
+        );
+    }
+
+    await db.query(
+        `
+        INSERT INTO test_thyroidexamresult
+        (
+            tsh,
+            ft4,
+            date,
+            visitid
+        )
+        VALUES
+        (?, ?, CURDATE(), ?)
+        `,
+        [
+            result.tsh,
+            result.ft4,
+            visitId
+        ]
+    );
+
+    await db.query(
+        `
+        UPDATE tblpatienttests
+        SET status = 'Done'
+        WHERE id = ?
+        `,
+        [assignmentId]
+    );
+    
+    await checkVisitComplete(visitId);
+    break;
+
+
     default:
 
             return NextResponse.json(
