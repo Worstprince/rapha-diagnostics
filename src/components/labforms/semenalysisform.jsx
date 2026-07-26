@@ -5,27 +5,30 @@ import LabReportHeader from "./labReportHeader";
 
 export default function SemenAnalysisForm({ patient, onSubmit }) {
 
-const [result, setResult] = useState({
+    const [result, setResult] = useState({
+        appearance: "",
+        volume: "",
+        ph: "",
+        viscosity: "",
+        others: "",
 
-    appearance: "",
-    volume: "",
-    ph: "",
-    viscosity: "",
-    others: "",
+        morphology: "",
+        motility: "",
+        wbc: "",
+        rbc: "",
 
-    morphology: "",
-    motility: "",
-    wbc: "",
-    rbc: "",
+        motility30min: "",
+        motility1hr: "",
+        motility2hr: "",
 
-    m30mins: "",
-    m1hr: "",
-    m2hr: "",
+        viability30min: "",
+        viability1hr: "",
+        viability2hr: "",
 
-    v30m: "",
-    v1hr: "",
-    v2hr: ""
-});
+        spermConcentration: "",
+        spermCount: ""
+    });
+
     function handleChange(e) {
 
         const { name, value } = e.target;
@@ -54,25 +57,27 @@ const [result, setResult] = useState({
 
             <LabReportHeader
                 patient={patient}
-                title="SEMENALYSIS"
+                title="SEMEN ANALYSIS"
             />
 
-            <table className="w-full border-collapse border text-center">
+            <table className="w-full border-collapse border border-white text-center">
 
                 <thead>
+
+                    {/* 5 COLUMNS ONLY */}
 
                     <tr>
 
                         <th
                             colSpan="3"
-                            className="border p-3 text-xl font-bold"
+                            className="border border-white p-2 text-lg"
                         >
                             MACROSCOPIC
                         </th>
 
                         <th
-                            colSpan="3"
-                            className="border p-3 text-xl font-bold"
+                            colSpan="2"
+                            className="border border-white p-2 text-lg"
                         >
                             MICROSCOPIC
                         </th>
@@ -81,28 +86,24 @@ const [result, setResult] = useState({
 
                     <tr>
 
-                        <th className="border p-2">
+                        <th className="border border-white p-2">
                             Examination
                         </th>
 
-                        <th className="border p-2">
+                        <th className="border border-white p-2">
                             Result
                         </th>
 
-                        <th className="border p-2">
-                            Normal Value
+                        <th className="border border-white p-2">
+                            NORMAL VALUE
                         </th>
 
-                        <th className="border p-2">
+                        <th className="border border-white p-2">
                             Examination
                         </th>
 
-                        <th className="border p-2">
+                        <th className="border border-white p-2">
                             Result
-                        </th>
-
-                        <th className="border p-2">
-                            Normal Value
                         </th>
 
                     </tr>
@@ -111,15 +112,18 @@ const [result, setResult] = useState({
 
                 <tbody>
 
+                    {/* APPEARANCE / MORPHOLOGY */}
+
                     <tr>
 
-                        <td className="border p-2">
-                            Appearance
+                        <td className="border border-white p-2 text-left">
+                            APPEARANCE
                         </td>
 
-                        <td className="border p-2">
+                        <td className="border border-white p-2">
 
                             <input
+                                type="text"
                                 name="appearance"
                                 value={result.appearance}
                                 onChange={handleChange}
@@ -128,17 +132,18 @@ const [result, setResult] = useState({
 
                         </td>
 
-                        <td className="border p-2">
-                            Cloudy White
+                        <td className="border border-white p-2">
+                            
                         </td>
 
-                        <td className="border p-2">
-                            Morphology
+                        <td className="border border-white p-2 text-left">
+                            MORPHOLOGY
                         </td>
 
-                        <td className="border p-2">
+                        <td className="border border-white p-2">
 
                             <input
+                                type="text"
                                 name="morphology"
                                 value={result.morphology}
                                 onChange={handleChange}
@@ -147,23 +152,20 @@ const [result, setResult] = useState({
 
                         </td>
 
-                        <td className="border p-2">
-                            94% normal looking sperm,
-                            4% small headed sperm and
-                            2% bent neck sperm
-                        </td>
-
                     </tr>
+
+                    {/* VOLUME / MOTILITY */}
 
                     <tr>
 
-                        <td className="border p-2">
-                            Volume
+                        <td className="border border-white p-2 text-left">
+                            VOLUME
                         </td>
 
-                        <td className="border p-2">
+                        <td className="border border-white p-2">
 
                             <input
+                                type="text"
                                 name="volume"
                                 value={result.volume}
                                 onChange={handleChange}
@@ -172,17 +174,18 @@ const [result, setResult] = useState({
 
                         </td>
 
-                        <td className="border p-2">
-                            2-5 mL
+                        <td className="border border-white p-2">
+                            2-5mL
                         </td>
 
-                        <td className="border p-2">
-                            Motility
+                        <td className="border border-white p-2 text-left">
+                            MOTILITY
                         </td>
 
-                        <td className="border p-2">
+                        <td className="border border-white p-2">
 
                             <input
+                                type="text"
                                 name="motility"
                                 value={result.motility}
                                 onChange={handleChange}
@@ -191,21 +194,20 @@ const [result, setResult] = useState({
 
                         </td>
 
-                        <td className="border p-2">
-                            3
-                        </td>
-
                     </tr>
+
+                    {/* pH / WBC */}
 
                     <tr>
 
-                        <td className="border p-2">
+                        <td className="border border-white p-2 text-left">
                             pH
                         </td>
 
-                        <td className="border p-2">
+                        <td className="border border-white p-2">
 
                             <input
+                                type="text"
                                 name="ph"
                                 value={result.ph}
                                 onChange={handleChange}
@@ -214,17 +216,18 @@ const [result, setResult] = useState({
 
                         </td>
 
-                        <td className="border p-2">
+                        <td className="border border-white p-2">
                             7.2-8.0
                         </td>
 
-                        <td className="border p-2">
+                        <td className="border border-white p-2 text-left">
                             WBC
                         </td>
 
-                        <td className="border p-2">
+                        <td className="border border-white p-2">
 
                             <input
+                                type="text"
                                 name="wbc"
                                 value={result.wbc}
                                 onChange={handleChange}
@@ -233,21 +236,20 @@ const [result, setResult] = useState({
 
                         </td>
 
-                        <td className="border p-2">
-                            2-5 / HPF
-                        </td>
-
                     </tr>
+
+                    {/* VISCOSITY / RBC */}
 
                     <tr>
 
-                        <td className="border p-2">
-                            Viscosity
+                        <td className="border border-white p-2 text-left">
+                            VISCOSITY
                         </td>
 
-                        <td className="border p-2">
+                        <td className="border border-white p-2">
 
                             <input
+                                type="text"
                                 name="viscosity"
                                 value={result.viscosity}
                                 onChange={handleChange}
@@ -256,17 +258,18 @@ const [result, setResult] = useState({
 
                         </td>
 
-                        <td className="border p-2">
+                        <td className="border border-white p-2">
                             1-4
                         </td>
 
-                        <td className="border p-2">
+                        <td className="border border-white p-2 text-left">
                             RBC
                         </td>
 
-                        <td className="border p-2">
+                        <td className="border border-white p-2">
 
                             <input
+                                type="text"
                                 name="rbc"
                                 value={result.rbc}
                                 onChange={handleChange}
@@ -275,120 +278,171 @@ const [result, setResult] = useState({
 
                         </td>
 
-                        <td className="border p-2">
-                            0-2 / HPF
-                        </td>
-
                     </tr>
+
+                    {/* OTHERS / MOTILITY + VIABILITY */}
 
                     <tr>
 
-                        <td className="border p-2">
-                            Others
+                        <td
+                            rowSpan="4"
+                            className="border border-white p-2 text-left align-top"
+                        >
+                            OTHERS:
                         </td>
 
-                        <td className="border p-2">
+                        <td
+                            rowSpan="4"
+                            colSpan="2"
+                            className="border border-white p-2 align-top"
+                        >
 
-                            <input
+                            <textarea
                                 name="others"
                                 value={result.others}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                rows="7"
+                                className="w-full resize-none rounded bg-slate-800 p-2"
                             />
 
                         </td>
 
-                        <td className="border p-2"></td>
+                        <td
+                            className="border border-white p-2 font-bold"
+                        >
+                            MOTILITY
+                        </td>
 
                         <td
-                            colSpan="3"
-                            className="border p-2 font-bold"
+                            className="border border-white p-2 font-bold"
                         >
                             VIABILITY
                         </td>
 
                     </tr>
 
+                    {/* 30 MINUTES */}
+
                     <tr>
 
-                        <td
-                            colSpan="3"
-                            className="border p-2"
-                        ></td>
+                        <td className="border border-white p-2">
 
-                        <td className="border p-2">
-                            30 mins
-                        </td>
+                            <div className="flex items-center gap-2">
 
-                        <td className="border p-2">
+                                <span>30mins</span>
 
-                            <input
-                                name="viability30min"
-                                value={result.viability30min}
-                                onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
-                            />
+                                <input
+                                    type="text"
+                                    name="motility30min"
+                                    value={result.motility30min}
+                                    onChange={handleChange}
+                                    className="w-full rounded bg-slate-800 p-2"
+                                />
+
+                            </div>
 
                         </td>
 
-                        <td className="border p-2">
-                            30 mins
+                        <td className="border border-white p-2">
+
+                            <div className="flex items-center gap-2">
+
+                                <span>30mins</span>
+
+                                <input
+                                    type="text"
+                                    name="viability30min"
+                                    value={result.viability30min}
+                                    onChange={handleChange}
+                                    className="w-full rounded bg-slate-800 p-2"
+                                />
+
+                            </div>
+
                         </td>
 
                     </tr>
 
+                    {/* 1 HOUR */}
+
                     <tr>
 
-                        <td
-                            colSpan="3"
-                            className="border p-2"
-                        ></td>
+                        <td className="border border-white p-2">
 
-                        <td className="border p-2">
-                            1 Hour
-                        </td>
+                            <div className="flex items-center gap-2">
 
-                        <td className="border p-2">
+                                <span>1Hour</span>
 
-                            <input
-                                name="viability1hour"
-                                value={result.viability1hour}
-                                onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
-                            />
+                                <input
+                                    type="text"
+                                    name="motility1hr"
+                                    value={result.motility1hr}
+                                    onChange={handleChange}
+                                    className="w-full rounded bg-slate-800 p-2"
+                                />
+
+                            </div>
 
                         </td>
 
-                        <td className="border p-2">
-                            1 Hour
+                        <td className="border border-white p-2">
+
+                            <div className="flex items-center gap-2">
+
+                                <span>1Hour</span>
+
+                                <input
+                                    type="text"
+                                    name="viability1hr"
+                                    value={result.viability1hr}
+                                    onChange={handleChange}
+                                    className="w-full rounded bg-slate-800 p-2"
+                                />
+
+                            </div>
+
                         </td>
 
                     </tr>
 
+                    {/* 2 HOURS */}
+
                     <tr>
 
-                        <td
-                            colSpan="3"
-                            className="border p-2"
-                        ></td>
+                        <td className="border border-white p-2">
 
-                        <td className="border p-2">
-                            2 Hours
-                        </td>
+                            <div className="flex items-center gap-2">
 
-                        <td className="border p-2">
+                                <span>2hours</span>
 
-                            <input
-                                name="viability2hours"
-                                value={result.viability2hours}
-                                onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
-                            />
+                                <input
+                                    type="text"
+                                    name="motility2hr"
+                                    value={result.motility2hr}
+                                    onChange={handleChange}
+                                    className="w-full rounded bg-slate-800 p-2"
+                                />
+
+                            </div>
 
                         </td>
 
-                        <td className="border p-2">
-                            2 Hours
+                        <td className="border border-white p-2">
+
+                            <div className="flex items-center gap-2">
+
+                                <span>2hours</span>
+
+                                <input
+                                    type="text"
+                                    name="viability2hr"
+                                    value={result.viability2hr}
+                                    onChange={handleChange}
+                                    className="w-full rounded bg-slate-800 p-2"
+                                />
+
+                            </div>
+
                         </td>
 
                     </tr>
@@ -397,39 +451,22 @@ const [result, setResult] = useState({
 
             </table>
 
-            <table className="w-full border-collapse border text-center">
+            {/* SPERM CONCENTRATION / COUNT */}
 
-                <thead>
-
-                    <tr>
-
-                        <th className="border p-2">
-                            Examination
-                        </th>
-
-                        <th className="border p-2">
-                            Result
-                        </th>
-
-                        <th className="border p-2">
-                            Normal Value
-                        </th>
-
-                    </tr>
-
-                </thead>
+            <table className="w-full border-collapse border border-white text-center">
 
                 <tbody>
 
                     <tr>
 
-                        <td className="border p-2">
-                            Sperm Concentration/mL
+                        <td className="border border-white p-2 text-left">
+                            SPERM CONCENTRATION/mL
                         </td>
 
-                        <td className="border p-2">
+                        <td className="border border-white p-2">
 
                             <input
+                                type="text"
                                 name="spermConcentration"
                                 value={result.spermConcentration}
                                 onChange={handleChange}
@@ -438,21 +475,22 @@ const [result, setResult] = useState({
 
                         </td>
 
-                        <td className="border p-2">
-                            &gt;20 million/mL
+                        <td className="border border-white p-2">
+                            &gt;20million/mL
                         </td>
 
                     </tr>
 
                     <tr>
 
-                        <td className="border p-2">
-                            Sperm Count/Ejaculate
+                        <td className="border border-white p-2 text-left">
+                            SPERM COUNT/EJACULATE
                         </td>
 
-                        <td className="border p-2">
+                        <td className="border border-white p-2">
 
                             <input
+                                type="text"
                                 name="spermCount"
                                 value={result.spermCount}
                                 onChange={handleChange}
@@ -461,8 +499,8 @@ const [result, setResult] = useState({
 
                         </td>
 
-                        <td className="border p-2">
-                            &gt;40 million/ejaculate
+                        <td className="border border-white p-2">
+                            &gt;40million/ejaculate
                         </td>
 
                     </tr>
@@ -471,124 +509,37 @@ const [result, setResult] = useState({
 
             </table>
 
-            <table className="w-full border-collapse border text-center">
+            {/* SPERM MOTILITY GRADING */}
 
-                <thead>
+            <div className="text-sm">
 
-                    <tr>
+                <p className="font-semibold">
+                    SPERM MOTILITY GRADING
+                </p>
 
-                        <th className="border p-2">
-                            Sperm Motility Grading
-                        </th>
+                <p>
+                    A. Rapid, straight-line movement — 4
+                </p>
 
-                        <th className="border p-2">
-                            Result
-                        </th>
+                <p>
+                    B. Slower speed, some lateral movement — 3
+                </p>
 
-                    </tr>
+                <p>
+                    B.1 Slow forward progression — 2
+                </p>
 
-                </thead>
+                <p>
+                    C. No forward progression — 1
+                </p>
 
-                <tbody>
+                <p>
+                    D. No movement — 0
+                </p>
 
-                    <tr>
+            </div>
 
-                        <td className="border p-2 text-left">
-                            A. Rapid, straight-line
-                        </td>
-
-                        <td className="border p-2">
-
-                            <input
-                                name="motilityRapid"
-                                value={result.motilityRapid}
-                                onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
-                            />
-
-                        </td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td className="border p-2 text-left">
-                            B. Slower speed, some lateral movement
-                        </td>
-
-                        <td className="border p-2">
-
-                            <input
-                                name="motilitySlow"
-                                value={result.motilitySlow}
-                                onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
-                            />
-
-                        </td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td className="border p-2 text-left">
-                            B.1 Slow forward progression
-                        </td>
-
-                        <td className="border p-2">
-
-                            <input
-                                name="motilitySlowForward"
-                                value={result.motilitySlowForward}
-                                onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
-                            />
-
-                        </td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td className="border p-2 text-left">
-                            C. No forward progression
-                        </td>
-
-                        <td className="border p-2">
-
-                            <input
-                                name="motilityNoForward"
-                                value={result.motilityNoForward}
-                                onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
-                            />
-
-                        </td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td className="border p-2 text-left">
-                            D. No movement
-                        </td>
-
-                        <td className="border p-2">
-
-                            <input
-                                name="motilityNoMovement"
-                                value={result.motilityNoMovement}
-                                onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
-                            />
-
-                        </td>
-
-                    </tr>
-
-                </tbody>
-
-            </table>
+            {/* SIGNATURES */}
 
             <div className="grid grid-cols-2 gap-20 pt-10">
 
@@ -609,6 +560,8 @@ const [result, setResult] = useState({
                 </div>
 
             </div>
+
+            {/* SAVE */}
 
             <div className="flex justify-end">
 

@@ -386,98 +386,85 @@ const {
 
             break;
 
-        case 9: // Semen Analysis
+case 9: // Semen Analysis
 
-    if (
-        !result.appearance ||
-        !result.volume ||
-        !result.ph ||
-        !result.viscosity ||
-        !result.morphology ||
-        !result.motility ||
-        !result.wbc ||
-        !result.rbc ||
-        !result.viability30min ||
-        !result.viability1hour ||
-        !result.viability2hours ||
-        !result.spermConcentration ||
-        !result.spermCount ||
-        !result.motilityRapid ||
-        !result.motilitySlow ||
-        !result.motilitySlowForward ||
-        !result.motilityNoForward ||
-        !result.motilityNoMovement
-    ) {
-        return NextResponse.json(
-            {
-                success: false,
-                message: "Complete the Semen Analysis result."
-            },
-            {
-                status: 400
-            }
-        );
-    }
+    await db.query(
+        `
+        INSERT INTO test_semenalysis
+        (
+            appearance,
+            volume,
+            ph,
+            viscosity,
+            others,
 
-        await db.query(
-            `
-            INSERT INTO test_semenanalysisresult
-            (
-                visitid,
-                appearance,
-                volume,
-                ph,
-                viscosity,
-                others,
-                morphology,
-                motility,
-                wbc,
-                rbc,
-                m30mins,
-                m1hr,
-                m2hr,
-                v30m,
-                v1hr,
-                v2hr
-            )
-            VALUES
-            (
-                ?, ?, ?, ?, ?,
-                ?, ?, ?, ?, ?,
-                ?, ?, ?, ?, ?, ?
-            )
-            `,
-            [
-                visitId,
-                result.appearance,
-                result.volume,
-                result.ph,
-                result.viscosity,
-                result.others,
-                result.morphology,
-                result.motility,
-                result.wbc,
-                result.rbc,
-                result.m30mins,
-                result.m1hr,
-                result.m2hr,
-                result.v30m,
-                result.v1hr,
-                result.v2hr
-            ]
-        );
+            morphology,
+            motility,
+            wbc,
+            rbc,
 
-        await db.query(
-            `
-            UPDATE tblpatienttests
-            SET status = 'Done'
-            WHERE id = ?
-            `,
-            [assignmentId]
-        );
+            m30mins,
+            m1hr,
+            m2hr,
 
-        break;
-  
+            v30mins,
+            v1hr,
+            v2hr,
+
+            spermConcentration,
+            spermCount,
+
+            date,
+            visitid
+        )
+        VALUES
+        (
+            ?, ?, ?, ?, ?,
+            ?, ?, ?, ?,
+            ?, ?, ?,
+            ?, ?, ?,
+            ?, ?,
+            CURDATE(),
+            ?
+        )
+        `,
+        [
+            result.appearance,
+            result.volume,
+            result.ph,
+            result.viscosity,
+            result.others,
+
+            result.morphology,
+            result.motility,
+            result.wbc,
+            result.rbc,
+
+            result.motility30min,
+            result.motility1hr,
+            result.motility2hr,
+
+            result.viability30min,
+            result.viability1hr,
+            result.viability2hr,
+
+            result.spermConcentration,
+            result.spermCount,
+
+            visitId
+        ]
+    );
+
+    await db.query(
+        `
+        UPDATE tblpatienttests
+        SET status = 'Done'
+        WHERE id = ?
+        `,
+        [assignmentId]
+    );
+
+    break;
         default:
 
             return NextResponse.json(
