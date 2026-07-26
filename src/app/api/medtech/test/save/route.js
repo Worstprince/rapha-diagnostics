@@ -563,7 +563,68 @@ const {
     await checkVisitComplete(visitId);
     break;
 
+        case 12: case 10: // Urinalysis
 
+    await db.query(
+        `
+        INSERT INTO test_urinalysisresult
+        (
+            color,
+            transparency,
+            reaction,
+            sugar,
+            albumin,
+            specificgravity,
+            pregnancytest,
+            others,
+            epithelialcells,
+            mucusThread,
+            pus,
+            rbc,
+            renalCells,
+            cast,
+            crystal,
+            bacteria,
+            date,
+            visitid
+        )
+        VALUES
+        (
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), ?
+        )
+        `,
+        [
+            result.color,
+            result.transparency,
+            result.reaction,
+            result.sugar,
+            result.albumin,
+            result.specificGravity,
+            result.pregnancyTest,
+            result.others,
+            result.epithelialCells,
+            result.mucusThread,
+            result.pus,
+            result.rbc,
+            result.renalCells,
+            result.cast,
+            result.crystal,
+            result.bacteria,
+            visitId
+        ]
+    );
+
+    await db.query(
+        `
+        UPDATE tblpatienttests
+        SET status = 'Done'
+        WHERE id = ?
+        `,
+        [assignmentId]
+    );
+
+    await checkVisitComplete(visitId);
+    break;
     default:
 
             return NextResponse.json(

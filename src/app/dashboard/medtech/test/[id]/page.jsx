@@ -15,6 +15,7 @@ import pregnancyform from "@/components/labforms/pregnancyform";
 import semenalysisform from "@/components/labforms/semenalysisform";
 import stoolexam from "@/components/labforms/stoolexamform";
 import thyroidexam from "@/components/labforms/thyroidform";
+import urinalysisexam from "@/components/labforms/urinalysisform";
 
 const forms = {
 
@@ -38,7 +39,9 @@ const forms = {
     
     10: stoolexam,
 
-    11: thyroidexam
+    11: thyroidexam,
+
+    12: urinalysisexam
 };
 
 export default function TestPage() {

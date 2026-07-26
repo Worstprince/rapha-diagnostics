@@ -1,0 +1,497 @@
+"use client";
+
+import { useState } from "react";
+import LabReportHeader from "./labReportHeader";
+
+export default function UrinalysisForm({ patient, onSubmit }) {
+
+    const [result, setResult] = useState({
+        color: "",
+        transparency: "",
+        reaction: "",
+        sugar: "",
+        albumin: "",
+        specificGravity: "",
+        pregnancyTest: "",
+        others: "",
+
+        epithelialCells: "",
+        mucusThread: "",
+        pus: "",
+        rbc: "",
+        renalCells: "",
+        cast: "",
+        crystal: "",
+        bacteria: ""
+    });
+
+    function handleChange(e) {
+
+        const { name, value } = e.target;
+
+        setResult(prev => ({
+            ...prev,
+            [name]: value
+        }));
+
+    }
+
+    function handleSubmit(e) {
+
+        e.preventDefault();
+
+        onSubmit(result);
+
+    }
+
+    return (
+
+        <form
+            onSubmit={handleSubmit}
+            className="space-y-8 rounded-2xl border border-slate-800 bg-slate-900 p-8"
+        >
+
+            <LabReportHeader
+                patient={patient}
+                title="CLINICAL MICROSCOPY"
+            />
+
+            <h2 className="text-center text-2xl font-bold">
+                URINALYSIS
+            </h2>
+
+            <table className="w-full border-collapse border border-white text-center">
+
+                <thead>
+
+                    <tr>
+
+                        <th
+                            colSpan="2"
+                            className="border border-white p-2"
+                        >
+                            CHEMICAL AND MACROSCOPIC EXAMINATION
+                        </th>
+
+                        <th
+                            colSpan="2"
+                            className="border border-white p-2"
+                        >
+                            MICROSCOPIC EXAMINATION
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {/* COLOR / EPITHELIAL CELLS */}
+
+                    <tr>
+
+                        <td className="border border-white p-2 text-left">
+                            COLOR
+                        </td>
+
+                        <td className="border border-white p-2">
+
+                            <select
+                                name="color"
+                                value={result.color}
+                                onChange={handleChange}
+                                className="w-full rounded bg-slate-800 p-2"
+                            >
+
+                                <option value=""></option>
+                                <option value="Straw">Straw</option>
+                                <option value="Light yellow">Light yellow</option>
+                                <option value="Dark yellow">Dark yellow</option>
+                                <option value="yellow">yellow</option>
+                                <option value="red">red</option>
+                                <option value="amber">amber</option>
+
+                            </select>
+
+                        </td>
+
+                        <td className="border border-white p-2 text-left">
+                            EPITHELIAL CELLS /hpf
+                        </td>
+
+                        <td className="border border-white p-2">
+
+                            <select
+                                name="epithelialCells"
+                                value={result.epithelialCells}
+                                onChange={handleChange}
+                                className="w-full rounded bg-slate-800 p-2"
+                            >
+
+                                <option value=""></option>
+                                <option value="Rare">Rare</option>
+                                <option value="Few">Few</option>
+                                <option value="Moderate">Moderate</option>
+                                <option value="Many">Many</option>
+
+                            </select>
+
+                        </td>
+
+                    </tr>
+
+                    {/* TRANSPARENCY / MUCUS THREAD */}
+
+                    <tr>
+
+                        <td className="border border-white p-2 text-left">
+                            TRANSPARENCY
+                        </td>
+
+                        <td className="border border-white p-2">
+
+                            <select
+                                name="transparency"
+                                value={result.transparency}
+                                onChange={handleChange}
+                                className="w-full rounded bg-slate-800 p-2"
+                            >
+
+                                <option value=""></option>
+                                <option value="Clear">Clear</option>
+                                <option value="Slightly Hazy">
+                                    Slightly Hazy
+                                </option>
+                                <option value="Hazy">Hazy</option>
+                                <option value="Cloudy">Cloudy</option>
+
+                            </select>
+
+                        </td>
+
+                        <td className="border border-white p-2 text-left">
+                            MUCUS THREAD /hpf
+                        </td>
+
+                        <td className="border border-white p-2">
+
+                            <select
+                                name="mucusThread"
+                                value={result.mucusThread}
+                                onChange={handleChange}
+                                className="w-full rounded bg-slate-800 p-2"
+                            >
+
+                                <option value=""></option>
+                                <option value="Rare">Rare</option>
+                                <option value="Few">Few</option>
+                                <option value="Moderate">Moderate</option>
+                                <option value="Many">Many</option>
+
+                            </select>
+
+                        </td>
+
+                    </tr>
+
+                    {/* REACTION / PUS */}
+
+                    <tr>
+
+                        <td className="border border-white p-2 text-left">
+                            REACTION
+                        </td>
+
+                        <td className="border border-white p-2">
+
+                            <select
+                                name="reaction"
+                                value={result.reaction}
+                                onChange={handleChange}
+                                className="w-full rounded bg-slate-800 p-2"
+                            >
+
+                                <option value=""></option>
+                                <option value="Acidic">Acidic</option>
+                                <option value="Alkaline">Alkaline</option>
+
+                            </select>
+
+                        </td>
+
+                        <td className="border border-white p-2 text-left">
+                            PUS / hpf
+                        </td>
+
+                        <td className="border border-white p-2">
+
+                            <input
+                                type="text"
+                                name="pus"
+                                value={result.pus}
+                                onChange={handleChange}
+                                className="w-full rounded bg-slate-800 p-2"
+                            />
+
+                        </td>
+
+                    </tr>
+
+                    {/* SUGAR / RBC */}
+
+                    <tr>
+
+                        <td className="border border-white p-2 text-left">
+                            SUGAR
+                        </td>
+
+                        <td className="border border-white p-2">
+
+                            <select
+                                name="sugar"
+                                value={result.sugar}
+                                onChange={handleChange}
+                                className="w-full rounded bg-slate-800 p-2"
+                            >
+
+                                <option value=""></option>
+                                <option value="Negative">Negative</option>
+                                <option value="Trace">Trace</option>
+                                <option value="1+">1+</option>
+                                <option value="2+">2+</option>
+                                <option value="3+">3+</option>
+                                <option value="4+">4+</option>
+
+                            </select>
+
+                        </td>
+
+                        <td className="border border-white p-2 text-left">
+                            RBC / hpf
+                        </td>
+
+                        <td className="border border-white p-2">
+
+                            <input
+                                type="text"
+                                name="rbc"
+                                value={result.rbc}
+                                onChange={handleChange}
+                                className="w-full rounded bg-slate-800 p-2"
+                            />
+
+                        </td>
+
+                    </tr>
+
+                    {/* ALBUMIN / RENAL CELLS */}
+
+                    <tr>
+
+                        <td className="border border-white p-2 text-left">
+                            ALBUMIN
+                        </td>
+
+                        <td className="border border-white p-2">
+
+                            <select
+                                name="albumin"
+                                value={result.albumin}
+                                onChange={handleChange}
+                                className="w-full rounded bg-slate-800 p-2"
+                            >
+
+                                <option value=""></option>
+                                <option value="Negative">Negative</option>
+                                <option value="Trace">Trace</option>
+                                <option value="1+">1+</option>
+                                <option value="2+">2+</option>
+                                <option value="3+">3+</option>
+                                <option value="4+">4+</option>
+
+                            </select>
+
+                        </td>
+
+                        <td className="border border-white p-2 text-left">
+                            RENAL CELLS / hpf
+                        </td>
+
+                        <td className="border border-white p-2">
+
+                            <input
+                                type="text"
+                                name="renalCells"
+                                value={result.renalCells}
+                                onChange={handleChange}
+                                className="w-full rounded bg-slate-800 p-2"
+                            />
+
+                        </td>
+
+                    </tr>
+
+                    {/* SPECIFIC GRAVITY / CAST */}
+
+                    <tr>
+
+                        <td className="border border-white p-2 text-left">
+                            SPECIFIC GRAVITY
+                        </td>
+
+                        <td className="border border-white p-2">
+
+                            <select
+                                name="specificGravity"
+                                value={result.specificGravity}
+                                onChange={handleChange}
+                                className="w-full rounded bg-slate-800 p-2"
+                            >
+
+                                <option value=""></option>
+                                <option value="1.000">1.000</option>
+                                <option value="1.005">1.005</option>
+                                <option value="1.010">1.010</option>
+                                <option value="1.015">1.015</option>
+                                <option value="1.020">1.020</option>
+                                <option value="1.025">1.025</option>
+                                <option value="1.030">1.030</option>
+
+                            </select>
+
+                        </td>
+
+                        <td className="border border-white p-2 text-left">
+                            CAST / lpf
+                        </td>
+
+                        <td className="border border-white p-2">
+
+                            <input
+                                type="text"
+                                name="cast"
+                                value={result.cast}
+                                onChange={handleChange}
+                                className="w-full rounded bg-slate-800 p-2"
+                            />
+
+                        </td>
+
+                    </tr>
+
+                    {/* PREGNANCY TEST / CRYSTAL */}
+
+                    <tr>
+
+                        <td className="border border-white p-2 text-left">
+                            PREGNANCY TEST
+                        </td>
+
+                        <td className="border border-white p-2">
+
+                            <input
+                                type="text"
+                                name="pregnancyTest"
+                                value={result.pregnancyTest}
+                                onChange={handleChange}
+                                className="w-full rounded bg-slate-800 p-2"
+                            />
+
+                        </td>
+
+                        <td className="border border-white p-2 text-left">
+                            CRYSTAL / hpf
+                        </td>
+
+                        <td className="border border-white p-2">
+
+                            <input
+                                type="text"
+                                name="crystal"
+                                value={result.crystal}
+                                onChange={handleChange}
+                                className="w-full rounded bg-slate-800 p-2"
+                            />
+
+                        </td>
+
+                    </tr>
+
+                    {/* OTHERS / BACTERIA */}
+
+                    <tr>
+
+                        <td className="border border-white p-2 text-left">
+                            OTHERS
+                        </td>
+
+                        <td className="border border-white p-2">
+
+                            <input
+                                type="text"
+                                name="others"
+                                value={result.others}
+                                onChange={handleChange}
+                                className="w-full rounded bg-slate-800 p-2"
+                            />
+
+                        </td>
+
+                        <td className="border border-white p-2 text-left">
+                            BACTERIA / hpf
+                        </td>
+
+                        <td className="border border-white p-2">
+
+                            <input
+                                type="text"
+                                name="bacteria"
+                                value={result.bacteria}
+                                onChange={handleChange}
+                                className="w-full rounded bg-slate-800 p-2"
+                            />
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+            <div className="grid grid-cols-2 gap-20 pt-10">
+
+                <div className="text-center">
+
+                    <div className="border-t border-white pt-2">
+                        Pathologist
+                    </div>
+
+                </div>
+
+                <div className="text-center">
+
+                    <div className="border-t border-white pt-2">
+                        Medical Technologist
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div className="flex justify-end">
+
+                <button
+                    type="submit"
+                    className="rounded-lg bg-cyan-600 px-6 py-3"
+                >
+                    Save Result
+                </button>
+
+            </div>
+
+        </form>
+
+    );
+
+}
