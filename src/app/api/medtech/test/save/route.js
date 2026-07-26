@@ -563,7 +563,7 @@ const {
     await checkVisitComplete(visitId);
     break;
 
-        case 12: case 10: // Urinalysis
+        case 12: // Urinalysis
 
     await db.query(
         `
@@ -625,6 +625,38 @@ const {
 
     await checkVisitComplete(visitId);
     break;
+    
+    case 13: // Syphilis
+
+    await db.query(
+        `
+        INSERT INTO test_vdrlresult
+        (
+            vdrl,
+            date,
+            visitid
+        )
+        VALUES
+        (?, CURDATE(), ?)
+        `,
+        [
+            result.vdrl,
+            visitId
+        ]
+    );
+
+    await db.query(
+        `
+        UPDATE tblpatienttests
+        SET status = 'Done'
+        WHERE id = ?
+        `,
+        [assignmentId]
+    );
+
+    break;
+    
+    
     default:
 
             return NextResponse.json(
