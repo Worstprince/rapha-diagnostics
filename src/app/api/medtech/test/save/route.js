@@ -626,7 +626,7 @@ const {
     await checkVisitComplete(visitId);
     break;
     
-    case 13: // Syphilis
+    case 13: // vdrl
 
     await db.query(
         `
