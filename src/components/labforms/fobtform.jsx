@@ -3,13 +3,20 @@
 import { useState } from "react";
 import LabReportHeader from "./labReportHeader";
 
-export default function FOBTForm({ patient, onSubmit }) {
+export default function FOBTForm({
+    patient,
+    onSubmit,
+    initialData = {},
+    readOnly = false
+}) {
 
     const [result, setResult] = useState({
-        fobt: ""
+        fobt: initialData.fobt ?? ""
     });
 
     function handleChange(e) {
+
+        if (readOnly) return;
 
         const { name, value } = e.target;
 
@@ -23,6 +30,8 @@ export default function FOBTForm({ patient, onSubmit }) {
     function handleSubmit(e) {
 
         e.preventDefault();
+
+        if (readOnly) return;
 
         onSubmit(result);
 
@@ -76,15 +85,21 @@ export default function FOBTForm({ patient, onSubmit }) {
                                 name="fobt"
                                 value={result.fobt}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:opacity-100"
                             >
 
                                 <option value="">
                                     Select
                                 </option>
 
-                                <option>POSITIVE</option>
-                                <option>NEGATIVE</option>
+                                <option value="POSITIVE">
+                                    POSITIVE
+                                </option>
+
+                                <option value="NEGATIVE">
+                                    NEGATIVE
+                                </option>
 
                             </select>
 
@@ -116,16 +131,20 @@ export default function FOBTForm({ patient, onSubmit }) {
 
             </div>
 
-            <div className="flex justify-end">
+            {!readOnly && (
 
-                <button
-                    type="submit"
-                    className="rounded-lg bg-cyan-600 px-6 py-3"
-                >
-                    Save Result
-                </button>
+                <div className="flex justify-end">
 
-            </div>
+                    <button
+                        type="submit"
+                        className="rounded-lg bg-cyan-600 px-6 py-3"
+                    >
+                        Save Result
+                    </button>
+
+                </div>
+
+            )}
 
         </form>
 

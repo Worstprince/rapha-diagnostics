@@ -3,13 +3,20 @@
 import { useState } from "react";
 import LabReportHeader from "./labReportHeader";
 
-export default function PregnancyForm({ patient, onSubmit }) {
+export default function PregnancyForm({
+    patient,
+    onSubmit,
+    initialData = {},
+    readOnly = false
+}) {
 
     const [result, setResult] = useState({
-        pregnancyResult: ""
+        pregnancyResult: initialData.pregnancyResult ?? ""
     });
 
     function handleChange(e) {
+
+        if (readOnly) return;
 
         const { name, value } = e.target;
 
@@ -23,6 +30,8 @@ export default function PregnancyForm({ patient, onSubmit }) {
     function handleSubmit(e) {
 
         e.preventDefault();
+
+        if (readOnly) return;
 
         onSubmit(result);
 
@@ -76,7 +85,8 @@ export default function PregnancyForm({ patient, onSubmit }) {
                                 name="pregnancyResult"
                                 value={result.pregnancyResult}
                                 onChange={handleChange}
-                                className="w-full rounded border bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded border bg-slate-800 p-2 disabled:cursor-not-allowed disabled:opacity-100"
                             >
 
                                 <option value="">
@@ -121,16 +131,20 @@ export default function PregnancyForm({ patient, onSubmit }) {
 
             </div>
 
-            <div className="flex justify-end">
+            {!readOnly && (
 
-                <button
-                    type="submit"
-                    className="rounded-lg bg-cyan-600 px-6 py-3"
-                >
-                    Save Result
-                </button>
+                <div className="flex justify-end">
 
-            </div>
+                    <button
+                        type="submit"
+                        className="rounded-lg bg-cyan-600 px-6 py-3"
+                    >
+                        Save Result
+                    </button>
+
+                </div>
+
+            )}
 
         </form>
 

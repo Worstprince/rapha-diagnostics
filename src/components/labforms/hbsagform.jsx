@@ -3,13 +3,20 @@
 import { useState } from "react";
 import LabReportHeader from "./labReportHeader";
 
-export default function HepatitisForm({ patient, onSubmit }) {
+export default function HepatitisForm({
+    patient,
+    onSubmit,
+    initialData = {},
+    readOnly = false
+}) {
 
     const [result, setResult] = useState({
-        hbsag: ""
+        hbsag: initialData.hbsag ?? ""
     });
 
     function handleChange(e) {
+
+        if (readOnly) return;
 
         const { name, value } = e.target;
 
@@ -23,6 +30,8 @@ export default function HepatitisForm({ patient, onSubmit }) {
     function handleSubmit(e) {
 
         e.preventDefault();
+
+        if (readOnly) return;
 
         onSubmit(result);
 
@@ -76,15 +85,21 @@ export default function HepatitisForm({ patient, onSubmit }) {
                                 name="hbsag"
                                 value={result.hbsag}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:opacity-100"
                             >
 
                                 <option value="">
                                     Select
                                 </option>
 
-                                <option>REACTIVE</option>
-                                <option>NON REACTIVE</option>
+                                <option value="REACTIVE">
+                                    REACTIVE
+                                </option>
+
+                                <option value="NON REACTIVE">
+                                    NON REACTIVE
+                                </option>
 
                             </select>
 
@@ -116,16 +131,20 @@ export default function HepatitisForm({ patient, onSubmit }) {
 
             </div>
 
-            <div className="flex justify-end">
+            {!readOnly && (
 
-                <button
-                    type="submit"
-                    className="rounded-lg bg-cyan-600 px-6 py-3"
-                >
-                    Save Result
-                </button>
+                <div className="flex justify-end">
 
-            </div>
+                    <button
+                        type="submit"
+                        className="rounded-lg bg-cyan-600 px-6 py-3"
+                    >
+                        Save Result
+                    </button>
+
+                </div>
+
+            )}
 
         </form>
 

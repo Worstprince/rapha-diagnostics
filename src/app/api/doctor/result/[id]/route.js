@@ -20,7 +20,7 @@ const RESULT_TABLES = {
 export async function GET(request, { params }) {
 
     try {
-const { id: assignmentId } = await params;
+        const { id: assignmentId } = await params;
 
         const [assignmentRows] = await db.query(
             `

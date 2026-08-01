@@ -3,30 +3,35 @@
 import { useState } from "react";
 import LabReportHeader from "./labReportHeader";
 
-export default function SemenAnalysisForm({ patient, onSubmit }) {
+export default function SemenAnalysisForm({
+    patient,
+    onSubmit,
+    initialData = {},
+    readOnly = false
+}) {
 
     const [result, setResult] = useState({
-        appearance: "",
-        volume: "",
-        ph: "",
-        viscosity: "",
-        others: "",
+        appearance: initialData.appearance ?? "",
+        volume: initialData.volume ?? "",
+        ph: initialData.ph ?? "",
+        viscosity: initialData.viscosity ?? "",
+        others: initialData.others ?? "",
 
-        morphology: "",
-        motility: "",
-        wbc: "",
-        rbc: "",
+        morphology: initialData.morphology ?? "",
+        motility: initialData.motility ?? "",
+        wbc: initialData.wbc ?? "",
+        rbc: initialData.rbc ?? "",
 
-        motility30min: "",
-        motility1hr: "",
-        motility2hr: "",
+        motility30min: initialData.motility30min ?? "",
+        motility1hr: initialData.motility1hr ?? "",
+        motility2hr: initialData.motility2hr ?? "",
 
-        viability30min: "",
-        viability1hr: "",
-        viability2hr: "",
+        viability30min: initialData.viability30min ?? "",
+        viability1hr: initialData.viability1hr ?? "",
+        viability2hr: initialData.viability2hr ?? "",
 
-        spermConcentration: "",
-        spermCount: ""
+        spermConcentration: initialData.spermConcentration ?? "",
+        spermCount: initialData.spermCount ?? ""
     });
 
     function handleChange(e) {
@@ -63,8 +68,6 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
             <table className="w-full border-collapse border border-white text-center">
 
                 <thead>
-
-                    {/* 5 COLUMNS ONLY */}
 
                     <tr>
 
@@ -112,8 +115,6 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
 
                 <tbody>
 
-                    {/* APPEARANCE / MORPHOLOGY */}
-
                     <tr>
 
                         <td className="border border-white p-2 text-left">
@@ -127,13 +128,13 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
                                 name="appearance"
                                 value={result.appearance}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
 
                         <td className="border border-white p-2">
-                            
                         </td>
 
                         <td className="border border-white p-2 text-left">
@@ -147,14 +148,13 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
                                 name="morphology"
                                 value={result.morphology}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
 
                     </tr>
-
-                    {/* VOLUME / MOTILITY */}
 
                     <tr>
 
@@ -169,7 +169,8 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
                                 name="volume"
                                 value={result.volume}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
@@ -189,14 +190,13 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
                                 name="motility"
                                 value={result.motility}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
 
                     </tr>
-
-                    {/* pH / WBC */}
 
                     <tr>
 
@@ -211,7 +211,8 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
                                 name="ph"
                                 value={result.ph}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
@@ -231,13 +232,13 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
                                 name="wbc"
                                 value={result.wbc}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
 
                     </tr>
-
                     {/* VISCOSITY / RBC */}
 
                     <tr>
@@ -253,7 +254,8 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
                                 name="viscosity"
                                 value={result.viscosity}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
@@ -273,7 +275,8 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
                                 name="rbc"
                                 value={result.rbc}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
@@ -302,20 +305,17 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
                                 value={result.others}
                                 onChange={handleChange}
                                 rows="7"
-                                className="w-full resize-none rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full resize-none rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
 
-                        <td
-                            className="border border-white p-2 font-bold"
-                        >
+                        <td className="border border-white p-2 font-bold">
                             MOTILITY
                         </td>
 
-                        <td
-                            className="border border-white p-2 font-bold"
-                        >
+                        <td className="border border-white p-2 font-bold">
                             VIABILITY
                         </td>
 
@@ -336,7 +336,8 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
                                     name="motility30min"
                                     value={result.motility30min}
                                     onChange={handleChange}
-                                    className="w-full rounded bg-slate-800 p-2"
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                                 />
 
                             </div>
@@ -354,7 +355,8 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
                                     name="viability30min"
                                     value={result.viability30min}
                                     onChange={handleChange}
-                                    className="w-full rounded bg-slate-800 p-2"
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                                 />
 
                             </div>
@@ -378,7 +380,8 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
                                     name="motility1hr"
                                     value={result.motility1hr}
                                     onChange={handleChange}
-                                    className="w-full rounded bg-slate-800 p-2"
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                                 />
 
                             </div>
@@ -396,7 +399,8 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
                                     name="viability1hr"
                                     value={result.viability1hr}
                                     onChange={handleChange}
-                                    className="w-full rounded bg-slate-800 p-2"
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                                 />
 
                             </div>
@@ -420,7 +424,8 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
                                     name="motility2hr"
                                     value={result.motility2hr}
                                     onChange={handleChange}
-                                    className="w-full rounded bg-slate-800 p-2"
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                                 />
 
                             </div>
@@ -438,7 +443,8 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
                                     name="viability2hr"
                                     value={result.viability2hr}
                                     onChange={handleChange}
-                                    className="w-full rounded bg-slate-800 p-2"
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                                 />
 
                             </div>
@@ -470,7 +476,8 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
                                 name="spermConcentration"
                                 value={result.spermConcentration}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
@@ -494,7 +501,8 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
                                 name="spermCount"
                                 value={result.spermCount}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
@@ -539,8 +547,6 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
 
             </div>
 
-            {/* SIGNATURES */}
-
             <div className="grid grid-cols-2 gap-20 pt-10">
 
                 <div className="text-center">
@@ -561,18 +567,20 @@ export default function SemenAnalysisForm({ patient, onSubmit }) {
 
             </div>
 
-            {/* SAVE */}
+            {!readOnly && (
 
-            <div className="flex justify-end">
+                <div className="flex justify-end">
 
-                <button
-                    type="submit"
-                    className="rounded-lg bg-cyan-600 px-6 py-3"
-                >
-                    Save Result
-                </button>
+                    <button
+                        type="submit"
+                        className="rounded-lg bg-cyan-600 px-6 py-3 hover:bg-cyan-500"
+                    >
+                        Save Result
+                    </button>
 
-            </div>
+                </div>
+
+            )}
 
         </form>
 

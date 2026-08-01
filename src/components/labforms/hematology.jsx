@@ -3,52 +3,61 @@
 import { useState } from "react";
 import LabReportHeader from "./labReportHeader";
 
-export default function HematologyResult({ patient, onSubmit }) {
+export default function HematologyResult({
+    patient,
+    onSubmit,
+    initialData = {},
+    readOnly = false
+}) {
 
-    const [result, setResult] = useState({
-        hemoglobin: "",
-        rbc: "",
-        wbc: "",
-        bleedingTime: "",
-        clottingTime: "",
-        bloodGroup: "",
-        platelet: "",
-        hematocrit: "",
-        bsmp: "",
-        others: "",
+ const [result, setResult] = useState({
+    hemoglobin: initialData.hemoglobin ?? "",
+    rbc: initialData.rbc ?? "",
+    wbc: initialData.wbc ?? "",
+    bleedingTime: initialData.bleedingTime ?? "",
+    clottingTime: initialData.clottingTime ?? "",
+    bloodGroup: initialData.bloodGroup ?? "",
+    platelet: initialData.platelet ?? "",
+    hematocrit: initialData.hematocrit ?? "",
+    bsmp: initialData.bsmp ?? "",
+    others: initialData.others ?? "",
 
-        segmenters: "",
-        band: "",
-        juvenile: "",
-        lymphocytes: "",
-        monocytes: "",
-        eosinophils: "",
-        basophils: "",
+    segmenters: initialData.segmenters ?? "",
+    band: initialData.band ?? "",
+    juvenile: initialData.juvenile ?? "",
+    lymphocytes: initialData.lymphocytes ?? "",
+    monocytes: initialData.monocytes ?? "",
+    eosinophils: initialData.eosinophils ?? "",
+    basophils: initialData.basophils ?? "",
 
-        mcv: "",
-        mch: "",
-        mchc: "",
-        rdw: ""
-    });
+    mcv: initialData.mcv ?? "",
+    mch: initialData.mch ?? "",
+    mchc: initialData.mchc ?? "",
+    rdw: initialData.rdw ?? ""
+});
 
-    function handleChange(e) {
+function handleChange(e) {
 
-        const { name, value } = e.target;
+    if (readOnly) return;
 
-        setResult(prev => ({
-            ...prev,
-            [name]: value
-        }));
+    const { name, value } = e.target;
 
-    }
+    setResult(prev => ({
+        ...prev,
+        [name]: value
+    }));
 
-    function handleSubmit(e) {
+}
 
-        e.preventDefault();
+function handleSubmit(e) {
 
-        onSubmit(result);
+    e.preventDefault();
 
-    }
+    if (readOnly) return;
+
+    onSubmit(result);
+
+}
 
     return (
 
@@ -119,6 +128,7 @@ export default function HematologyResult({ patient, onSubmit }) {
                                             name={item[0]}
                                             value={result[item[0]]}
                                             onChange={handleChange}
+                                            readOnly={readOnly}
                                             className="w-full rounded bg-slate-800 p-2 text-white"
                                         />
 
@@ -195,6 +205,7 @@ export default function HematologyResult({ patient, onSubmit }) {
                                             name={item[0]}
                                             value={result[item[0]]}
                                             onChange={handleChange}
+                                            readOnly={readOnly}
                                             className="w-full rounded bg-slate-800 p-2 text-white"
                                         />
 
@@ -238,16 +249,20 @@ export default function HematologyResult({ patient, onSubmit }) {
 
             </div>
 
-            <div className="flex justify-end">
+            {!readOnly && (
 
-                <button
-                    onClick={handleSubmit}
-                    className="rounded-lg bg-cyan-600 px-6 py-3 text-white hover:bg-cyan-500"
-                >
-                    Save Result
-                </button>
+                <div className="flex justify-end">
 
-            </div>
+                    <button
+                        onClick={handleSubmit}
+                        className="rounded-lg bg-cyan-600 px-6 py-3 text-white hover:bg-cyan-500"
+                    >
+                        Save Result
+                    </button>
+
+                </div>
+
+            )}
 
         </div>
 

@@ -3,15 +3,22 @@
 import { useState } from "react";
 import LabReportHeader from "./labReportHeader";
 
-export default function OGTTForm({ patient, onSubmit }) {
+export default function OGTTForm({
+    patient,
+    onSubmit,
+    initialData = {},
+    readOnly = false
+}) {
 
     const [result, setResult] = useState({
-        fbs: "",
-        firstHour: "",
-        secondHour: ""
+        fbs: initialData.fbs ?? "",
+        firstHour: initialData.firstHour ?? "",
+        secondHour: initialData.secondHour ?? ""
     });
 
     function handleChange(e) {
+
+        if (readOnly) return;
 
         const { name, value } = e.target;
 
@@ -25,6 +32,8 @@ export default function OGTTForm({ patient, onSubmit }) {
     function handleSubmit(e) {
 
         e.preventDefault();
+
+        if (readOnly) return;
 
         onSubmit(result);
 
@@ -82,6 +91,7 @@ export default function OGTTForm({ patient, onSubmit }) {
                                 name="fbs"
                                 value={result.fbs}
                                 onChange={handleChange}
+                                readOnly={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             />
 
@@ -105,6 +115,7 @@ export default function OGTTForm({ patient, onSubmit }) {
                                 name="firstHour"
                                 value={result.firstHour}
                                 onChange={handleChange}
+                                readOnly={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             />
 
@@ -128,6 +139,7 @@ export default function OGTTForm({ patient, onSubmit }) {
                                 name="secondHour"
                                 value={result.secondHour}
                                 onChange={handleChange}
+                                readOnly={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             />
 
@@ -163,16 +175,20 @@ export default function OGTTForm({ patient, onSubmit }) {
 
             </div>
 
-            <div className="flex justify-end">
+            {!readOnly && (
 
-                <button
-                    type="submit"
-                    className="rounded-lg bg-cyan-600 px-6 py-3"
-                >
-                    Save Result
-                </button>
+                <div className="flex justify-end">
 
-            </div>
+                    <button
+                        type="submit"
+                        className="rounded-lg bg-cyan-600 px-6 py-3"
+                    >
+                        Save Result
+                    </button>
+
+                </div>
+
+            )}
 
         </form>
 

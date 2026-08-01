@@ -1,13 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LabReportHeader from "./labReportHeader";
 
-export default function SyphilisForm({ patient, onSubmit }) {
+export default function SyphilisForm({ patient, initialData, onSubmit }) {
 
     const [result, setResult] = useState({
         vdrl: ""
     });
+
+    useEffect(() => {
+
+        if (initialData) {
+
+            setResult({
+                vdrl: initialData.vdrl ?? ""
+            });
+
+        }
+
+    }, [initialData]);
 
     function handleChange(e) {
 

@@ -1,14 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LabReportHeader from "./labReportHeader";
 
-export default function ThyroidPanelForm({ patient, onSubmit }) {
+export default function ThyroidPanelForm({ patient, initialData, onSubmit }) {
 
     const [result, setResult] = useState({
         tsh: "",
         ft4: ""
     });
+
+    useEffect(() => {
+
+        if (initialData) {
+
+            setResult({
+                tsh: initialData.tsh ?? "",
+                ft4: initialData.ft4 ?? ""
+            });
+
+        }
+
+    }, [initialData]);
 
     function handleChange(e) {
 
@@ -96,7 +109,7 @@ export default function ThyroidPanelForm({ patient, onSubmit }) {
                     <tr>
 
                         <td className="border border-white p-2">
-                            ft4
+                            FT4
                         </td>
 
                         <td className="border border-white p-2">
@@ -147,7 +160,7 @@ export default function ThyroidPanelForm({ patient, onSubmit }) {
                     type="submit"
                     className="rounded-lg bg-cyan-600 px-6 py-3"
                 >
-                    Save Result
+                    {initialData ? "Update Result" : "Save Result"}
                 </button>
 
             </div>

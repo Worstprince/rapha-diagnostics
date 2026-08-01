@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LabReportHeader from "./labReportHeader";
 
-export default function UrinalysisForm({ patient, onSubmit }) {
+export default function UrinalysisForm({ patient, initialData, onSubmit }) {
 
     const [result, setResult] = useState({
         color: "",
@@ -24,6 +24,34 @@ export default function UrinalysisForm({ patient, onSubmit }) {
         crystal: "",
         bacteria: ""
     });
+
+    useEffect(() => {
+
+        if (initialData) {
+
+            setResult({
+                color: initialData.color ?? "",
+                transparency: initialData.transparency ?? "",
+                reaction: initialData.reaction ?? "",
+                sugar: initialData.sugar ?? "",
+                albumin: initialData.albumin ?? "",
+                specificGravity: initialData.specificGravity ?? "",
+                pregnancyTest: initialData.pregnancyTest ?? "",
+                others: initialData.others ?? "",
+
+                epithelialCells: initialData.epithelialCells ?? "",
+                mucusThread: initialData.mucusThread ?? "",
+                pus: initialData.pus ?? "",
+                rbc: initialData.rbc ?? "",
+                renalCells: initialData.renalCells ?? "",
+                cast: initialData.cast ?? "",
+                crystal: initialData.crystal ?? "",
+                bacteria: initialData.bacteria ?? ""
+            });
+
+        }
+
+    }, [initialData]);
 
     function handleChange(e) {
 
@@ -86,8 +114,6 @@ export default function UrinalysisForm({ patient, onSubmit }) {
 
                 <tbody>
 
-                    {/* COLOR / EPITHELIAL CELLS */}
-
                     <tr>
 
                         <td className="border border-white p-2 text-left">
@@ -139,8 +165,6 @@ export default function UrinalysisForm({ patient, onSubmit }) {
                         </td>
 
                     </tr>
-
-                    {/* TRANSPARENCY / MUCUS THREAD */}
 
                     <tr>
 
@@ -194,8 +218,6 @@ export default function UrinalysisForm({ patient, onSubmit }) {
 
                     </tr>
 
-                    {/* REACTION / PUS */}
-
                     <tr>
 
                         <td className="border border-white p-2 text-left">
@@ -236,8 +258,6 @@ export default function UrinalysisForm({ patient, onSubmit }) {
                         </td>
 
                     </tr>
-
-                    {/* SUGAR / RBC */}
 
                     <tr>
 
@@ -284,8 +304,6 @@ export default function UrinalysisForm({ patient, onSubmit }) {
 
                     </tr>
 
-                    {/* ALBUMIN / RENAL CELLS */}
-
                     <tr>
 
                         <td className="border border-white p-2 text-left">
@@ -330,8 +348,6 @@ export default function UrinalysisForm({ patient, onSubmit }) {
                         </td>
 
                     </tr>
-
-                    {/* SPECIFIC GRAVITY / CAST */}
 
                     <tr>
 
@@ -379,8 +395,6 @@ export default function UrinalysisForm({ patient, onSubmit }) {
 
                     </tr>
 
-                    {/* PREGNANCY TEST / CRYSTAL */}
-
                     <tr>
 
                         <td className="border border-white p-2 text-left">
@@ -416,8 +430,6 @@ export default function UrinalysisForm({ patient, onSubmit }) {
                         </td>
 
                     </tr>
-
-                    {/* OTHERS / BACTERIA */}
 
                     <tr>
 

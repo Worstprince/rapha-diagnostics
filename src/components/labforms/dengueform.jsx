@@ -3,17 +3,24 @@
 import { useState } from "react";
 import LabReportHeader from "./labReportHeader";
 
-export default function DengueForm({ patient, onSubmit }) {
+export default function DengueForm({
+    patient,
+    onSubmit,
+    initialData = {},
+    readOnly = false
+}) {
 
     const [result, setResult] = useState({
 
-        ns1: "",
-        igg: "",
-        igm: ""
+        ns1: initialData.ns1 ?? "",
+        igg: initialData.igg ?? "",
+        igm: initialData.igm ?? ""
 
     });
 
     function handleChange(e) {
+
+        if (readOnly) return;
 
         const { name, value } = e.target;
 
@@ -27,6 +34,8 @@ export default function DengueForm({ patient, onSubmit }) {
     function handleSubmit(e) {
 
         e.preventDefault();
+
+        if (readOnly) return;
 
         onSubmit(result);
 
@@ -64,12 +73,13 @@ export default function DengueForm({ patient, onSubmit }) {
                                 name="ns1"
                                 value={result.ns1}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:opacity-100"
                             >
 
                                 <option value="">Select</option>
-                                <option>POSITIVE</option>
-                                <option>NEGATIVE</option>
+                                <option value="POSITIVE">POSITIVE</option>
+                                <option value="NEGATIVE">NEGATIVE</option>
 
                             </select>
 
@@ -89,12 +99,13 @@ export default function DengueForm({ patient, onSubmit }) {
                                 name="igg"
                                 value={result.igg}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:opacity-100"
                             >
 
                                 <option value="">Select</option>
-                                <option>POSITIVE</option>
-                                <option>NEGATIVE</option>
+                                <option value="POSITIVE">POSITIVE</option>
+                                <option value="NEGATIVE">NEGATIVE</option>
 
                             </select>
 
@@ -114,12 +125,13 @@ export default function DengueForm({ patient, onSubmit }) {
                                 name="igm"
                                 value={result.igm}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:opacity-100"
                             >
 
                                 <option value="">Select</option>
-                                <option>POSITIVE</option>
-                                <option>NEGATIVE</option>
+                                <option value="POSITIVE">POSITIVE</option>
+                                <option value="NEGATIVE">NEGATIVE</option>
 
                             </select>
 
@@ -151,16 +163,20 @@ export default function DengueForm({ patient, onSubmit }) {
 
             </div>
 
-            <div className="flex justify-end">
+            {!readOnly && (
 
-                <button
-                    type="submit"
-                    className="rounded-lg bg-cyan-600 px-6 py-3"
-                >
-                    Save Result
-                </button>
+                <div className="flex justify-end">
 
-            </div>
+                    <button
+                        type="submit"
+                        className="rounded-lg bg-cyan-600 px-6 py-3"
+                    >
+                        Save Result
+                    </button>
+
+                </div>
+
+            )}
 
         </form>
 

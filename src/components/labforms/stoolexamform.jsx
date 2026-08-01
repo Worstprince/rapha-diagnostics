@@ -3,19 +3,24 @@
 import { useState } from "react";
 import LabReportHeader from "./labReportHeader";
 
-export default function StoolExamForm({ patient, onSubmit }) {
+export default function StoolExamForm({
+    patient,
+    onSubmit,
+    initialData = {},
+    readOnly = false
+}) {
 
     const [result, setResult] = useState({
-        color: "",
-        parasiticOva: "",
-        consistency: "",
-        pussCells: "",
-        bacteria: "",
-        rbc: "",
-        fatGlobules: "",
-        occultBlood: "",
-        others: "",
-        fecalysisNo: ""
+        color: initialData.color ?? "",
+        parasiticOva: initialData.parasiticOva ?? "",
+        consistency: initialData.consistency ?? "",
+        pussCells: initialData.pussCells ?? "",
+        bacteria: initialData.bacteria ?? "",
+        rbc: initialData.rbc ?? "",
+        fatGlobules: initialData.fatGlobules ?? "",
+        occultBlood: initialData.occultBlood ?? "",
+        others: initialData.others ?? "",
+        fecalysisNo: initialData.fecalysisNo ?? ""
     });
 
     function handleChange(e) {
@@ -68,7 +73,8 @@ export default function StoolExamForm({ patient, onSubmit }) {
                                 name="color"
                                 value={result.color}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2 text-center"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 text-center disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
@@ -84,7 +90,8 @@ export default function StoolExamForm({ patient, onSubmit }) {
                                 name="consistency"
                                 value={result.consistency}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2 text-center"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 text-center disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
@@ -106,7 +113,8 @@ export default function StoolExamForm({ patient, onSubmit }) {
                                 name="parasiticOva"
                                 value={result.parasiticOva}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2 text-center"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 text-center disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
@@ -122,7 +130,8 @@ export default function StoolExamForm({ patient, onSubmit }) {
                                 name="bacteria"
                                 value={result.bacteria}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2 text-center"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 text-center disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
@@ -144,7 +153,8 @@ export default function StoolExamForm({ patient, onSubmit }) {
                                 name="pussCells"
                                 value={result.pussCells}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
@@ -160,7 +170,8 @@ export default function StoolExamForm({ patient, onSubmit }) {
                                 name="fatGlobules"
                                 value={result.fatGlobules}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
@@ -182,7 +193,8 @@ export default function StoolExamForm({ patient, onSubmit }) {
                                 name="rbc"
                                 value={result.rbc}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
@@ -204,7 +216,8 @@ export default function StoolExamForm({ patient, onSubmit }) {
                                 value={result.others}
                                 onChange={handleChange}
                                 rows="6"
-                                className="w-full resize-none rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full resize-none rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
@@ -226,7 +239,8 @@ export default function StoolExamForm({ patient, onSubmit }) {
                                 name="occultBlood"
                                 value={result.occultBlood}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
@@ -248,7 +262,8 @@ export default function StoolExamForm({ patient, onSubmit }) {
                                 name="fecalysisNo"
                                 value={result.fecalysisNo}
                                 onChange={handleChange}
-                                className="w-full rounded bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
                             />
 
                         </td>
@@ -279,16 +294,20 @@ export default function StoolExamForm({ patient, onSubmit }) {
 
             </div>
 
-            <div className="flex justify-end">
+            {!readOnly && (
 
-                <button
-                    type="submit"
-                    className="rounded-lg bg-cyan-600 px-6 py-3"
-                >
-                    Save Result
-                </button>
+                <div className="flex justify-end">
 
-            </div>
+                    <button
+                        type="submit"
+                        className="rounded-lg bg-cyan-600 px-6 py-3 hover:bg-cyan-500"
+                    >
+                        Save Result
+                    </button>
+
+                </div>
+
+            )}
 
         </form>
 
