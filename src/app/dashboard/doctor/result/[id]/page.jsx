@@ -26,11 +26,11 @@ const forms = {
     5: HBSAGForm,
     6: HematologyForm,
     7: OGTTForm,
-    8: SemenAnalysisForm,
-    9: stool,
-    10: UrinalysisForm,
-    11: PregnancyTestForm,
-    12: thyroid,
+    8: PregnancyTestForm,
+    9: SemenAnalysisForm,
+    10: stool,
+    11: thyroid,
+    12: UrinalysisForm,
     13: vdrl
 
 };

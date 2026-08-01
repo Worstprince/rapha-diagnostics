@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import LabReportHeader from "./labReportHeader";
 
-export default function ThyroidPanelForm({ patient, initialData, onSubmit }) {
+export default function ThyroidPanelForm({
+    patient,
+    initialData,
+    readOnly = false,
+    onSubmit
+}) {
 
     const [result, setResult] = useState({
         tsh: "",
@@ -37,6 +42,8 @@ export default function ThyroidPanelForm({ patient, initialData, onSubmit }) {
     function handleSubmit(e) {
 
         e.preventDefault();
+
+        if (readOnly) return;
 
         onSubmit(result);
 
@@ -95,6 +102,7 @@ export default function ThyroidPanelForm({ patient, initialData, onSubmit }) {
                                 name="tsh"
                                 value={result.tsh}
                                 onChange={handleChange}
+                                readOnly={readOnly}
                                 className="w-full rounded bg-slate-800 p-2 text-center"
                             />
 
@@ -119,6 +127,7 @@ export default function ThyroidPanelForm({ patient, initialData, onSubmit }) {
                                 name="ft4"
                                 value={result.ft4}
                                 onChange={handleChange}
+                                readOnly={readOnly}
                                 className="w-full rounded bg-slate-800 p-2 text-center"
                             />
 
@@ -154,16 +163,20 @@ export default function ThyroidPanelForm({ patient, initialData, onSubmit }) {
 
             </div>
 
-            <div className="flex justify-end">
+            {!readOnly && (
 
-                <button
-                    type="submit"
-                    className="rounded-lg bg-cyan-600 px-6 py-3"
-                >
-                    {initialData ? "Update Result" : "Save Result"}
-                </button>
+                <div className="flex justify-end">
 
-            </div>
+                    <button
+                        type="submit"
+                        className="rounded-lg bg-cyan-600 px-6 py-3"
+                    >
+                        {initialData ? "Update Result" : "Save Result"}
+                    </button>
+
+                </div>
+
+            )}
 
         </form>
 

@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import LabReportHeader from "./labReportHeader";
 
-export default function UrinalysisForm({ patient, initialData, onSubmit }) {
+export default function UrinalysisForm({
+    patient,
+    initialData,
+    readOnly = false,
+    onSubmit
+}) {
 
     const [result, setResult] = useState({
         color: "",
@@ -35,12 +40,11 @@ export default function UrinalysisForm({ patient, initialData, onSubmit }) {
                 reaction: initialData.reaction ?? "",
                 sugar: initialData.sugar ?? "",
                 albumin: initialData.albumin ?? "",
-                specificGravity: initialData.specificGravity ?? "",
-                pregnancyTest: initialData.pregnancyTest ?? "",
+                specificGravity: initialData.specificgravity ?? "",
+                pregnancyTest: initialData.pregnancytest ?? "",
                 others: initialData.others ?? "",
-
-                epithelialCells: initialData.epithelialCells ?? "",
-                mucusThread: initialData.mucusThread ?? "",
+                epithelialCells: initialData.epithelialcells ?? "",
+                mucusThread: initialData.mucusthread ?? "",
                 pus: initialData.pus ?? "",
                 rbc: initialData.rbc ?? "",
                 renalCells: initialData.renalCells ?? "",
@@ -67,6 +71,8 @@ export default function UrinalysisForm({ patient, initialData, onSubmit }) {
     function handleSubmit(e) {
 
         e.preventDefault();
+
+        if (readOnly) return;
 
         onSubmit(result);
 
@@ -126,6 +132,7 @@ export default function UrinalysisForm({ patient, initialData, onSubmit }) {
                                 name="color"
                                 value={result.color}
                                 onChange={handleChange}
+                                disabled={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             >
 
@@ -151,6 +158,7 @@ export default function UrinalysisForm({ patient, initialData, onSubmit }) {
                                 name="epithelialCells"
                                 value={result.epithelialCells}
                                 onChange={handleChange}
+                                disabled={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             >
 
@@ -178,6 +186,7 @@ export default function UrinalysisForm({ patient, initialData, onSubmit }) {
                                 name="transparency"
                                 value={result.transparency}
                                 onChange={handleChange}
+                                disabled={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             >
 
@@ -203,6 +212,7 @@ export default function UrinalysisForm({ patient, initialData, onSubmit }) {
                                 name="mucusThread"
                                 value={result.mucusThread}
                                 onChange={handleChange}
+                                disabled={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             >
 
@@ -230,6 +240,7 @@ export default function UrinalysisForm({ patient, initialData, onSubmit }) {
                                 name="reaction"
                                 value={result.reaction}
                                 onChange={handleChange}
+                                disabled={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             >
 
@@ -252,6 +263,7 @@ export default function UrinalysisForm({ patient, initialData, onSubmit }) {
                                 name="pus"
                                 value={result.pus}
                                 onChange={handleChange}
+                                readOnly={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             />
 
@@ -271,6 +283,7 @@ export default function UrinalysisForm({ patient, initialData, onSubmit }) {
                                 name="sugar"
                                 value={result.sugar}
                                 onChange={handleChange}
+                                disabled={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             >
 
@@ -297,6 +310,7 @@ export default function UrinalysisForm({ patient, initialData, onSubmit }) {
                                 name="rbc"
                                 value={result.rbc}
                                 onChange={handleChange}
+                                readOnly={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             />
 
@@ -316,6 +330,7 @@ export default function UrinalysisForm({ patient, initialData, onSubmit }) {
                                 name="albumin"
                                 value={result.albumin}
                                 onChange={handleChange}
+                                disabled={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             >
 
@@ -342,6 +357,7 @@ export default function UrinalysisForm({ patient, initialData, onSubmit }) {
                                 name="renalCells"
                                 value={result.renalCells}
                                 onChange={handleChange}
+                                readOnly={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             />
 
@@ -361,6 +377,7 @@ export default function UrinalysisForm({ patient, initialData, onSubmit }) {
                                 name="specificGravity"
                                 value={result.specificGravity}
                                 onChange={handleChange}
+                                disabled={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             >
 
@@ -388,6 +405,7 @@ export default function UrinalysisForm({ patient, initialData, onSubmit }) {
                                 name="cast"
                                 value={result.cast}
                                 onChange={handleChange}
+                                readOnly={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             />
 
@@ -408,6 +426,7 @@ export default function UrinalysisForm({ patient, initialData, onSubmit }) {
                                 name="pregnancyTest"
                                 value={result.pregnancyTest}
                                 onChange={handleChange}
+                                readOnly={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             />
 
@@ -424,6 +443,7 @@ export default function UrinalysisForm({ patient, initialData, onSubmit }) {
                                 name="crystal"
                                 value={result.crystal}
                                 onChange={handleChange}
+                                readOnly={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             />
 
@@ -444,6 +464,7 @@ export default function UrinalysisForm({ patient, initialData, onSubmit }) {
                                 name="others"
                                 value={result.others}
                                 onChange={handleChange}
+                                readOnly={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             />
 
@@ -460,6 +481,7 @@ export default function UrinalysisForm({ patient, initialData, onSubmit }) {
                                 name="bacteria"
                                 value={result.bacteria}
                                 onChange={handleChange}
+                                readOnly={readOnly}
                                 className="w-full rounded bg-slate-800 p-2"
                             />
 

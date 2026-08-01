@@ -12,7 +12,7 @@ const RESULT_TABLES = {
     8: "test_pregnancytestresult",
     9: "test_semenalysis",
     10: "test_stoolexamresult",
-    11: "test_thyroidresult",
+    11: "test_thyroidexamresult",
     12: "test_urinalysisresult",
     13: "test_vdrlresult"
 };
