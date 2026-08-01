@@ -3,14 +3,21 @@
 import { useState } from "react";
 import LabReportHeader from "./labReportHeader";
 
-export default function BloodTypeForm({ patient, onSubmit }) {
+export default function BloodTypeForm({
+    patient,
+    onSubmit,
+    initialData = {},
+    readOnly = false
+}) {
 
     const [result, setResult] = useState({
-        bloodType: "",
-        rhFactor: ""
+        bloodType: initialData.bloodType ?? "",
+        rhFactor: initialData.rhFactor ?? ""
     });
 
     function handleChange(e) {
+
+        if (readOnly) return;
 
         const { name, value } = e.target;
 
@@ -25,6 +32,8 @@ export default function BloodTypeForm({ patient, onSubmit }) {
 
         e.preventDefault();
 
+        if (readOnly) return;
+
         onSubmit(result);
 
     }
@@ -35,10 +44,12 @@ export default function BloodTypeForm({ patient, onSubmit }) {
             onSubmit={handleSubmit}
             className="space-y-8 rounded-2xl border border-slate-800 bg-slate-900 p-8"
         >
+
             <LabReportHeader
                 patient={patient}
                 title="HEMATOLOGY"
             />
+
             <table className="w-full border border-collapse text-center">
 
                 <thead>
@@ -71,17 +82,29 @@ export default function BloodTypeForm({ patient, onSubmit }) {
                                 name="bloodType"
                                 value={result.bloodType}
                                 onChange={handleChange}
-                                className="w-full rounded border bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded border bg-slate-800 p-2 disabled:cursor-not-allowed disabled:opacity-100"
                             >
 
                                 <option value="">
                                     Select
                                 </option>
 
-                                <option>A</option>
-                                <option>B</option>
-                                <option>AB</option>
-                                <option>O</option>
+                                <option value="A">
+                                    A
+                                </option>
+
+                                <option value="B">
+                                    B
+                                </option>
+
+                                <option value="AB">
+                                    AB
+                                </option>
+
+                                <option value="O">
+                                    O
+                                </option>
 
                             </select>
 
@@ -101,15 +124,21 @@ export default function BloodTypeForm({ patient, onSubmit }) {
                                 name="rhFactor"
                                 value={result.rhFactor}
                                 onChange={handleChange}
-                                className="w-full rounded border bg-slate-800 p-2"
+                                disabled={readOnly}
+                                className="w-full rounded border bg-slate-800 p-2 disabled:cursor-not-allowed disabled:opacity-100"
                             >
 
                                 <option value="">
                                     Select
                                 </option>
 
-                                <option>Positive</option>
-                                <option>Negative</option>
+                                <option value="Positive">
+                                    Positive
+                                </option>
+
+                                <option value="Negative">
+                                    Negative
+                                </option>
 
                             </select>
 
@@ -141,16 +170,20 @@ export default function BloodTypeForm({ patient, onSubmit }) {
 
             </div>
 
-            <div className="flex justify-end">
+            {!readOnly && (
 
-                <button
-                    type="submit"
-                    className="rounded-lg bg-cyan-600 px-6 py-3"
-                >
-                    Save Result
-                </button>
+                <div className="flex justify-end">
 
-            </div>
+                    <button
+                        type="submit"
+                        className="rounded-lg bg-cyan-600 px-6 py-3"
+                    >
+                        Save Result
+                    </button>
+
+                </div>
+
+            )}
 
         </form>
 

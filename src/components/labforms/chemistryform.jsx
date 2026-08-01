@@ -3,46 +3,52 @@
 import { useState } from "react";
 import LabReportHeader from "./labReportHeader";
 
-export default function ChemistryForm({ patient, onSubmit }) {
+export default function ChemistryForm({
+    patient,
+    onSubmit,
+    initialData = {},
+    readOnly = false
+}) {
 
-    const [result, setResult] = useState({
+const [result, setResult] = useState({
+    glucose: initialData.glucose ?? "",
+    creatinine: initialData.creatinine ?? "",
+    uricAcid: initialData.uricAcid ?? "",
+    totalCholesterol: initialData.totalCholesterol ?? "",
+    triglycerides: initialData.triglycerides ?? "",
+    hdlCholesterol: initialData.hdlCholesterol ?? "",
+    ldlCholesterol: initialData.ldlCholesterol ?? "",
+    sgot: initialData.sgot ?? "",
+    sgpt: initialData.sgpt ?? "",
+    totalBilirubin: initialData.totalBilirubin ?? "",
+    directBilirubin: initialData.directBilirubin ?? "",
+    indirectBilirubin: initialData.indirectBilirubin ?? "",
+    hba1c: initialData.hba1c ?? "",
+    bun: initialData.bun ?? ""
+});
 
-        glucose: "",
-        creatinine: "",
-        uricAcid: "",
-        totalCholesterol: "",
-        triglycerides: "",
-        hdlCholesterol: "",
-        ldlCholesterol: "",
+function handleChange(e) {
 
-        sgot: "",
-        sgpt: "",
-        totalBilirubin: "",
-        directBilirubin: "",
-        indirectBilirubin: "",
-        hba1c: "",
-        bun: ""
+    if (readOnly) return;
 
-    });
+    const { name, value } = e.target;
 
-    function handleChange(e) {
+    setResult(prev => ({
+        ...prev,
+        [name]: value
+    }));
 
-        const { name, value } = e.target;
+}
 
-        setResult(prev => ({
-            ...prev,
-            [name]: value
-        }));
+function handleSubmit(e) {
 
-    }
+    e.preventDefault();
 
-    function handleSubmit(e) {
+    if (readOnly) return;
 
-        e.preventDefault();
+    onSubmit(result);
 
-        onSubmit(result);
-
-    }
+}
 
     return (
 
@@ -101,6 +107,7 @@ export default function ChemistryForm({ patient, onSubmit }) {
                     name="glucose"
                     value={result.glucose}
                     onChange={handleChange}
+                    readOnly={readOnly} 
                     className="w-full rounded bg-slate-800 p-2"
                 />
             </td>
@@ -116,6 +123,7 @@ export default function ChemistryForm({ patient, onSubmit }) {
                     name="sgot"
                     value={result.sgot}
                     onChange={handleChange}
+                    readOnly={readOnly}
                     className="w-full rounded bg-slate-800 p-2"
                 />
             </td>
@@ -136,6 +144,7 @@ export default function ChemistryForm({ patient, onSubmit }) {
                     name="creatinine"
                     value={result.creatinine}
                     onChange={handleChange}
+                    readOnly={readOnly}
                     className="w-full rounded bg-slate-800 p-2"
                 />
             </td>
@@ -152,6 +161,7 @@ export default function ChemistryForm({ patient, onSubmit }) {
                     name="sgpt"
                     value={result.sgpt}
                     onChange={handleChange}
+                    readOnly={readOnly}
                     className="w-full rounded bg-slate-800 p-2"
                 />
             </td>
@@ -172,6 +182,7 @@ export default function ChemistryForm({ patient, onSubmit }) {
                     name="uricAcid"
                     value={result.uricAcid}
                     onChange={handleChange}
+                    readOnly={readOnly}
                     className="w-full rounded bg-slate-800 p-2"
                 />
             </td>
@@ -188,6 +199,7 @@ export default function ChemistryForm({ patient, onSubmit }) {
                     name="totalBilirubin"
                     value={result.totalBilirubin}
                     onChange={handleChange}
+                    readOnly={readOnly}
                     className="w-full rounded bg-slate-800 p-2"
                 />
             </td>
@@ -207,6 +219,7 @@ export default function ChemistryForm({ patient, onSubmit }) {
                     name="totalCholesterol"
                     value={result.totalCholesterol}
                     onChange={handleChange}
+                    readOnly={readOnly}
                     className="w-full rounded bg-slate-800 p-2"
                 />
             </td>
@@ -223,6 +236,7 @@ export default function ChemistryForm({ patient, onSubmit }) {
                     name="directBilirubin"
                     value={result.directBilirubin}
                     onChange={handleChange}
+                    readOnly={readOnly}
                     className="w-full rounded bg-slate-800 p-2"
                 />
             </td>
@@ -242,6 +256,7 @@ export default function ChemistryForm({ patient, onSubmit }) {
                     name="triglycerides"
                     value={result.triglycerides}
                     onChange={handleChange}
+                    readOnly={readOnly}
                     className="w-full rounded bg-slate-800 p-2"
                 />
             </td>
@@ -258,6 +273,7 @@ export default function ChemistryForm({ patient, onSubmit }) {
                     name="indirectBilirubin"
                     value={result.indirectBilirubin}
                     onChange={handleChange}
+                    readOnly={readOnly}
                     className="w-full rounded bg-slate-800 p-2"
                 />
             </td>
@@ -277,6 +293,7 @@ export default function ChemistryForm({ patient, onSubmit }) {
                     name="hdlCholesterol"
                     value={result.hdlCholesterol}
                     onChange={handleChange}
+                    readOnly={readOnly}
                     className="w-full rounded bg-slate-800 p-2"
                 />
             </td>
@@ -293,6 +310,7 @@ export default function ChemistryForm({ patient, onSubmit }) {
                     name="hba1c"
                     value={result.hba1c}
                     onChange={handleChange}
+                    readOnly={readOnly}
                     className="w-full rounded bg-slate-800 p-2"
                 />
             </td>
@@ -312,6 +330,7 @@ export default function ChemistryForm({ patient, onSubmit }) {
                     name="ldlCholesterol"
                     value={result.ldlCholesterol}
                     onChange={handleChange}
+                    readOnly={readOnly}
                     className="w-full rounded bg-slate-800 p-2"
                 />
             </td>
@@ -328,6 +347,7 @@ export default function ChemistryForm({ patient, onSubmit }) {
                     name="bun"
                     value={result.bun}
                     onChange={handleChange}
+                    readOnly={readOnly}
                     className="w-full rounded bg-slate-800 p-2"
                 />
             </td>
@@ -362,16 +382,20 @@ export default function ChemistryForm({ patient, onSubmit }) {
 
             </div>
 
-            <div className="flex justify-end">
+            {!readOnly && (
 
-                <button
-                    type="submit"
-                    className="rounded-lg bg-cyan-600 px-6 py-3"
-                >
-                    Save Result
-                </button>
+                <div className="flex justify-end">
 
-            </div>
+                    <button
+                        type="submit"
+                        className="rounded-lg bg-cyan-600 px-6 py-3"
+                    >
+                        Save Result
+                    </button>
+
+                </div>
+
+            )}
 
         </form>
 

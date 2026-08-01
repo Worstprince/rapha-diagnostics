@@ -181,6 +181,10 @@ body: JSON.stringify({
                                     Assigned Medical Technologist
                                 </th>
 
+                                <th className="p-3 text-left text-slate-300">
+                                    Action
+                                </th>
+
                             </tr>
 
                         </thead>
@@ -205,6 +209,7 @@ body: JSON.stringify({
                                     <td className="p-3">
 
                                         <select
+                                            disabled={test.status === "Done"}
                                             value={test.medtechid ?? ""}
                                             onChange={(e) =>
                                                 assignMedtech(test.id, e.target.value)
@@ -229,6 +234,19 @@ body: JSON.stringify({
 
                                         </select>
 
+                                    </td>
+
+                                    <td className="p-3">
+                                        {test.status === "Done" ? (
+                                            <a
+                                                href={`/dashboard/doctor/result/${test.id}`}
+                                                className="rounded-lg bg-cyan-600 px-4 py-2 text-sm text-white hover:bg-cyan-500"
+                                            >
+                                                View Result
+                                            </a>
+                                        ) : (
+                                            <span className="text-slate-500">-</span>
+                                        )}
                                     </td>
 
                                 </tr>
