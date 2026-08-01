@@ -153,3 +153,41 @@ export async function GET(request, { params }) {
     }
 
 }
+
+export async function PATCH(request, { params }) {
+    try {
+
+        const { id: assignmentId } = await params;
+
+        const { status } = await request.json();
+
+        await db.query(
+            `
+            UPDATE tblpatienttests
+            SET status = ?
+            WHERE id = ?
+            `,
+            [status, assignmentId]
+        );
+
+        return NextResponse.json({
+            message: "Result approved successfully."
+        });
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+        return NextResponse.json(
+            {
+                message: "Internal server error."
+            },
+            {
+                status: 500
+            }
+        );
+
+    }
+
+}

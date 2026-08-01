@@ -65,6 +65,37 @@ export default function DoctorResultPage() {
 
     }
 
+async function handleApprove() {
+
+    const confirmed = window.confirm(
+        "Are you sure you want to approve this laboratory result?"
+    );
+
+    if (!confirmed) return;
+
+    const response = await fetch(`/api/doctor/result/${id}`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            status: "Approved"
+        })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        alert(data.message || "Failed to approve result.");
+        return;
+    }
+
+    alert("Laboratory result approved successfully.");
+
+    // Optional: refresh the page so the new status appears
+    window.location.reload();
+}
+
     if (!patient || !test || !result) {
 
         return <p className="p-6">Loading...</p>;
@@ -80,13 +111,22 @@ export default function DoctorResultPage() {
     }
 
     return (
-
+<>
         <FormComponent
             patient={patient}
             initialData={result}
             readOnly={true}
         />
 
+        <div className="flex justify-end gap-4 mt-6">
+            <button
+                onClick={handleApprove}
+                className="rounded-lg bg-green-600 px-6 py-3"
+            >
+                Approve
+            </button>
+        </div>
+</>
     );
 
 }
