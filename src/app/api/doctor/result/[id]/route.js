@@ -1,5 +1,6 @@
 import db from "@/lib/db";
 import { NextResponse } from "next/server";
+import checkVisitApproved from "@/lib/checkVisitApproved";
 
 const RESULT_TABLES = {
     1: "test_bloodtyperesult",
@@ -160,7 +161,12 @@ export async function PATCH(request, { params }) {
         const { id: assignmentId } = await params;
 
         const { status } = await request.json();
+        const [rows] = await db.query(
+            "SELECT visitid FROM tblpatienttests WHERE id = ?",
+            [assignmentId]
+        );
 
+        const visitationId = rows[0].visitid;
         await db.query(
             `
             UPDATE tblpatienttests
@@ -169,11 +175,11 @@ export async function PATCH(request, { params }) {
             `,
             [status, assignmentId]
         );
-
+        await checkVisitApproved(visitationId);
         return NextResponse.json({
             message: "Result approved successfully."
         });
-
+        
     }
     catch (error) {
 

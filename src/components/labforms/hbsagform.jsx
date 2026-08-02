@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LabReportHeader from "./labReportHeader";
 
 export default function HepatitisForm({
@@ -11,8 +11,20 @@ export default function HepatitisForm({
 }) {
 
     const [result, setResult] = useState({
-        hbsag: initialData.hbsag ?? ""
+        hbsag: ""
     });
+
+    useEffect(() => {
+
+        if (initialData) {
+
+            setResult({
+                hbsag: initialData.hbsagResult ?? ""
+            });
+
+        }
+
+    }, [initialData]);
 
     function handleChange(e) {
 
@@ -139,7 +151,7 @@ export default function HepatitisForm({
                         type="submit"
                         className="rounded-lg bg-cyan-600 px-6 py-3"
                     >
-                        Save Result
+                        {initialData?.hbsag ? "Update Result" : "Save Result"}
                     </button>
 
                 </div>
