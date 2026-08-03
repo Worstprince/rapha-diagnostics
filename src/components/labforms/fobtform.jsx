@@ -11,7 +11,7 @@ export default function FOBTForm({
 }) {
 
     const [result, setResult] = useState({
-        fobt: initialData.fobt ?? ""
+        fobt: initialData.fobtResult ?? ""
     });
 
     function handleChange(e) {

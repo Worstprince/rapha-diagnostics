@@ -11,16 +11,16 @@ export default function HematologyResult({
 }) {
 
  const [result, setResult] = useState({
-    hemoglobin: initialData.hemoglobin ?? "",
-    rbc: initialData.rbc ?? "",
-    wbc: initialData.wbc ?? "",
+    hemoglobin: initialData.hemoglobinMass ?? "",
+    rbc: initialData.rbcNumConcentration ?? "",
+    wbc: initialData.wbcNumConcentration ?? "",
     bleedingTime: initialData.bleedingTime ?? "",
     clottingTime: initialData.clottingTime ?? "",
     bloodGroup: initialData.bloodGroup ?? "",
-    platelet: initialData.platelet ?? "",
-    hematocrit: initialData.hematocrit ?? "",
+    platelet: initialData.plateletCount ?? "",
+    hematocrit: initialData.hematoCrit ?? "",
     bsmp: initialData.bsmp ?? "",
-    others: initialData.others ?? "",
+    others: initialData.other ?? "",
 
     segmenters: initialData.segmenters ?? "",
     band: initialData.band ?? "",
@@ -33,7 +33,7 @@ export default function HematologyResult({
     mcv: initialData.mcv ?? "",
     mch: initialData.mch ?? "",
     mchc: initialData.mchc ?? "",
-    rdw: initialData.rdw ?? ""
+    rdw: initialData.rdwCv ?? ""
 });
 
 function handleChange(e) {

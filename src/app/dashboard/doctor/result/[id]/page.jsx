@@ -118,14 +118,16 @@ async function handleApprove() {
             readOnly={true}
         />
 
-        <div className="flex justify-end gap-4 mt-6">
-            <button
-                onClick={handleApprove}
-                className="rounded-lg bg-green-600 px-6 py-3"
-            >
-                Approve
-            </button>
-        </div>
+{test.status !== "Approved" && (
+    <div className="flex justify-end gap-4 mt-6">
+        <button
+            onClick={handleApprove}
+            className="rounded-lg bg-green-600 px-6 py-3"
+        >
+            Approve
+        </button>
+    </div>
+)}
 </>
     );
 

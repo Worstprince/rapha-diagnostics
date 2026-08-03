@@ -237,7 +237,7 @@ body: JSON.stringify({
                                     </td>
 
                                     <td className="p-3">
-                                        {test.status === "Done" ? (
+                                        {(test.status === "Done" || test.status === "Approved") ? (
                                             <a
                                                 href={`/dashboard/doctor/result/${test.id}`}
                                                 className="rounded-lg bg-cyan-600 px-4 py-2 text-sm text-white hover:bg-cyan-500"
