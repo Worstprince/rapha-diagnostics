@@ -7,6 +7,7 @@ export default function BloodTypeForm({
     patient,
     onSubmit,
     initialData = {},
+    hasExistingResult = false,
     readOnly = false
 }) {
 
@@ -178,7 +179,7 @@ export default function BloodTypeForm({
                         type="submit"
                         className="rounded-lg bg-cyan-600 px-6 py-3"
                     >
-                        Save Result
+                        {hasExistingResult  ? "Update Result" : "Save Result"}
                     </button>
 
                 </div>

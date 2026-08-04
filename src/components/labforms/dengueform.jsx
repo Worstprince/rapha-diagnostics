@@ -7,7 +7,8 @@ export default function DengueForm({
     patient,
     onSubmit,
     initialData = {},
-    readOnly = false
+    readOnly = false,
+    hasExistingResult = false
 }) {
 
     const [result, setResult] = useState({
@@ -171,7 +172,7 @@ export default function DengueForm({
                         type="submit"
                         className="rounded-lg bg-cyan-600 px-6 py-3"
                     >
-                        Save Result
+                        {hasExistingResult  ? "Update Result" : "Save Result"}
                     </button>
 
                 </div>

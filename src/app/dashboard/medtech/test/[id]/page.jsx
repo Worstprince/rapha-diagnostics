@@ -139,6 +139,7 @@ async function fetchTest() {
         patient={patient}
         test={test}
         initialData={result ?? {}}
+        hasExistingResult={result !== null}
         onSubmit={handleSubmit}
     />
 );

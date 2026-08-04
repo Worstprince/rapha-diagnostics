@@ -7,6 +7,7 @@ export default function ChemistryForm({
     patient,
     onSubmit,
     initialData = {},
+    hasExistingResult = false,
     readOnly = false
 }) {
 
@@ -390,7 +391,7 @@ function handleSubmit(e) {
                         type="submit"
                         className="rounded-lg bg-cyan-600 px-6 py-3"
                     >
-                        Save Result
+                        {hasExistingResult  ? "Update Result" : "Save Result"}
                     </button>
 
                 </div>

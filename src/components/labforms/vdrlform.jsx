@@ -7,6 +7,7 @@ export default function SyphilisForm({
     patient,
     initialData,
     readOnly = false,
+    hasExistingResult = false,
     onSubmit
 }) {
 
@@ -136,7 +137,7 @@ export default function SyphilisForm({
                         type="submit"
                         className="rounded-lg bg-cyan-600 px-6 py-3"
                     >
-                        {initialData ? "Update Result" : "Save Result"}
+                        {hasExistingResult  ? "Update Result" : "Save Result"}
                     </button>
 
                 </div>

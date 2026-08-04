@@ -7,7 +7,8 @@ export default function HematologyResult({
     patient,
     onSubmit,
     initialData = {},
-    readOnly = false
+    readOnly = false,
+    hasExistingResult = false
 }) {
 
 const [result, setResult] = useState({
@@ -257,7 +258,7 @@ function handleSubmit(e) {
                         onClick={handleSubmit}
                         className="rounded-lg bg-cyan-600 px-6 py-3 text-white hover:bg-cyan-500"
                     >
-                        Save Result
+                        {hasExistingResult  ? "Update Result" : "Save Result"}
                     </button>
 
                 </div>
