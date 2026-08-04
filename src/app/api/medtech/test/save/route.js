@@ -1,12 +1,12 @@
 import db from "@/lib/db";
 import { NextResponse } from "next/server";
 import checkVisitComplete from "@/lib/checkVisitComplete";
+import saveTestResult from "@/lib/saveTestResult";
 
 
 export async function POST(request) {
 
 const {
-    patientId,
     assignmentId,
     testId,
     visitId,
@@ -15,96 +15,65 @@ const {
 
     switch (testId) {
 
-        case 1: // Blood Typing
-        if (!result.bloodType || !result.rhFactor) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "Complete the Blood Typing result."
-                },
-                {
-                    status: 400
-                }
-            );
-        }
-            await db.query(`
-                INSERT INTO test_bloodtyperesult
-                (
-                    visitid,
-                    bloodtype,
-                    rhfactor
-                )
-                VALUES (?, ?, ?)
-            `, [
-                visitId,
-                result.bloodType,
-                result.rhFactor
-            ]);
+        case 1:
 
-            await db.query(`
-                UPDATE tblpatienttests
-                SET status = 'Done'
-                WHERE id = ?
-            `, [assignmentId]);
-            await checkVisitComplete(visitId);
+            if (!result.bloodType || !result.rhFactor) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        message: "Complete the Blood Typing result."
+                    },
+                    {
+                        status: 400
+                    }
+                );
+            }
+
+            await saveTestResult({
+
+                table: "test_bloodtyperesult",
+
+                visitId,
+
+                data: {
+                    bloodtype: result.bloodType,
+                    rhfactor: result.rhFactor
+                }
+
+            });
+
             break;
 
         case 2: // Chemistry
 
-            await db.query(
-                    `
-                    INSERT INTO test_chemistryresult
-                    (
-                        glucose,
-                        creatinine,
-                        uricAcid,
-                        totalCholesterol,
-                        triglycerides,
-                        hdlCholesterol,
-                        ldlCholesterol,
-                        sgot,
-                        sgpt,
-                        totalBilirubin,
-                        directBilirubin,
-                        indirectBilirubin,
-                        hba1c,
-                        bun,
-                        date,
-                        visitid
-                    )
-                    VALUES
-                    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), ?)
-                    `,
-                    [
-                        result.glucose,
-                        result.creatinine,
-                        result.uricAcid,
-                        result.totalCholesterol,
-                        result.triglycerides,
-                        result.hdlCholesterol,
-                        result.ldlCholesterol,
-                        result.sgot,
-                        result.sgpt,
-                        result.totalBilirubin,
-                        result.directBilirubin,
-                        result.indirectBilirubin,
-                        result.hba1c,
-                        result.bun,
-                        visitId
-                    ]
-                );
+            await saveTestResult({
 
-                await db.query(
-                    `
-                    UPDATE tblpatienttests
-                    SET status = 'Done'
-                    WHERE id = ?
-                    `,
-                    [assignmentId]
-                );
-                await checkVisitComplete(visitId);
-        break;
+                table: "test_chemistryresult",
 
+                visitId,
+
+                data: {
+                    glucose: result.glucose,
+                    creatinine: result.creatinine,
+                    uricAcid: result.uricAcid,
+                    totalCholesterol: result.totalCholesterol,
+                    triglycerides: result.triglycerides,
+                    hdlCholesterol: result.hdlCholesterol,
+                    ldlCholesterol: result.ldlCholesterol,
+                    sgot: result.sgot,
+                    sgpt: result.sgpt,
+                    totalBilirubin: result.totalBilirubin,
+                    directBilirubin: result.directBilirubin,
+                    indirectBilirubin: result.indirectBilirubin,
+                    hba1c: result.hba1c,
+                    bun: result.bun,
+                    date: new Date()
+                }
+
+            });
+
+            break;
+        
         case 3: // Dengue
 
             if (!result.ns1 || !result.igg || !result.igm) {
@@ -119,38 +88,23 @@ const {
                 );
             }
 
-            await db.query(
-                `
-                INSERT INTO test_dengueresult
-                (
-                    ns1,
-                    igg,
-                    igm,
-                    date,
-                    visitid
-                )
-                VALUES
-                (?, ?, ?, CURDATE(), ?)
-                `,
-                [
-                    result.ns1,
-                    result.igg,
-                    result.igm,
-                    visitId
-                ]
-            );
+            await saveTestResult({
 
-            await db.query(
-                `
-                UPDATE tblpatienttests
-                SET status = 'Done'
-                WHERE id = ?
-                `,
-                [assignmentId]
-            );
-            await checkVisitComplete(visitId);
+                table: "test_dengueresult",
+
+                visitId,
+
+                data: {
+                    ns1: result.ns1,
+                    igg: result.igg,
+                    igm: result.igm,
+                    date: new Date()
+                }
+
+            });
+
             break;
-
+   
         case 4: // FOBT
 
             if (!result.fobt) {
@@ -165,32 +119,18 @@ const {
                 );
             }
 
-            await db.query(
-                `
-                INSERT INTO test_fobtresult
-                (
-                    fobtResult,
-                    date,
-                    visitid
-                )
-                VALUES
-                (?, CURDATE(), ?)
-                `,
-                [
-                    result.fobt,
-                    visitId
-                ]
-            );
+            await saveTestResult({
 
-            await db.query(
-                `
-                UPDATE tblpatienttests
-                SET status = 'Done'
-                WHERE id = ?
-                `,
-                [assignmentId]
-            );
-            await checkVisitComplete(visitId);
+                table: "test_fobtresult",
+
+                visitId,
+
+                data: {
+                    fobtResult: result.fobt,
+                    date: new Date()
+                }
+
+            });
             break;
 
         case 5: //hbsag
@@ -206,98 +146,54 @@ const {
                 );
             }
 
-            await db.query(
-                `
-                INSERT INTO test_hbsagresult
-                (
-                    hbsagResult,
-                    date,
-                    visitid
-                )
-                VALUES
-                (?, CURDATE(), ?)
-                `,
-                [
-                    result.hbsag,
-                    visitId
-                ]
-            );
+            await saveTestResult({
 
-            await db.query(
-                `
-                UPDATE tblpatienttests
-                SET status = 'Done'
-                WHERE id = ?
-                `,
-                [assignmentId]
-            );
-            await checkVisitComplete(visitId);
+                table: "test_hbsagresult",
+
+                visitId,
+
+                data: {
+                    hbsagResult: result.hbsag,
+                    date: new Date()
+                }
+
+            });
             break;
 
         case 6: // Hematology
 
-            await db.query(
-        `
-        INSERT INTO test_hematologyresult
-        (
-            hemoglobinMass,
-            rbcNumConcentration,
-            wbcNumConcentration,
-            bleedingTime,
-            clottingTime,
-            bloodGroup,
-            plateletCount,
-            hematoCrit,
-            bsmp,
-            segmenters,
-            band,
-            juvenile,
-            lymphocytes,
-            monocytes,
-            eosinophils,
-            basophils,
-            mcv,
-            mch,
-            mchc,
-            rdwCv,
-            date,
-            other,
-            visitid
-        )
-        VALUES
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), ?, ?)
-        `,
-        [
-            result.hemoglobin,
-            result.rbc,
-            result.wbc,
-            result.bleedingTime,
-            result.clottingTime,
-            result.bloodGroup,
-            result.platelet,
-            result.hematocrit,
-            result.bsmp,
-            result.segmenters,
-            result.band,
-            result.juvenile,
-            result.lymphocytes,
-            result.monocytes,
-            result.eosinophils,
-            result.basophils,
-            result.mcv,
-            result.mch,
-            result.mchc,
-            result.rdw,
-            result.others,
-            visitId
-        ]);
-        await db.query(`
-                UPDATE tblpatienttests
-                SET status = 'Done'
-                WHERE id = ?
-            `, [assignmentId]);
-            
-            await checkVisitComplete(visitId);
+            await saveTestResult({
+
+                table: "test_hematologyresult",
+
+                visitId,
+
+                data: {
+                    hemoglobinMass: result.hemoglobin,
+                    rbcNumConcentration: result.rbc,
+                    wbcNumConcentration: result.wbc,
+                    bleedingTime: result.bleedingTime,
+                    clottingTime: result.clottingTime,
+                    bloodGroup: result.bloodGroup,
+                    plateletCount: result.platelet,
+                    hematoCrit: result.hematocrit,
+                    bsmp: result.bsmp,
+                    segmenters: result.segmenters,
+                    band: result.band,
+                    juvenile: result.juvenile,
+                    lymphocytes: result.lymphocytes,
+                    monocytes: result.monocytes,
+                    eosinophils: result.eosinophils,
+                    basophils: result.basophils,
+                    mcv: result.mcv,
+                    mch: result.mch,
+                    mchc: result.mchc,
+                    rdwCv: result.rdw,
+                    date: new Date(),
+                    other: result.others
+                }
+
+            });
             break;
 
         case 7: //ogtt 
@@ -313,38 +209,22 @@ const {
                 );
             }
 
-            await db.query(
-                `
-                INSERT INTO test_ogttresult
-                (
-                    fbs,
-                    firstHour,
-                    secondHour,
-                    date,
-                    visitid
-                )
-                VALUES
-                (?, ?, ?, CURDATE(), ?)
-                `,
-                [
-                    result.fbs,
-                    result.firstHour,
-                    result.secondHour,
-                    visitId
-                ]
-            );
+            await saveTestResult({
 
-            await db.query(
-                `
-                UPDATE tblpatienttests
-                SET status = 'Done'
-                WHERE id = ?
-                `,
-                [assignmentId]
-            );
-            await checkVisitComplete(visitId);
+                table: "test_ogttresult",
+
+                visitId,
+
+                data: {
+                    fbs: result.fbs,
+                    firstHour: result.firstHour,
+                    secondHour: result.secondHour,
+                    date: new Date()
+                }
+
+            });
             break;
-  
+            
         case 8: // Pregnancy Test
 
             if (!result.pregnancyResult) {
@@ -359,304 +239,159 @@ const {
                 );
             }
 
-            await db.query(
-                `
-                INSERT INTO test_pregnancytestresult
-                (
-                    ptHCGSerum,
-                    date,
-                    visitid
-                )
-                VALUES
-                (?, CURDATE(), ?)
-                `,
-                [
-                    result.pregnancyResult,
-                    visitId
-                ]
-            );
+            await saveTestResult({
 
-            await db.query(
-                `
-                UPDATE tblpatienttests
-                SET status = 'Done'
-                WHERE id = ?
-                `,
-                [assignmentId]
-            );
+                table: "test_pregnancytestresult",
 
-            await checkVisitComplete(visitId);
+                visitId,
+
+                data: {
+                    ptHCGSerum: result.pregnancyResult,
+                    date: new Date()
+                }
+
+            });
             break;
 
         case 9: // Semen Analysis
 
-    await db.query(
-        `
-        INSERT INTO test_semenalysis
-        (
-            appearance,
-            volume,
-            ph,
-            viscosity,
-            others,
+            await saveTestResult({
 
-            morphology,
-            motility,
-            wbc,
-            rbc,
+                table: "test_semenalysis",
 
-            m30mins,
-            m1hr,
-            m2hr,
+                visitId,
 
-            v30mins,
-            v1hr,
-            v2hr,
+                data: {
+                    appearance: result.appearance,
+                    volume: result.volume,
+                    ph: result.ph,
+                    viscosity: result.viscosity,
+                    others: result.others,
 
-            spermConcentration,
-            spermCount,
+                    morphology: result.morphology,
+                    motility: result.motility,
+                    wbc: result.wbc,
+                    rbc: result.rbc,
 
-            date,
-            visitid
-        )
-        VALUES
-        (
-            ?, ?, ?, ?, ?,
-            ?, ?, ?, ?,
-            ?, ?, ?,
-            ?, ?, ?,
-            ?, ?,
-            CURDATE(),
-            ?
-        )
-        `,
-        [
-            result.appearance,
-            result.volume,
-            result.ph,
-            result.viscosity,
-            result.others,
+                    m30mins: result.motility30min,
+                    m1hr: result.motility1hr,
+                    m2hr: result.motility2hr,
 
-            result.morphology,
-            result.motility,
-            result.wbc,
-            result.rbc,
+                    v30mins: result.viability30min,
+                    v1hr: result.viability1hr,
+                    v2hr: result.viability2hr,
 
-            result.motility30min,
-            result.motility1hr,
-            result.motility2hr,
+                    spermConcentration: result.spermConcentration,
+                    spermCount: result.spermCount,
 
-            result.viability30min,
-            result.viability1hr,
-            result.viability2hr,
+                    date: new Date()
+                }}
+            );
+            break;
 
-            result.spermConcentration,
-            result.spermCount,
-
-            visitId
-        ]
-    );
-
-    await db.query(
-        `
-        UPDATE tblpatienttests
-        SET status = 'Done'
-        WHERE id = ?
-        `,
-        [assignmentId]
-    );
-
-    await checkVisitComplete(visitId);
-    break;
-        
         case 10: // Stool Exam
 
-    await db.query(
-        `
-        INSERT INTO test_stoolexamresult
-        (
-            color,
-            parasiticOva,
-            consistency,
-            pussCells,
-            bacteria,
-            rbc,
-            fatGlobules,
-            occultBlood,
-            others,
-            fecalysisNo,
-            date,
-            visitid
-        )
-        VALUES
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), ?)
-        `,
-        [
-            result.color,
-            result.parasiticOva,
-            result.consistency,
-            result.pussCells,
-            result.bacteria,
-            result.rbc,
-            result.fatGlobules,
-            result.occultBlood,
-            result.others,
-            result.fecalysisNo,
-            visitId
-        ]
-    );
+    await saveTestResult({
 
-    await db.query(
-        `
-        UPDATE tblpatienttests
-        SET status = 'Done'
-        WHERE id = ?
-        `,
-        [assignmentId]
-    );
+        table: "test_stoolexamresult",
 
-        await checkVisitComplete(visitId);
-    break;
-    
+        visitId,
+
+        data: {
+            color: result.color,
+            parasiticOva: result.parasiticOva,
+            consistency: result.consistency,
+            pussCells: result.pussCells,
+            bacteria: result.bacteria,
+            rbc: result.rbc,
+            fatGlobules: result.fatGlobules,
+            occultBlood: result.occultBlood,
+            others: result.others,
+            fecalysisNo: result.fecalysisNo,
+            date: new Date()
+        }
+
+    });
+
+    break;   
+        
         case 11: // Thyroid Panel
 
-    if (!result.tsh || !result.ft4) {
-        return NextResponse.json(
-            {
-                success: false,
-                message: "Complete the Thyroid Panel result."
-            },
-            {
-                status: 400
+            if (!result.tsh || !result.ft4) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        message: "Complete the Thyroid Panel result."
+                    },
+                    {
+                        status: 400
+                    }
+                );
             }
-        );
-    }
 
-    await db.query(
-        `
-        INSERT INTO test_thyroidexamresult
-        (
-            tsh,
-            ft4,
-            date,
-            visitid
-        )
-        VALUES
-        (?, ?, CURDATE(), ?)
-        `,
-        [
-            result.tsh,
-            result.ft4,
-            visitId
-        ]
-    );
+            await saveTestResult({
 
-    await db.query(
-        `
-        UPDATE tblpatienttests
-        SET status = 'Done'
-        WHERE id = ?
-        `,
-        [assignmentId]
-    );
+                table: "test_thyroidexamresult",
+
+                visitId,
+
+                data: {
+                    tsh: result.tsh,
+                    ft4: result.ft4,
+                    date: new Date()
+                }
+
+            });
+            break;
     
-    await checkVisitComplete(visitId);
-    break;
-
         case 12: // Urinalysis
 
-    await db.query(
-        `
-        INSERT INTO test_urinalysisresult
-        (
-            color,
-            transparency,
-            reaction,
-            sugar,
-            albumin,
-            specificgravity,
-            pregnancytest,
-            others,
-            epithelialcells,
-            mucusThread,
-            pus,
-            rbc,
-            renalCells,
-            cast,
-            crystal,
-            bacteria,
-            date,
-            visitid
-        )
-        VALUES
-        (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), ?
-        )
-        `,
-        [
-            result.color,
-            result.transparency,
-            result.reaction,
-            result.sugar,
-            result.albumin,
-            result.specificGravity,
-            result.pregnancyTest,
-            result.others,
-            result.epithelialCells,
-            result.mucusThread,
-            result.pus,
-            result.rbc,
-            result.renalCells,
-            result.cast,
-            result.crystal,
-            result.bacteria,
-            visitId
-        ]
-    );
+            await saveTestResult({
 
-    await db.query(
-        `
-        UPDATE tblpatienttests
-        SET status = 'Done'
-        WHERE id = ?
-        `,
-        [assignmentId]
-    );
+                table: "test_urinalysisresult",
 
-    await checkVisitComplete(visitId);
-    break;
-    
-    case 13: // vdrl
+                visitId,
 
-    await db.query(
-        `
-        INSERT INTO test_vdrlresult
-        (
-            vdrl,
-            date,
-            visitid
-        )
-        VALUES
-        (?, CURDATE(), ?)
-        `,
-        [
-            result.vdrl,
-            visitId
-        ]
-    );
+                data: {
+                    color: result.color,
+                    transparency: result.transparency,
+                    reaction: result.reaction,
+                    sugar: result.sugar,
+                    albumin: result.albumin,
+                    specificGravity: result.specificGravity,
+                    pregnancytest: result.pregnancyTest,
+                    others: result.others,
+                    epithelialCells: result.epithelialCells,
+                    mucusThread: result.mucusThread,
+                    pus: result.pus,
+                    rbc: result.rbc,
+                    renalCells: result.renalCells,
+                    cast: result.cast,
+                    crystal: result.crystal,
+                    bacteria: result.bacteria,
+                    date: new Date()
+                }
 
-    await db.query(
-        `
-        UPDATE tblpatienttests
-        SET status = 'Done'
-        WHERE id = ?
-        `,
-        [assignmentId]
-    );
-    await checkVisitComplete(visitId);
+            });
 
-    break;
-    
+            break;
+
+        case 13: // VDRL
+
+            await saveTestResult({
+
+                table: "test_vdrlresult",
+
+                visitId,
+
+                data: {
+                    vdrl: result.vdrl,
+                    date: new Date()
+                }
+
+            });
+
+            break;
     
     default:
 
@@ -666,6 +401,17 @@ const {
             );
 
     }
+
+    await db.query(
+    `
+    UPDATE tblpatienttests
+    SET status='Done'
+    WHERE id=?
+    `,
+    [assignmentId]
+    );
+
+    await checkVisitComplete(visitId);
 
     return NextResponse.json({
         success: true
