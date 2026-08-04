@@ -12,9 +12,9 @@ export default function DengueForm({
 
     const [result, setResult] = useState({
 
-        ns1: initialData.ns1 ?? "",
-        igg: initialData.igg ?? "",
-        igm: initialData.igm ?? ""
+        ns1: initialData?.ns1 ?? "",
+        igg: initialData?.igg ?? "",
+        igm: initialData?.igm ?? ""
 
     });
 

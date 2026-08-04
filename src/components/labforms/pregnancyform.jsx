@@ -11,7 +11,7 @@ export default function PregnancyForm({
 }) {
 
     const [result, setResult] = useState({
-        pregnancyResult: initialData.ptHCGSerum ?? ""
+        pregnancyResult: initialData?.ptHCGSerum ?? ""
     });
 
     function handleChange(e) {

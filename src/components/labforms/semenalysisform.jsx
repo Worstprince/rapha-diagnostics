@@ -11,26 +11,26 @@ export default function SemenAnalysisForm({
 }) {
 
     const [result, setResult] = useState({
-        appearance: initialData.appearance ?? "",
-        volume: initialData.volume ?? "",
-        ph: initialData.pH ?? "",
-        viscosity: initialData.viscosity ?? "",
-        others: initialData.others ?? "",
-        morphology: initialData.morphology ?? "",
-        motility: initialData.motility ?? "",
-        wbc: initialData.wbc ?? "",
-        rbc: initialData.rbc ?? "",
+        appearance: initialData?.appearance ?? "",
+        volume: initialData?.volume ?? "",
+        ph: initialData?.pH ?? "",
+        viscosity: initialData?.viscosity ?? "",
+        others: initialData?.others ?? "",
+        morphology: initialData?.morphology ?? "",
+        motility: initialData?.motility ?? "",
+        wbc: initialData?.wbc ?? "",
+        rbc: initialData?.rbc ?? "",
 
-        motility30min: initialData.m30mins ?? "",
-        motility1hr: initialData.m1hr ?? "",
-        motility2hr: initialData.m2hr ?? "",
+        motility30min: initialData?.m30mins ?? "",
+        motility1hr: initialData?.m1hr ?? "",
+        motility2hr: initialData?.m2hr ?? "",
 
-        viability30min: initialData.v30mins ?? "",
-        viability1hr: initialData.v1hr ?? "",
-        viability2hr: initialData.v2hr ?? "",
+        viability30min: initialData?.v30mins ?? "",
+        viability1hr: initialData?.v1hr ?? "",
+        viability2hr: initialData?.v2hr ?? "",
 
-        spermConcentration: initialData.spermConcentration ?? "",
-        spermCount: initialData.spermCount ?? ""
+        spermConcentration: initialData?.spermConcentration ?? "",
+        spermCount: initialData?.spermCount ?? ""
     });
 
     function handleChange(e) {

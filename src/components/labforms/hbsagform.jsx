@@ -19,7 +19,7 @@ export default function HepatitisForm({
         if (initialData) {
 
             setResult({
-                hbsag: initialData.hbsagResult ?? ""
+                hbsag: initialData?.hbsagResult ?? ""
             });
 
         }

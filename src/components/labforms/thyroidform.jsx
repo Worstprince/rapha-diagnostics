@@ -20,8 +20,8 @@ export default function ThyroidPanelForm({
         if (initialData) {
 
             setResult({
-                tsh: initialData.tsh ?? "",
-                ft4: initialData.ft4 ?? ""
+                tsh: initialData?.tsh ?? "",
+                ft4: initialData?.ft4 ?? ""
             });
 
         }

@@ -11,16 +11,16 @@ export default function StoolExamForm({
 }) {
 
     const [result, setResult] = useState({
-        color: initialData.color ?? "",
-        parasiticOva: initialData.parasiticOva ?? "",
-        consistency: initialData.consistency ?? "",
-        pussCells: initialData.pussCells ?? "",
-        bacteria: initialData.bacteria ?? "",
-        rbc: initialData.rbc ?? "",
-        fatGlobules: initialData.fatGlobules ?? "",
-        occultBlood: initialData.occultBlood ?? "",
-        others: initialData.others ?? "",
-        fecalysisNo: initialData.fecalysisNo ?? ""
+        color: initialData?.color ?? "",
+        parasiticOva: initialData?.parasiticOva ?? "",
+        consistency: initialData?.consistency ?? "",
+        pussCells: initialData?.pussCells ?? "",
+        bacteria: initialData?.bacteria ?? "",
+        rbc: initialData?.rbc ?? "",
+        fatGlobules: initialData?.fatGlobules ?? "",
+        occultBlood: initialData?.occultBlood ?? "",
+        others: initialData?.others ?? "",
+        fecalysisNo: initialData?.fecalysisNo ?? ""
     });
 
     function handleChange(e) {

@@ -16,7 +16,7 @@ export async function GET() {
         INNER JOIN tblpatientvisitation pv ON pt.visitid = pv.id
         INNER JOIN tbltests t ON t.id = pt.testid
         INNER JOIN tblpatients p ON p.id = pv.patientid
-        WHERE pt.status = 'Pending';
+        WHERE pt.status != 'Approved';
         `
     );
 

@@ -1,22 +1,7 @@
 import db from "@/lib/db";
 import { NextResponse } from "next/server";
 import checkVisitApproved from "@/lib/checkVisitApproved";
-
-const RESULT_TABLES = {
-    1: "test_bloodtyperesult",
-    2: "test_chemistryresult",
-    3: "test_dengueresult",
-    4: "test_fobtresult",
-    5: "test_hbsagresult",
-    6: "test_hematologyresult",
-    7: "test_ogttresult",
-    8: "test_pregnancytestresult",
-    9: "test_semenalysis",
-    10: "test_stoolexamresult",
-    11: "test_thyroidexamresult",
-    12: "test_urinalysisresult",
-    13: "test_vdrlresult"
-};
+import getTestResult from "@/lib/getTestResults";
 
 export async function GET(request, { params }) {
 
@@ -82,34 +67,13 @@ export async function GET(request, { params }) {
 
         }
 
-        const table = RESULT_TABLES[assignment.testid];
-
-        if (!table) {
-
-            return NextResponse.json(
-                {
-                    message: "Unknown laboratory test."
-                },
-                {
-                    status: 400
-                }
-            );
-
-        }
-
-        const [resultRows] = await db.query(
-            `
-            SELECT *
-            FROM ${table}
-            WHERE visitid = ?
-            ORDER BY id DESC
-            LIMIT 1
-            `,
-            [assignment.visitid]
+        const result = await getTestResult(
+            assignment.testid,
+            assignment.visitid
         );
 
-        if (resultRows.length === 0) {
 
+        if (!result) {
             return NextResponse.json(
                 {
                     message: "Laboratory result not found."
@@ -118,7 +82,6 @@ export async function GET(request, { params }) {
                     status: 404
                 }
             );
-
         }
 
         return NextResponse.json({
@@ -133,7 +96,7 @@ export async function GET(request, { params }) {
                 name: assignment.name
             },
 
-            result: resultRows[0]
+            result
 
         });
 

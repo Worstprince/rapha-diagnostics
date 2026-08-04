@@ -11,8 +11,8 @@ export default function BloodTypeForm({
 }) {
 
     const [result, setResult] = useState({
-        bloodType: initialData.bloodType ?? "",
-        rhFactor: initialData.rhFactor ?? ""
+        bloodType: initialData?.bloodType ?? "",
+        rhFactor: initialData?.rhFactor ?? ""
     });
 
     function handleChange(e) {

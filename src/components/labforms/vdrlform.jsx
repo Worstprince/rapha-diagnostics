@@ -19,7 +19,7 @@ export default function SyphilisForm({
         if (initialData) {
 
             setResult({
-                vdrl: initialData.vdrl ?? ""
+                vdrl: initialData?.vdrl ?? ""
             });
 
         }

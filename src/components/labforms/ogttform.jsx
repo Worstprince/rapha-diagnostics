@@ -11,9 +11,9 @@ export default function OGTTForm({
 }) {
 
     const [result, setResult] = useState({
-        fbs: initialData.fbs ?? "",
-        firstHour: initialData.firstHour ?? "",
-        secondHour: initialData.secondHour ?? ""
+        fbs: initialData?.fbs ?? "",
+        firstHour: initialData?.firstHour ?? "",
+        secondHour: initialData?.secondHour ?? ""
     });
 
     function handleChange(e) {

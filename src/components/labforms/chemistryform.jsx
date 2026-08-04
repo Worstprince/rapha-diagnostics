@@ -11,20 +11,20 @@ export default function ChemistryForm({
 }) {
 
 const [result, setResult] = useState({
-    glucose: initialData.glucose ?? "",
-    creatinine: initialData.creatinine ?? "",
-    uricAcid: initialData.uricAcid ?? "",
-    totalCholesterol: initialData.totalCholesterol ?? "",
-    triglycerides: initialData.triglycerides ?? "",
-    hdlCholesterol: initialData.hdlCholesterol ?? "",
-    ldlCholesterol: initialData.ldlCholesterol ?? "",
-    sgot: initialData.sgot ?? "",
-    sgpt: initialData.sgpt ?? "",
-    totalBilirubin: initialData.totalBilirubin ?? "",
-    directBilirubin: initialData.directBilirubin ?? "",
-    indirectBilirubin: initialData.indirectBilirubin ?? "",
-    hba1c: initialData.hba1c ?? "",
-    bun: initialData.bun ?? ""
+    glucose: initialData?.glucose ?? "",
+    creatinine: initialData?.creatinine ?? "",
+    uricAcid: initialData?.uricAcid ?? "",
+    totalCholesterol: initialData?.totalCholesterol ?? "",
+    triglycerides: initialData?.triglycerides ?? "",
+    hdlCholesterol: initialData?.hdlCholesterol ?? "",
+    ldlCholesterol: initialData?.ldlCholesterol ?? "",
+    sgot: initialData?.sgot ?? "",
+    sgpt: initialData?.sgpt ?? "",
+    totalBilirubin: initialData?.totalBilirubin ?? "",
+    directBilirubin: initialData?.directBilirubin ?? "",
+    indirectBilirubin: initialData?.indirectBilirubin ?? "",
+    hba1c: initialData?.hba1c ?? "",
+    bun: initialData?.bun ?? ""
 });
 
 function handleChange(e) {

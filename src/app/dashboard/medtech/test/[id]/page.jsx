@@ -53,6 +53,7 @@ export default function TestPage() {
 
     const [patient, setPatient] = useState(null);
     const [test, setTest] = useState(null);
+    const [result, setResult] = useState(null);
 
     async function handleSubmit(result) {
         try {
@@ -93,29 +94,31 @@ export default function TestPage() {
 
     }, [id]);
 
-    async function fetchTest() {
+async function fetchTest() {
 
-        const response = await fetch(`/api/medtech/test/${id}`);
+    const response = await fetch(`/api/medtech/test/${id}`);
 
-        const result = await response.json();
+    const data = await response.json();
 
-        setPatient({
-            patientid: result.patientid,
-            name: result.patientname,
-            birthdate: result.birthdate,
-            age: result.age,
-            sex: result.sex,
-            address: result.address
-        });
+    setPatient({
+        patientid: data.test.patientid,
+        name: data.test.patientname,
+        birthdate: data.test.birthdate,
+        age: data.test.age,
+        sex: data.test.sex,
+        address: data.test.address
+    });
 
-        setTest({
-            id: result.id,
-            testid: result.testid,
-            visitid: result.visitid,
-            status: result.status,
-            medtechid: result.medtechid
-        });
-    }
+    setTest({
+        id: data.test.id,
+        testid: data.test.testid,
+        visitid: data.test.visitid,
+        status: data.test.status,
+        medtechid: data.test.medtechid
+    });
+
+    setResult(data.result);
+}
 
     if (!test || !patient) {
 
@@ -135,6 +138,7 @@ export default function TestPage() {
     <FormComponent
         patient={patient}
         test={test}
+        initialData={result ?? {}}
         onSubmit={handleSubmit}
     />
 );

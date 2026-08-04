@@ -10,30 +10,30 @@ export default function HematologyResult({
     readOnly = false
 }) {
 
- const [result, setResult] = useState({
-    hemoglobin: initialData.hemoglobinMass ?? "",
-    rbc: initialData.rbcNumConcentration ?? "",
-    wbc: initialData.wbcNumConcentration ?? "",
-    bleedingTime: initialData.bleedingTime ?? "",
-    clottingTime: initialData.clottingTime ?? "",
-    bloodGroup: initialData.bloodGroup ?? "",
-    platelet: initialData.plateletCount ?? "",
-    hematocrit: initialData.hematoCrit ?? "",
-    bsmp: initialData.bsmp ?? "",
-    others: initialData.other ?? "",
+const [result, setResult] = useState({
+    hemoglobin: initialData?.hemoglobinMass ?? "",
+    rbc: initialData?.rbcNumConcentration ?? "",
+    wbc: initialData?.wbcNumConcentration ?? "",
+    bleedingTime: initialData?.bleedingTime ?? "",
+    clottingTime: initialData?.clottingTime ?? "",
+    bloodGroup: initialData?.bloodGroup ?? "",
+    platelet: initialData?.plateletCount ?? "",
+    hematocrit: initialData?.hematoCrit ?? "",
+    bsmp: initialData?.bsmp ?? "",
+    others: initialData?.other ?? "",
 
-    segmenters: initialData.segmenters ?? "",
-    band: initialData.band ?? "",
-    juvenile: initialData.juvenile ?? "",
-    lymphocytes: initialData.lymphocytes ?? "",
-    monocytes: initialData.monocytes ?? "",
-    eosinophils: initialData.eosinophils ?? "",
-    basophils: initialData.basophils ?? "",
+    segmenters: initialData?.segmenters ?? "",
+    band: initialData?.band ?? "",
+    juvenile: initialData?.juvenile ?? "",
+    lymphocytes: initialData?.lymphocytes ?? "",
+    monocytes: initialData?.monocytes ?? "",
+    eosinophils: initialData?.eosinophils ?? "",
+    basophils: initialData?.basophils ?? "",
 
-    mcv: initialData.mcv ?? "",
-    mch: initialData.mch ?? "",
-    mchc: initialData.mchc ?? "",
-    rdw: initialData.rdwCv ?? ""
+    mcv: initialData?.mcv ?? "",
+    mch: initialData?.mch ?? "",
+    mchc: initialData?.mchc ?? "",
+    rdw: initialData?.rdwCv ?? ""
 });
 
 function handleChange(e) {

@@ -1,5 +1,6 @@
 import db from "@/lib/db";
 import { NextResponse } from "next/server";
+import getTestResult from "@/lib/getTestResults";
 
 export async function GET(request, { params }) {
 
@@ -50,7 +51,17 @@ export async function GET(request, { params }) {
 
         }
 
-        return NextResponse.json(rows[0]);
+        const assignment = rows[0];
+
+        const result = await getTestResult(
+            assignment.testid,
+            assignment.visitid
+        );
+
+        return NextResponse.json({
+            test: assignment,
+            result
+        });
 
     } catch (error) {
 

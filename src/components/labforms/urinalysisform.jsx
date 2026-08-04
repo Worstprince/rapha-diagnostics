@@ -35,22 +35,22 @@ export default function UrinalysisForm({
         if (initialData) {
 
             setResult({
-                color: initialData.color ?? "",
-                transparency: initialData.transparency ?? "",
-                reaction: initialData.reaction ?? "",
-                sugar: initialData.sugar ?? "",
-                albumin: initialData.albumin ?? "",
-                specificGravity: initialData.specificgravity ?? "",
-                pregnancyTest: initialData.pregnancytest ?? "",
-                others: initialData.others ?? "",
-                epithelialCells: initialData.epithelialcells ?? "",
-                mucusThread: initialData.mucusthread ?? "",
-                pus: initialData.pus ?? "",
-                rbc: initialData.rbc ?? "",
-                renalCells: initialData.renalCells ?? "",
-                cast: initialData.cast ?? "",
-                crystal: initialData.crystal ?? "",
-                bacteria: initialData.bacteria ?? ""
+                color: initialData?.color ?? "",
+                transparency: initialData?.transparency ?? "",
+                reaction: initialData?.reaction ?? "",
+                sugar: initialData?.sugar ?? "",
+                albumin: initialData?.albumin ?? "",
+                specificGravity: initialData?.specificgravity ?? "",
+                pregnancyTest: initialData?.pregnancytest ?? "",
+                others: initialData?.others ?? "",
+                epithelialCells: initialData?.epithelialcells ?? "",
+                mucusThread: initialData?.mucusthread ?? "",
+                pus: initialData?.pus ?? "",
+                rbc: initialData?.rbc ?? "",
+                renalCells: initialData?.renalCells ?? "",
+                cast: initialData?.cast ?? "",
+                crystal: initialData?.crystal ?? "",
+                bacteria: initialData?.bacteria ?? ""
             });
 
         }
