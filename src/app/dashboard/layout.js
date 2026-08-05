@@ -14,7 +14,6 @@ import {
   GridIcon,
   MenuIcon,
   SignOutIcon,
-  UserCogIcon,
   UserPlusIcon,
   UsersIcon,
 } from "@/components/icons";
@@ -45,10 +44,12 @@ const adminSections = [
   },
   {
     label: "User Management",
+    /* No Edit Users row: editing starts from the Edit button on a row in View
+       Users, which carries the account you picked. A bare link here would land
+       on the form with nothing selected. */
     links: [
       { href: "/dashboard/admin/viewUsers", label: "View Users", Icon: UsersIcon },
       { href: "/dashboard/admin/addUsers", label: "Add Users", Icon: UserPlusIcon },
-      { href: "/dashboard/admin/editUsers", label: "Edit Users", Icon: UserCogIcon },
     ],
   },
 ];
@@ -141,6 +142,11 @@ const roleHomes = Object.values(ROLE_HOMES);
 function isLinkActive(href, pathname) {
   if (roleHomes.includes(href)) {
     return pathname === href || (href === ROLE_HOMES.admin && pathname === "/dashboard");
+  }
+  /* The edit form has no row of its own — you get there from a row in View Users,
+     so that's the row that stays lit while you're editing. */
+  if (href === "/dashboard/admin/viewUsers" && pathname.startsWith("/dashboard/admin/editUsers")) {
+    return true;
   }
   return pathname === href || pathname.startsWith(`${href}/`);
 }

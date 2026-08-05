@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -313,17 +314,24 @@ function EditUserForm() {
             </p>
           )}
 
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-rd-muted">
               {locked ? "Select a user to begin." : null}
             </p>
-            <button
-              type="submit"
-              disabled={locked || submitting}
-              className="rd-btn rd-press rd-focus"
-            >
-              {submitting ? "Saving…" : "Save Changes"}
-            </button>
+            {/* Cancel is a link, not a reset: this form is entered from a row in
+                View Users, so backing out means going back to that list. */}
+            <div className="ml-auto flex items-center gap-3">
+              <Link href="/dashboard/admin/viewUsers" className="rd-btn-ghost rd-press rd-focus">
+                Cancel
+              </Link>
+              <button
+                type="submit"
+                disabled={locked || submitting}
+                className="rd-btn rd-press rd-focus"
+              >
+                {submitting ? "Saving…" : "Save Changes"}
+              </button>
+            </div>
           </div>
         </form>
     </section>
