@@ -6,6 +6,7 @@ export async function GET() {
     const [rows] = await db.query(
         `
         SELECT
+            pt.visitid,
             pt.id as assignmentid,
             CONCAT(fname, ' ', lname) as patientname,
             t.id as testid,
@@ -16,10 +17,38 @@ export async function GET() {
         INNER JOIN tblpatientvisitation pv ON pt.visitid = pv.id
         INNER JOIN tbltests t ON t.id = pt.testid
         INNER JOIN tblpatients p ON p.id = pv.patientid
-        WHERE pt.status != 'Approved';
+        WHERE pt.status != 'Approved'
+        ORDER BY pv.visited_at DESC, pt.visitid;
         `
     );
+    const grouped = [];
 
-    return NextResponse.json(rows);
+        for (const row of rows) {
+
+            let visit = grouped.find(v => v.visitid === row.visitid);
+
+            if (!visit) {
+
+                visit = {
+                    visitid: row.visitid,
+                    patientname: row.patientname,
+                    visited_at: row.visited_at,
+                    tests: []
+                };
+
+                grouped.push(visit);
+
+            }
+
+            visit.tests.push({
+                assignmentid: row.assignmentid,
+                testid: row.testid,
+                name: row.name,
+                status: row.status
+            });
+
+        }
+
+        return NextResponse.json(grouped);
 
 }
