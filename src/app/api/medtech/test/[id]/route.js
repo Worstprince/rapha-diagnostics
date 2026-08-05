@@ -11,6 +11,7 @@ export async function GET(request, { params }) {
         const [rows] = await db.query(
             `
             SELECT
+                v.id AS visitid,
                 pt.id,
                 pt.testid,
                 pt.visitid,
