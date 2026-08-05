@@ -21,15 +21,25 @@ import {
 import { signOut, useCurrentUser } from "@/lib/session";
 import { useTheme } from "@/lib/theme";
 
-/* Admin-only: it lands on the admin dashboard, so it must not appear in any
-   other role's sidebar. */
-const overview = { href: "/dashboard/admin", label: "Overview", Icon: GridIcon };
+/* Every role gets an Overview, but each one lands on that role's own dashboard
+   home. A single shared `/dashboard` link can't work: it redirects into the
+   admin dashboard, so it would drop the other roles somewhere they don't belong. */
+const ROLE_HOMES = {
+  admin: "/dashboard/admin",
+  reception: "/dashboard/reception",
+  doctor: "/dashboard/doctor",
+  medtech: "/dashboard/medtech",
+};
+
+function overviewLink(href) {
+  return { href, label: "Overview", Icon: GridIcon };
+}
 
 const adminSections = [
   {
     label: "General",
     links: [
-      overview,
+      overviewLink(ROLE_HOMES.admin),
       { href: "/dashboard/admin/activityLog", label: "Activity Log", Icon: ActivityIcon },
     ],
   },
@@ -44,6 +54,7 @@ const adminSections = [
 ];
 
 const receptionSections = [
+  { label: "General", links: [overviewLink(ROLE_HOMES.reception)] },
   {
     label: "Patient",
     links: [
@@ -54,6 +65,7 @@ const receptionSections = [
 ];
 
 const doctorSections = [
+  { label: "General", links: [overviewLink(ROLE_HOMES.doctor)] },
   {
     label: "Patient",
     links: [
@@ -67,6 +79,7 @@ const doctorSections = [
 ];
 
 const medtechSections = [
+  { label: "General", links: [overviewLink(ROLE_HOMES.medtech)] },
   {
     label: "Laboratory",
     links: [
@@ -120,11 +133,14 @@ const rowIdle = "text-rd-label hover:bg-rd-raised hover:text-rd-title";
 const rowActive =
   "border border-rd-hair-strong bg-rd-raised text-rd-cyan shadow-[var(--rd-lift)]";
 
-/* `/dashboard` redirects to `/dashboard/admin`, so Overview has to answer to both.
-   Prefix matching would light it up on every admin subpage instead. */
+const roleHomes = Object.values(ROLE_HOMES);
+
+/* A role home is the parent of every other row in that role's sidebar, so Overview
+   matches exactly — prefix matching would keep it lit on every subpage. `/dashboard`
+   redirects to `/dashboard/admin`, so the admin Overview answers to both. */
 function isLinkActive(href, pathname) {
-  if (href === "/dashboard/admin") {
-    return pathname === "/dashboard/admin" || pathname === "/dashboard";
+  if (roleHomes.includes(href)) {
+    return pathname === href || (href === ROLE_HOMES.admin && pathname === "/dashboard");
   }
   return pathname === href || pathname.startsWith(`${href}/`);
 }
