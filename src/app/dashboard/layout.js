@@ -21,7 +21,9 @@ import {
 import { signOut, useCurrentUser } from "@/lib/session";
 import { useTheme } from "@/lib/theme";
 
-const overview = { href: "/dashboard", label: "Overview", Icon: GridIcon };
+/* Admin-only: it lands on the admin dashboard, so it must not appear in any
+   other role's sidebar. */
+const overview = { href: "/dashboard/admin", label: "Overview", Icon: GridIcon };
 
 const adminSections = [
   {
@@ -42,7 +44,6 @@ const adminSections = [
 ];
 
 const receptionSections = [
-  { label: "General", links: [overview] },
   {
     label: "Patient",
     links: [
@@ -52,7 +53,29 @@ const receptionSections = [
   },
 ];
 
-const baseSections = [{ label: "General", links: [overview] }];
+const doctorSections = [
+  {
+    label: "Patient",
+    links: [
+      {
+        href: "/dashboard/doctor/visitation",
+        label: "View Visitations",
+        Icon: CalendarCheckIcon,
+      },
+    ],
+  },
+];
+
+const medtechSections = [
+  {
+    label: "Laboratory",
+    links: [
+      { href: "/dashboard/medtech/assignments", label: "Assignments", Icon: ClipboardIcon },
+    ],
+  },
+];
+
+const baseSections = [];
 
 function BrandMark() {
   return (
@@ -100,8 +123,8 @@ const rowActive =
 /* `/dashboard` redirects to `/dashboard/admin`, so Overview has to answer to both.
    Prefix matching would light it up on every admin subpage instead. */
 function isLinkActive(href, pathname) {
-  if (href === "/dashboard") {
-    return pathname === "/dashboard" || pathname === "/dashboard/admin";
+  if (href === "/dashboard/admin") {
+    return pathname === "/dashboard/admin" || pathname === "/dashboard";
   }
   return pathname === href || pathname.startsWith(`${href}/`);
 }
@@ -215,9 +238,17 @@ export default function DashboardLayout({ children }) {
   const menuButtonRef = useRef(null);
   const closeButtonRef = useRef(null);
 
-  const isAdmin = pathname.startsWith("/dashboard/admin") || pathname === "/dashboard";
-  const isReception = pathname.startsWith("/dashboard/reception");
-  const sections = isAdmin ? adminSections : isReception ? receptionSections : baseSections;
+  /* One role's nav at a time — `/dashboard` only ever renders while its redirect
+     to the admin dashboard is in flight. */
+  const sections = pathname.startsWith("/dashboard/admin") || pathname === "/dashboard"
+    ? adminSections
+    : pathname.startsWith("/dashboard/reception")
+      ? receptionSections
+      : pathname.startsWith("/dashboard/doctor")
+        ? doctorSections
+        : pathname.startsWith("/dashboard/medtech")
+          ? medtechSections
+          : baseSections;
 
   /* Links close the drawer themselves via onNavigate — watching pathname instead
      would miss a tap on the route you're already on. popstate covers the one exit
@@ -279,18 +310,7 @@ export default function DashboardLayout({ children }) {
             </div>
           </div>
         </aside>
-              {pathname.startsWith("/dashboard/doctor") && (
-                <Link
-                  href="/dashboard/doctor/visitation"
-                  className={`flex items-center rounded-xl border px-3 py-2 text-sm font-medium transition ${
-                    pathname === "/dashboard/doctor/visitation"
-                      ? "border-cyan-500 bg-cyan-500/10 text-cyan-300"
-                      : "border-slate-800 bg-slate-950/60 text-slate-300 hover:border-cyan-500 hover:text-white"
-                  }`}
-                >
-                  View Visitations
-                </Link>
-              )}
+
         {menuOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
             <div className="rd-scrim absolute inset-0 bg-black/50" onClick={closeMenu} aria-hidden="true" />
