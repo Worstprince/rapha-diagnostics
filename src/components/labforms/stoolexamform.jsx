@@ -47,7 +47,7 @@ export default function StoolExamForm({
 
         <form
             onSubmit={handleSubmit}
-            className="space-y-8 rounded-2xl border border-slate-800 bg-slate-900 p-8"
+            className="space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
         >
 
             <LabReportHeader
@@ -55,7 +55,7 @@ export default function StoolExamForm({
                 title="STOOL EXAM"
             />
 
-            <table className="w-full border-collapse border border-white text-center">
+            <table className="w-full border-collapse border border-current text-center">
 
                 <tbody>
 
@@ -63,11 +63,11 @@ export default function StoolExamForm({
 
                     <tr>
 
-                        <td className="w-[15%] border border-white p-2 text-left">
+                        <td className="w-[15%] border border-current p-2 text-left">
                             Color:
                         </td>
 
-                        <td className="w-[35%] border border-white p-2">
+                        <td className="w-[35%] border border-current p-2">
 
                             <input
                                 type="text"
@@ -75,16 +75,16 @@ export default function StoolExamForm({
                                 value={result.color}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 text-center disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 text-center disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
 
-                        <td className="w-[15%] border border-white p-2 text-left">
+                        <td className="w-[15%] border border-current p-2 text-left">
                             Consistency:
                         </td>
 
-                        <td className="w-[35%] border border-white p-2">
+                        <td className="w-[35%] border border-current p-2">
 
                             <input
                                 type="text"
@@ -92,7 +92,7 @@ export default function StoolExamForm({
                                 value={result.consistency}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 text-center disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 text-center disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
@@ -103,11 +103,11 @@ export default function StoolExamForm({
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             Parasitic Ova:
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -115,16 +115,16 @@ export default function StoolExamForm({
                                 value={result.parasiticOva}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 text-center disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 text-center disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             Bacteria:
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -132,7 +132,7 @@ export default function StoolExamForm({
                                 value={result.bacteria}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 text-center disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 text-center disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
@@ -143,11 +143,11 @@ export default function StoolExamForm({
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             Puss Cells:
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -155,16 +155,16 @@ export default function StoolExamForm({
                                 value={result.pussCells}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             Fat Globules:
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -172,7 +172,7 @@ export default function StoolExamForm({
                                 value={result.fatGlobules}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
@@ -183,11 +183,11 @@ export default function StoolExamForm({
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             Rbc:
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -195,21 +195,21 @@ export default function StoolExamForm({
                                 value={result.rbc}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
 
                         <td
                             rowSpan="3"
-                            className="border border-white p-2 text-left align-top"
+                            className="border border-current p-2 text-left align-top"
                         >
                             Others:
                         </td>
 
                         <td
                             rowSpan="3"
-                            className="border border-white p-2 align-top"
+                            className="border border-current p-2 align-top"
                         >
 
                             <textarea
@@ -218,7 +218,7 @@ export default function StoolExamForm({
                                 onChange={handleChange}
                                 rows="6"
                                 disabled={readOnly}
-                                className="w-full resize-none rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full resize-none rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
@@ -229,11 +229,11 @@ export default function StoolExamForm({
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             Occult Blood:
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -241,7 +241,7 @@ export default function StoolExamForm({
                                 value={result.occultBlood}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
@@ -252,11 +252,11 @@ export default function StoolExamForm({
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             Fecalysis No.:
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -264,7 +264,7 @@ export default function StoolExamForm({
                                 value={result.fecalysisNo}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
@@ -279,7 +279,7 @@ export default function StoolExamForm({
 
                 <div className="text-center">
 
-                    <div className="border-t border-white pt-2">
+                    <div className="border-t border-current pt-2">
                         Pathologist
                     </div>
 
@@ -287,7 +287,7 @@ export default function StoolExamForm({
 
                 <div className="text-center">
 
-                    <div className="border-t border-white pt-2">
+                    <div className="border-t border-current pt-2">
                         Medical Technologist
                     </div>
 
@@ -301,7 +301,7 @@ export default function StoolExamForm({
 
                     <button
                         type="submit"
-                        className="rounded-lg bg-cyan-600 px-6 py-3 hover:bg-cyan-500"
+                        className="rd-btn rd-press rd-focus"
                     >
                         {hasExistingResult  ? "Update Result" : "Save Result"}
                     </button>

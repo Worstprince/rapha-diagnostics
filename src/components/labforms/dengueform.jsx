@@ -46,7 +46,7 @@ export default function DengueForm({
 
         <form
             onSubmit={handleSubmit}
-            className="space-y-8 rounded-2xl border border-slate-800 bg-slate-900 p-8"
+            className="space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
         >
 
             <LabReportHeader
@@ -75,7 +75,7 @@ export default function DengueForm({
                                 value={result.ns1}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:opacity-100"
+                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
                             >
 
                                 <option value="">Select</option>
@@ -101,7 +101,7 @@ export default function DengueForm({
                                 value={result.igg}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:opacity-100"
+                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
                             >
 
                                 <option value="">Select</option>
@@ -127,7 +127,7 @@ export default function DengueForm({
                                 value={result.igm}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:opacity-100"
+                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
                             >
 
                                 <option value="">Select</option>
@@ -148,7 +148,7 @@ export default function DengueForm({
 
                 <div className="text-center">
 
-                    <div className="border-t border-white pt-2">
+                    <div className="border-t border-current pt-2">
                         Pathologist
                     </div>
 
@@ -156,7 +156,7 @@ export default function DengueForm({
 
                 <div className="text-center">
 
-                    <div className="border-t border-white pt-2">
+                    <div className="border-t border-current pt-2">
                         Medical Technologist
                     </div>
 
@@ -170,7 +170,7 @@ export default function DengueForm({
 
                     <button
                         type="submit"
-                        className="rounded-lg bg-cyan-600 px-6 py-3"
+                        className="rd-btn rd-press rd-focus"
                     >
                         {hasExistingResult  ? "Update Result" : "Save Result"}
                     </button>

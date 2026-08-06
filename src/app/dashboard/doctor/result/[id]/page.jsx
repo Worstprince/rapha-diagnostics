@@ -98,7 +98,7 @@ async function handleApprove() {
 
     if (!patient || !test || !result) {
 
-        return <p className="p-6">Loading...</p>;
+        return <p className="p-6 text-rd-muted">Loading...</p>;
 
     }
 
@@ -106,7 +106,7 @@ async function handleApprove() {
 
     if (!FormComponent) {
 
-        return <p>Unknown Test</p>;
+        return <p className="text-rd-muted">Unknown Test</p>;
 
     }
 
@@ -122,7 +122,7 @@ async function handleApprove() {
     <div className="flex justify-end gap-4 mt-6">
         <button
             onClick={handleApprove}
-            className="rounded-lg bg-green-600 px-6 py-3"
+            className="rd-btn rd-press rd-focus"
         >
             Approve
         </button>

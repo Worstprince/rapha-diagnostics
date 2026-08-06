@@ -43,7 +43,7 @@ export default function BloodTypeForm({
 
         <form
             onSubmit={handleSubmit}
-            className="space-y-8 rounded-2xl border border-slate-800 bg-slate-900 p-8"
+            className="space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
         >
 
             <LabReportHeader
@@ -84,7 +84,7 @@ export default function BloodTypeForm({
                                 value={result.bloodType}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded border bg-slate-800 p-2 disabled:cursor-not-allowed disabled:opacity-100"
+                                className="w-full rounded border bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
                             >
 
                                 <option value="">
@@ -126,7 +126,7 @@ export default function BloodTypeForm({
                                 value={result.rhFactor}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded border bg-slate-800 p-2 disabled:cursor-not-allowed disabled:opacity-100"
+                                className="w-full rounded border bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
                             >
 
                                 <option value="">
@@ -155,7 +155,7 @@ export default function BloodTypeForm({
 
                 <div className="text-center">
 
-                    <div className="border-t border-white pt-2">
+                    <div className="border-t border-current pt-2">
                         Pathologist
                     </div>
 
@@ -163,7 +163,7 @@ export default function BloodTypeForm({
 
                 <div className="text-center">
 
-                    <div className="border-t border-white pt-2">
+                    <div className="border-t border-current pt-2">
                         Medical Technologist
                     </div>
 
@@ -177,7 +177,7 @@ export default function BloodTypeForm({
 
                     <button
                         type="submit"
-                        className="rounded-lg bg-cyan-600 px-6 py-3"
+                        className="rd-btn rd-press rd-focus"
                     >
                         {hasExistingResult  ? "Update Result" : "Save Result"}
                     </button>

@@ -54,7 +54,7 @@ export default function ThyroidPanelForm({
 
         <form
             onSubmit={handleSubmit}
-            className="space-y-8 rounded-2xl border border-slate-800 bg-slate-900 p-8"
+            className="space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
         >
 
             <LabReportHeader
@@ -66,21 +66,21 @@ export default function ThyroidPanelForm({
                 THYROID PANEL
             </h2>
 
-            <table className="mx-auto w-full max-w-3xl border-collapse border border-white text-center">
+            <table className="mx-auto w-full max-w-3xl border-collapse border border-current text-center">
 
                 <thead>
 
                     <tr>
 
-                        <th className="border border-white p-2">
+                        <th className="border border-current p-2">
                             TEST
                         </th>
 
-                        <th className="border border-white p-2">
+                        <th className="border border-current p-2">
                             Result
                         </th>
 
-                        <th className="border border-white p-2">
+                        <th className="border border-current p-2">
                             Normal Values
                         </th>
 
@@ -92,11 +92,11 @@ export default function ThyroidPanelForm({
 
                     <tr>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
                             TSH
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -104,12 +104,12 @@ export default function ThyroidPanelForm({
                                 value={result.tsh}
                                 onChange={handleChange}
                                 readOnly={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 text-center"
+                                className="w-full rounded bg-rd-field p-2 text-center"
                             />
 
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
                             0.27-4.20 uIU/mL
                         </td>
 
@@ -117,11 +117,11 @@ export default function ThyroidPanelForm({
 
                     <tr>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
                             FT4
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -129,12 +129,12 @@ export default function ThyroidPanelForm({
                                 value={result.ft4}
                                 onChange={handleChange}
                                 readOnly={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 text-center"
+                                className="w-full rounded bg-rd-field p-2 text-center"
                             />
 
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
                             12.00-22.00 pmol/L
                         </td>
 
@@ -148,7 +148,7 @@ export default function ThyroidPanelForm({
 
                 <div className="text-center">
 
-                    <div className="border-t border-white pt-2">
+                    <div className="border-t border-current pt-2">
                         Pathologist
                     </div>
 
@@ -156,7 +156,7 @@ export default function ThyroidPanelForm({
 
                 <div className="text-center">
 
-                    <div className="border-t border-white pt-2">
+                    <div className="border-t border-current pt-2">
                         Medical Technologist
                     </div>
 
@@ -170,7 +170,7 @@ export default function ThyroidPanelForm({
 
                     <button
                         type="submit"
-                        className="rounded-lg bg-cyan-600 px-6 py-3"
+                        className="rd-btn rd-press rd-focus"
                     >
                         {hasExistingResult  ? "Update Result" : "Save Result"}
                     </button>

@@ -83,7 +83,7 @@ export default function UrinalysisForm({
 
         <form
             onSubmit={handleSubmit}
-            className="space-y-8 rounded-2xl border border-slate-800 bg-slate-900 p-8"
+            className="space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
         >
 
             <LabReportHeader
@@ -95,7 +95,7 @@ export default function UrinalysisForm({
                 URINALYSIS
             </h2>
 
-            <table className="w-full border-collapse border border-white text-center">
+            <table className="w-full border-collapse border border-current text-center">
 
                 <thead>
 
@@ -103,14 +103,14 @@ export default function UrinalysisForm({
 
                         <th
                             colSpan="2"
-                            className="border border-white p-2"
+                            className="border border-current p-2"
                         >
                             CHEMICAL AND MACROSCOPIC EXAMINATION
                         </th>
 
                         <th
                             colSpan="2"
-                            className="border border-white p-2"
+                            className="border border-current p-2"
                         >
                             MICROSCOPIC EXAMINATION
                         </th>
@@ -123,18 +123,18 @@ export default function UrinalysisForm({
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             COLOR
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <select
                                 name="color"
                                 value={result.color}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             >
 
                                 <option value=""></option>
@@ -149,18 +149,18 @@ export default function UrinalysisForm({
 
                         </td>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             EPITHELIAL CELLS /hpf
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <select
                                 name="epithelialCells"
                                 value={result.epithelialCells}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             >
 
                                 <option value=""></option>
@@ -177,18 +177,18 @@ export default function UrinalysisForm({
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             TRANSPARENCY
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <select
                                 name="transparency"
                                 value={result.transparency}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             >
 
                                 <option value=""></option>
@@ -203,18 +203,18 @@ export default function UrinalysisForm({
 
                         </td>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             MUCUS THREAD /hpf
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <select
                                 name="mucusThread"
                                 value={result.mucusThread}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             >
 
                                 <option value=""></option>
@@ -231,18 +231,18 @@ export default function UrinalysisForm({
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             REACTION
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <select
                                 name="reaction"
                                 value={result.reaction}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             >
 
                                 <option value=""></option>
@@ -253,11 +253,11 @@ export default function UrinalysisForm({
 
                         </td>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             PUS / hpf
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -265,7 +265,7 @@ export default function UrinalysisForm({
                                 value={result.pus}
                                 onChange={handleChange}
                                 readOnly={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             />
 
                         </td>
@@ -274,18 +274,18 @@ export default function UrinalysisForm({
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             SUGAR
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <select
                                 name="sugar"
                                 value={result.sugar}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             >
 
                                 <option value=""></option>
@@ -300,11 +300,11 @@ export default function UrinalysisForm({
 
                         </td>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             RBC / hpf
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -312,7 +312,7 @@ export default function UrinalysisForm({
                                 value={result.rbc}
                                 onChange={handleChange}
                                 readOnly={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             />
 
                         </td>
@@ -321,18 +321,18 @@ export default function UrinalysisForm({
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             ALBUMIN
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <select
                                 name="albumin"
                                 value={result.albumin}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             >
 
                                 <option value=""></option>
@@ -347,11 +347,11 @@ export default function UrinalysisForm({
 
                         </td>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             RENAL CELLS / hpf
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -359,7 +359,7 @@ export default function UrinalysisForm({
                                 value={result.renalCells}
                                 onChange={handleChange}
                                 readOnly={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             />
 
                         </td>
@@ -368,18 +368,18 @@ export default function UrinalysisForm({
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             SPECIFIC GRAVITY
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <select
                                 name="specificGravity"
                                 value={result.specificGravity}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             >
 
                                 <option value=""></option>
@@ -395,11 +395,11 @@ export default function UrinalysisForm({
 
                         </td>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             CAST / lpf
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -407,7 +407,7 @@ export default function UrinalysisForm({
                                 value={result.cast}
                                 onChange={handleChange}
                                 readOnly={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             />
 
                         </td>
@@ -416,11 +416,11 @@ export default function UrinalysisForm({
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             PREGNANCY TEST
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -428,16 +428,16 @@ export default function UrinalysisForm({
                                 value={result.pregnancyTest}
                                 onChange={handleChange}
                                 readOnly={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             />
 
                         </td>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             CRYSTAL / hpf
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -445,7 +445,7 @@ export default function UrinalysisForm({
                                 value={result.crystal}
                                 onChange={handleChange}
                                 readOnly={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             />
 
                         </td>
@@ -454,11 +454,11 @@ export default function UrinalysisForm({
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             OTHERS
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -466,16 +466,16 @@ export default function UrinalysisForm({
                                 value={result.others}
                                 onChange={handleChange}
                                 readOnly={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             />
 
                         </td>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             BACTERIA / hpf
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -483,7 +483,7 @@ export default function UrinalysisForm({
                                 value={result.bacteria}
                                 onChange={handleChange}
                                 readOnly={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             />
 
                         </td>
@@ -498,7 +498,7 @@ export default function UrinalysisForm({
 
                 <div className="text-center">
 
-                    <div className="border-t border-white pt-2">
+                    <div className="border-t border-current pt-2">
                         Pathologist
                     </div>
 
@@ -506,7 +506,7 @@ export default function UrinalysisForm({
 
                 <div className="text-center">
 
-                    <div className="border-t border-white pt-2">
+                    <div className="border-t border-current pt-2">
                         Medical Technologist
                     </div>
 
@@ -518,7 +518,7 @@ export default function UrinalysisForm({
 
                 <button
                     type="submit"
-                    className="rounded-lg bg-cyan-600 px-6 py-3"
+                    className="rd-btn rd-press rd-focus"
                 >
                     {hasExistingResult  ? "Update Result" : "Save Result"}
                 </button>

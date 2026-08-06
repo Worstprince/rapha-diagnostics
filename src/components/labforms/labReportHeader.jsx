@@ -28,7 +28,7 @@ export default function LabReportHeader({ patient, title }) {
                     Esperanza Building, Quezon Boulevard, Kidapawan City
                 </p>
 
-                <h2 className="mt-6 text-3xl font-bold text-red-300">
+                <h2 className="mt-6 text-3xl font-bold text-rd-danger">
                     {title}
                 </h2>
 
