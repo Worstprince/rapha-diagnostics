@@ -3,15 +3,19 @@ import { NextResponse } from "next/server";
 import { logActivity } from "@/lib/logActivity";
 
 export async function GET(request, { params }) {
+
     try {
-        const { id } = await params
+
+        const { id } = await params;
+
         const [user] = await db.query(
             `
             SELECT
                 id,
                 username,
                 email,
-                role
+                role,
+                archivestatus
             FROM tblusers
             WHERE id = ?
             `,
@@ -19,6 +23,7 @@ export async function GET(request, { params }) {
         );
 
         if (user.length === 0) {
+
             return NextResponse.json(
                 {
                     success: false,
@@ -28,6 +33,7 @@ export async function GET(request, { params }) {
                     status: 404
                 }
             );
+
         }
 
         return NextResponse.json(
@@ -41,29 +47,71 @@ export async function GET(request, { params }) {
         );
 
     } catch (error) {
+
+        console.error(error);
+
         return NextResponse.json(
             {
                 success: false,
                 message: "Failed to fetch user."
             },
             {
-                status: 400
+                status: 500
             }
         );
+
     }
 
 }
 
+
 export async function PUT(request, { params }) {
 
     try {
+
         const { id } = await params;
+
         const user = await request.json();
 
-        // Check if username/email belongs to another user
-        const [rows] = await db.query(
+
+        // Get the user's current information
+        // so we can detect archive/restore changes.
+        const [existingRows] = await db.query(
             `
-            SELECT id
+            SELECT
+                id,
+                username,
+                archivestatus
+            FROM tblusers
+            WHERE id = ?
+            `,
+            [id]
+        );
+
+
+        if (existingRows.length === 0) {
+
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "User not found."
+                },
+                {
+                    status: 404
+                }
+            );
+
+        }
+
+
+        const existingUser = existingRows[0];
+
+
+        // Check if username/email belongs to another user
+        const [duplicateRows] = await db.query(
+            `
+            SELECT
+                id
             FROM tblusers
             WHERE (username = ? OR email = ?)
             AND id <> ?
@@ -75,7 +123,8 @@ export async function PUT(request, { params }) {
             ]
         );
 
-        if (rows.length > 0) {
+
+        if (duplicateRows.length > 0) {
 
             return NextResponse.json(
                 {
@@ -89,6 +138,7 @@ export async function PUT(request, { params }) {
 
         }
 
+
         // Update WITHOUT changing password
         if (user.password === "") {
 
@@ -98,18 +148,22 @@ export async function PUT(request, { params }) {
                 SET
                     username = ?,
                     email = ?,
-                    role = ?
+                    role = ?,
+                    archivestatus = ?
                 WHERE id = ?
                 `,
                 [
                     user.username,
                     user.email,
                     user.role,
+                    user.archivestatus,
                     id
                 ]
             );
 
         }
+
+        // Update WITH password
         else {
 
             await db.query(
@@ -119,7 +173,8 @@ export async function PUT(request, { params }) {
                     username = ?,
                     password = ?,
                     email = ?,
-                    role = ?
+                    role = ?,
+                    archivestatus = ?
                 WHERE id = ?
                 `,
                 [
@@ -127,22 +182,66 @@ export async function PUT(request, { params }) {
                     user.password,
                     user.email,
                     user.role,
+                    user.archivestatus,
                     id
                 ]
             );
 
         }
 
-        await logActivity(
-            1, // Replace with logged-in user's ID later
-            "User Update",
-            `Updated user: ${user.username}`
+
+        // Determine what type of activity happened
+
+        if (
+            !existingUser.archivestatus &&
+            user.archivestatus
+        ) {
+
+            await logActivity(
+                1, // Replace with logged-in user's ID later
+                "User Archived",
+                `Archived user: ${user.username}`,
+                "User Management"
+            );
+
+        }
+
+        else if (
+            existingUser.archivestatus &&
+            !user.archivestatus
+        ) {
+
+            await logActivity(
+                1, // Replace with logged-in user's ID later
+                "User Restored",
+                `Restored user: ${user.username}`,
+                "User Management"
+            );
+
+        }
+
+        else {
+
+            await logActivity(
+                1, // Replace with logged-in user's ID later
+                "User Update",
+                `Updated user: ${user.username}`,
+                "User Management"
+            );
+
+        }
+
+
+        return NextResponse.json(
+            {
+                success: true,
+                message: "User updated successfully."
+            },
+            {
+                status: 200
+            }
         );
 
-        return NextResponse.json({
-            success: true,
-            message: "User updated successfully."
-        });
 
     } catch (error) {
 

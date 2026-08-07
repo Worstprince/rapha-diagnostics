@@ -17,7 +17,6 @@ const ROLES = [
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD = 8;
 const MIN_USERNAME = 3;
-
 const errText = "mt-1.5 text-sm text-rd-danger";
 
 function field(hasError) {
@@ -27,7 +26,8 @@ function field(hasError) {
 function EditUserForm() {
   const searchParams = useSearchParams();
   const userId = searchParams.get("id");
-
+  
+const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState("");
   const [errors, setErrors] = useState({});
@@ -40,6 +40,7 @@ function EditUserForm() {
     password: "",
     email: "",
     role: "",
+    archiveStatus: false,
   });
 
   useEffect(() => {
@@ -81,6 +82,7 @@ function EditUserForm() {
       password: "",
       email: result.data.email,
       role: result.data.role ?? "",
+      archiveStatus: Boolean(result.data.archiveStatus),
     });
   }
 
@@ -320,18 +322,38 @@ function EditUserForm() {
             </p>
             {/* Cancel is a link, not a reset: this form is entered from a row in
                 View Users, so backing out means going back to that list. */}
-            <div className="ml-auto flex items-center gap-3">
-              <Link href="/dashboard/admin/viewUsers" className="rd-btn-ghost rd-press rd-focus">
-                Cancel
-              </Link>
-              <button
-                type="submit"
-                disabled={locked || submitting}
-                className="rd-btn rd-press rd-focus"
-              >
-                {submitting ? "Saving…" : "Save Changes"}
-              </button>
-            </div>
+<div className="ml-auto flex items-center gap-3">
+
+  {!locked && (
+    <button
+      type="button"
+      onClick={() => setArchiveConfirmOpen(true)}
+      className={`rd-btn-ghost rd-press rd-focus ${
+        user.archivestatus
+          ? "text-rd-ok"
+          : "text-rd-danger"
+      }`}
+    >
+      {user.archivestatus ? "Restore User" : "Archive User"}
+    </button>
+  )}
+
+  <Link
+    href="/dashboard/admin/viewUsers"
+    className="rd-btn-ghost rd-press rd-focus"
+  >
+    Cancel
+  </Link>
+
+  <button
+    type="submit"
+    disabled={locked || submitting}
+    className="rd-btn rd-press rd-focus"
+  >
+    {submitting ? "Saving…" : "Save Changes"}
+  </button>
+
+</div>
           </div>
         </form>
     </section>
@@ -344,6 +366,23 @@ function EditUserForm() {
       onConfirm={saveChanges}
       onCancel={() => setConfirmOpen(false)}
     />
+
+    <ConfirmDialog
+  open={archiveConfirmOpen}
+  title="Archive user?"
+  description={`“${user.username}” will be archived and will no longer be treated as an active user.`}
+  confirmLabel="Archive user"
+  onConfirm={() => {
+    setArchiveConfirmOpen(false);
+
+    setUser(prev => ({
+      ...prev,
+      archivestatus: true
+    }));
+  }}
+  onCancel={() => setArchiveConfirmOpen(false)}
+/>
+
     </>
   );
 }
