@@ -44,7 +44,7 @@ export default function OGTTForm({
 
         <form
             onSubmit={handleSubmit}
-            className="space-y-8 rounded-2xl border border-slate-800 bg-slate-900 p-8"
+            className="space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
         >
 
             <LabReportHeader
@@ -93,7 +93,7 @@ export default function OGTTForm({
                                 value={result.fbs}
                                 onChange={handleChange}
                                 readOnly={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             />
 
                         </td>
@@ -117,7 +117,7 @@ export default function OGTTForm({
                                 value={result.firstHour}
                                 onChange={handleChange}
                                 readOnly={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             />
 
                         </td>
@@ -141,7 +141,7 @@ export default function OGTTForm({
                                 value={result.secondHour}
                                 onChange={handleChange}
                                 readOnly={readOnly}
-                                className="w-full rounded bg-slate-800 p-2"
+                                className="w-full rounded bg-rd-field p-2"
                             />
 
                         </td>
@@ -160,7 +160,7 @@ export default function OGTTForm({
 
                 <div className="text-center">
 
-                    <div className="border-t border-white pt-2">
+                    <div className="border-t border-current pt-2">
                         Pathologist
                     </div>
 
@@ -168,7 +168,7 @@ export default function OGTTForm({
 
                 <div className="text-center">
 
-                    <div className="border-t border-white pt-2">
+                    <div className="border-t border-current pt-2">
                         Medical Technologist
                     </div>
 
@@ -182,7 +182,7 @@ export default function OGTTForm({
 
                     <button
                         type="submit"
-                        className="rounded-lg bg-cyan-600 px-6 py-3"
+                        className="rd-btn rd-press rd-focus"
                     >
                         {hasExistingResult  ? "Update Result" : "Save Result"}
                     </button>

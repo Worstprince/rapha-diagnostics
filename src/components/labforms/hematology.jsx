@@ -75,23 +75,23 @@ function handleSubmit(e) {
 
                 {/* LEFT */}
 
-                <div className="rounded-xl border border-slate-700 bg-slate-900 overflow-hidden">
+                <div className="rounded-xl border border-rd-hair-strong bg-rd-card overflow-hidden">
 
                     <table className="w-full">
 
                         <thead>
 
-                            <tr className="bg-slate-800">
+                            <tr className="bg-rd-field">
 
-                                <th className="p-3 text-left text-white">
+                                <th className="p-3 text-left text-rd-title">
                                     Test
                                 </th>
 
-                                <th className="text-white">
+                                <th className="text-rd-title">
                                     Result
                                 </th>
 
-                                <th className="text-white">
+                                <th className="text-rd-title">
                                     Normal Value
                                 </th>
 
@@ -116,10 +116,10 @@ function handleSubmit(e) {
 
                                 <tr
                                     key={item[0]}
-                                    className="border-t border-slate-700"
+                                    className="border-t border-rd-hair-strong"
                                 >
 
-                                    <td className="p-2 text-white">
+                                    <td className="p-2 text-rd-title">
                                         {item[1]}
                                     </td>
 
@@ -130,12 +130,12 @@ function handleSubmit(e) {
                                             value={result[item[0]]}
                                             onChange={handleChange}
                                             readOnly={readOnly}
-                                            className="w-full rounded bg-slate-800 p-2 text-white"
+                                            className="w-full rounded bg-rd-field p-2 text-rd-title"
                                         />
 
                                     </td>
 
-                                    <td className="p-2 text-slate-400 whitespace-pre-line">
+                                    <td className="p-2 text-rd-muted whitespace-pre-line">
                                         {item[2]}
                                     </td>
 
@@ -151,23 +151,23 @@ function handleSubmit(e) {
 
                 {/* RIGHT */}
 
-                <div className="rounded-xl border border-slate-700 bg-slate-900 overflow-hidden">
+                <div className="rounded-xl border border-rd-hair-strong bg-rd-card overflow-hidden">
 
                     <table className="w-full">
 
                         <thead>
 
-                            <tr className="bg-slate-800">
+                            <tr className="bg-rd-field">
 
-                                <th className="p-3 text-left text-white">
+                                <th className="p-3 text-left text-rd-title">
                                     Leukocytes
                                 </th>
 
-                                <th className="text-white">
+                                <th className="text-rd-title">
                                     Result
                                 </th>
 
-                                <th className="text-white">
+                                <th className="text-rd-title">
                                     Normal
                                 </th>
 
@@ -193,10 +193,10 @@ function handleSubmit(e) {
 
                                 <tr
                                     key={item[0]}
-                                    className="border-t border-slate-700"
+                                    className="border-t border-rd-hair-strong"
                                 >
 
-                                    <td className="p-2 text-white">
+                                    <td className="p-2 text-rd-title">
                                         {item[1]}
                                     </td>
 
@@ -207,12 +207,12 @@ function handleSubmit(e) {
                                             value={result[item[0]]}
                                             onChange={handleChange}
                                             readOnly={readOnly}
-                                            className="w-full rounded bg-slate-800 p-2 text-white"
+                                            className="w-full rounded bg-rd-field p-2 text-rd-title"
                                         />
 
                                     </td>
 
-                                    <td className="p-2 text-slate-400">
+                                    <td className="p-2 text-rd-muted">
                                         {item[2]}
                                     </td>
 
@@ -230,11 +230,11 @@ function handleSubmit(e) {
 
             {/* Signatures */}
 
-            <div className="grid md:grid-cols-2 gap-8 rounded-xl border border-slate-700 bg-slate-900 p-6">
+            <div className="grid md:grid-cols-2 gap-8 rounded-xl border border-rd-hair-strong bg-rd-card p-6">
 
                 <div>
 
-                    <p className="border-t border-slate-600 pt-2 text-center text-white">
+                    <p className="border-t border-rd-hair-strong pt-2 text-center text-rd-title">
                         Pathologist
                     </p>
 
@@ -242,7 +242,7 @@ function handleSubmit(e) {
 
                 <div>
 
-                    <p className="border-t border-slate-600 pt-2 text-center text-white">
+                    <p className="border-t border-rd-hair-strong pt-2 text-center text-rd-title">
                         Medical Technologist
                     </p>
 
@@ -256,7 +256,7 @@ function handleSubmit(e) {
 
                     <button
                         onClick={handleSubmit}
-                        className="rounded-lg bg-cyan-600 px-6 py-3 text-white hover:bg-cyan-500"
+                        className="rd-btn rd-press rd-focus"
                     >
                         {hasExistingResult  ? "Update Result" : "Save Result"}
                     </button>

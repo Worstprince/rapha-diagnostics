@@ -14,35 +14,48 @@ import {
   GridIcon,
   MenuIcon,
   SignOutIcon,
-  UserCogIcon,
   UserPlusIcon,
   UsersIcon,
 } from "@/components/icons";
 import { signOut, useCurrentUser } from "@/lib/session";
 import { useTheme } from "@/lib/theme";
 
-const overview = { href: "/dashboard", label: "Overview", Icon: GridIcon };
+/* Every role gets an Overview, but each one lands on that role's own dashboard
+   home. A single shared `/dashboard` link can't work: it redirects into the
+   admin dashboard, so it would drop the other roles somewhere they don't belong. */
+const ROLE_HOMES = {
+  admin: "/dashboard/admin",
+  reception: "/dashboard/reception",
+  doctor: "/dashboard/doctor",
+  medtech: "/dashboard/medtech",
+};
+
+function overviewLink(href) {
+  return { href, label: "Overview", Icon: GridIcon };
+}
 
 const adminSections = [
   {
     label: "General",
     links: [
-      overview,
+      overviewLink(ROLE_HOMES.admin),
       { href: "/dashboard/admin/activityLog", label: "Activity Log", Icon: ActivityIcon },
     ],
   },
   {
     label: "User Management",
+    /* No Edit Users row: editing starts from the Edit button on a row in View
+       Users, which carries the account you picked. A bare link here would land
+       on the form with nothing selected. */
     links: [
       { href: "/dashboard/admin/viewUsers", label: "View Users", Icon: UsersIcon },
       { href: "/dashboard/admin/addUsers", label: "Add Users", Icon: UserPlusIcon },
-      { href: "/dashboard/admin/editUsers", label: "Edit Users", Icon: UserCogIcon },
     ],
   },
 ];
 
 const receptionSections = [
-  { label: "General", links: [overview] },
+  { label: "General", links: [overviewLink(ROLE_HOMES.reception)] },
   {
     label: "Patient",
     links: [
@@ -52,7 +65,31 @@ const receptionSections = [
   },
 ];
 
-const baseSections = [{ label: "General", links: [overview] }];
+const doctorSections = [
+  { label: "General", links: [overviewLink(ROLE_HOMES.doctor)] },
+  {
+    label: "Patient",
+    links: [
+      {
+        href: "/dashboard/doctor/visitation",
+        label: "View Visitations",
+        Icon: CalendarCheckIcon,
+      },
+    ],
+  },
+];
+
+const medtechSections = [
+  { label: "General", links: [overviewLink(ROLE_HOMES.medtech)] },
+  {
+    label: "Laboratory",
+    links: [
+      { href: "/dashboard/medtech/assignments", label: "Assignments", Icon: ClipboardIcon },
+    ],
+  },
+];
+
+const baseSections = [];
 
 function BrandMark() {
   return (
@@ -97,11 +134,19 @@ const rowIdle = "text-rd-label hover:bg-rd-raised hover:text-rd-title";
 const rowActive =
   "border border-rd-hair-strong bg-rd-raised text-rd-cyan shadow-[var(--rd-lift)]";
 
-/* `/dashboard` redirects to `/dashboard/admin`, so Overview has to answer to both.
-   Prefix matching would light it up on every admin subpage instead. */
+const roleHomes = Object.values(ROLE_HOMES);
+
+/* A role home is the parent of every other row in that role's sidebar, so Overview
+   matches exactly — prefix matching would keep it lit on every subpage. `/dashboard`
+   redirects to `/dashboard/admin`, so the admin Overview answers to both. */
 function isLinkActive(href, pathname) {
-  if (href === "/dashboard") {
-    return pathname === "/dashboard" || pathname === "/dashboard/admin";
+  if (roleHomes.includes(href)) {
+    return pathname === href || (href === ROLE_HOMES.admin && pathname === "/dashboard");
+  }
+  /* The edit form has no row of its own — you get there from a row in View Users,
+     so that's the row that stays lit while you're editing. */
+  if (href === "/dashboard/admin/viewUsers" && pathname.startsWith("/dashboard/admin/editUsers")) {
+    return true;
   }
   return pathname === href || pathname.startsWith(`${href}/`);
 }
@@ -215,9 +260,17 @@ export default function DashboardLayout({ children }) {
   const menuButtonRef = useRef(null);
   const closeButtonRef = useRef(null);
 
-  const isAdmin = pathname.startsWith("/dashboard/admin") || pathname === "/dashboard";
-  const isReception = pathname.startsWith("/dashboard/reception");
-  const sections = isAdmin ? adminSections : isReception ? receptionSections : baseSections;
+  /* One role's nav at a time — `/dashboard` only ever renders while its redirect
+     to the admin dashboard is in flight. */
+  const sections = pathname.startsWith("/dashboard/admin") || pathname === "/dashboard"
+    ? adminSections
+    : pathname.startsWith("/dashboard/reception")
+      ? receptionSections
+      : pathname.startsWith("/dashboard/doctor")
+        ? doctorSections
+        : pathname.startsWith("/dashboard/medtech")
+          ? medtechSections
+          : baseSections;
 
   /* Links close the drawer themselves via onNavigate — watching pathname instead
      would miss a tap on the route you're already on. popstate covers the one exit
@@ -279,18 +332,7 @@ export default function DashboardLayout({ children }) {
             </div>
           </div>
         </aside>
-              {pathname.startsWith("/dashboard/doctor") && (
-                <Link
-                  href="/dashboard/doctor/visitation"
-                  className={`flex items-center rounded-xl border px-3 py-2 text-sm font-medium transition ${
-                    pathname === "/dashboard/doctor/visitation"
-                      ? "border-cyan-500 bg-cyan-500/10 text-cyan-300"
-                      : "border-slate-800 bg-slate-950/60 text-slate-300 hover:border-cyan-500 hover:text-white"
-                  }`}
-                >
-                  View Visitations
-                </Link>
-              )}
+
         {menuOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
             <div className="rd-scrim absolute inset-0 bg-black/50" onClick={closeMenu} aria-hidden="true" />

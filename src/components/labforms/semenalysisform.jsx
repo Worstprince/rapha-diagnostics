@@ -57,7 +57,7 @@ export default function SemenAnalysisForm({
 
         <form
             onSubmit={handleSubmit}
-            className="space-y-8 rounded-2xl border border-slate-800 bg-slate-900 p-8"
+            className="space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
         >
 
             <LabReportHeader
@@ -65,7 +65,7 @@ export default function SemenAnalysisForm({
                 title="SEMEN ANALYSIS"
             />
 
-            <table className="w-full border-collapse border border-white text-center">
+            <table className="w-full border-collapse border border-current text-center">
 
                 <thead>
 
@@ -73,14 +73,14 @@ export default function SemenAnalysisForm({
 
                         <th
                             colSpan="3"
-                            className="border border-white p-2 text-lg"
+                            className="border border-current p-2 text-lg"
                         >
                             MACROSCOPIC
                         </th>
 
                         <th
                             colSpan="2"
-                            className="border border-white p-2 text-lg"
+                            className="border border-current p-2 text-lg"
                         >
                             MICROSCOPIC
                         </th>
@@ -89,23 +89,23 @@ export default function SemenAnalysisForm({
 
                     <tr>
 
-                        <th className="border border-white p-2">
+                        <th className="border border-current p-2">
                             Examination
                         </th>
 
-                        <th className="border border-white p-2">
+                        <th className="border border-current p-2">
                             Result
                         </th>
 
-                        <th className="border border-white p-2">
+                        <th className="border border-current p-2">
                             NORMAL VALUE
                         </th>
 
-                        <th className="border border-white p-2">
+                        <th className="border border-current p-2">
                             Examination
                         </th>
 
-                        <th className="border border-white p-2">
+                        <th className="border border-current p-2">
                             Result
                         </th>
 
@@ -117,11 +117,11 @@ export default function SemenAnalysisForm({
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             APPEARANCE
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -129,19 +129,19 @@ export default function SemenAnalysisForm({
                                 value={result.appearance}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
                         </td>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             MORPHOLOGY
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -149,7 +149,7 @@ export default function SemenAnalysisForm({
                                 value={result.morphology}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
@@ -158,11 +158,11 @@ export default function SemenAnalysisForm({
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             VOLUME
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -170,20 +170,20 @@ export default function SemenAnalysisForm({
                                 value={result.volume}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
                             2-5mL
                         </td>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             MOTILITY
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -191,7 +191,7 @@ export default function SemenAnalysisForm({
                                 value={result.motility}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
@@ -200,11 +200,11 @@ export default function SemenAnalysisForm({
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             pH
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -212,20 +212,20 @@ export default function SemenAnalysisForm({
                                 value={result.ph}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
                             7.2-8.0
                         </td>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             WBC
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -233,7 +233,7 @@ export default function SemenAnalysisForm({
                                 value={result.wbc}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
@@ -243,11 +243,11 @@ export default function SemenAnalysisForm({
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             VISCOSITY
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -255,20 +255,20 @@ export default function SemenAnalysisForm({
                                 value={result.viscosity}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
                             1-4
                         </td>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             RBC
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -276,7 +276,7 @@ export default function SemenAnalysisForm({
                                 value={result.rbc}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
@@ -289,7 +289,7 @@ export default function SemenAnalysisForm({
 
                         <td
                             rowSpan="4"
-                            className="border border-white p-2 text-left align-top"
+                            className="border border-current p-2 text-left align-top"
                         >
                             OTHERS:
                         </td>
@@ -297,7 +297,7 @@ export default function SemenAnalysisForm({
                         <td
                             rowSpan="4"
                             colSpan="2"
-                            className="border border-white p-2 align-top"
+                            className="border border-current p-2 align-top"
                         >
 
                             <textarea
@@ -306,16 +306,16 @@ export default function SemenAnalysisForm({
                                 onChange={handleChange}
                                 rows="7"
                                 disabled={readOnly}
-                                className="w-full resize-none rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full resize-none rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
 
-                        <td className="border border-white p-2 font-bold">
+                        <td className="border border-current p-2 font-bold">
                             MOTILITY
                         </td>
 
-                        <td className="border border-white p-2 font-bold">
+                        <td className="border border-current p-2 font-bold">
                             VIABILITY
                         </td>
 
@@ -325,7 +325,7 @@ export default function SemenAnalysisForm({
 
                     <tr>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <div className="flex items-center gap-2">
 
@@ -337,14 +337,14 @@ export default function SemenAnalysisForm({
                                     value={result.motility30min}
                                     onChange={handleChange}
                                     disabled={readOnly}
-                                    className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                    className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                                 />
 
                             </div>
 
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <div className="flex items-center gap-2">
 
@@ -356,7 +356,7 @@ export default function SemenAnalysisForm({
                                     value={result.viability30min}
                                     onChange={handleChange}
                                     disabled={readOnly}
-                                    className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                    className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                                 />
 
                             </div>
@@ -369,7 +369,7 @@ export default function SemenAnalysisForm({
 
                     <tr>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <div className="flex items-center gap-2">
 
@@ -381,14 +381,14 @@ export default function SemenAnalysisForm({
                                     value={result.motility1hr}
                                     onChange={handleChange}
                                     disabled={readOnly}
-                                    className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                    className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                                 />
 
                             </div>
 
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <div className="flex items-center gap-2">
 
@@ -400,7 +400,7 @@ export default function SemenAnalysisForm({
                                     value={result.viability1hr}
                                     onChange={handleChange}
                                     disabled={readOnly}
-                                    className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                    className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                                 />
 
                             </div>
@@ -413,7 +413,7 @@ export default function SemenAnalysisForm({
 
                     <tr>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <div className="flex items-center gap-2">
 
@@ -425,14 +425,14 @@ export default function SemenAnalysisForm({
                                     value={result.motility2hr}
                                     onChange={handleChange}
                                     disabled={readOnly}
-                                    className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                    className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                                 />
 
                             </div>
 
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <div className="flex items-center gap-2">
 
@@ -444,7 +444,7 @@ export default function SemenAnalysisForm({
                                     value={result.viability2hr}
                                     onChange={handleChange}
                                     disabled={readOnly}
-                                    className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                    className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                                 />
 
                             </div>
@@ -459,17 +459,17 @@ export default function SemenAnalysisForm({
 
             {/* SPERM CONCENTRATION / COUNT */}
 
-            <table className="w-full border-collapse border border-white text-center">
+            <table className="w-full border-collapse border border-current text-center">
 
                 <tbody>
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             SPERM CONCENTRATION/mL
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -477,12 +477,12 @@ export default function SemenAnalysisForm({
                                 value={result.spermConcentration}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
                             &gt;20million/mL
                         </td>
 
@@ -490,11 +490,11 @@ export default function SemenAnalysisForm({
 
                     <tr>
 
-                        <td className="border border-white p-2 text-left">
+                        <td className="border border-current p-2 text-left">
                             SPERM COUNT/EJACULATE
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
 
                             <input
                                 type="text"
@@ -502,12 +502,12 @@ export default function SemenAnalysisForm({
                                 value={result.spermCount}
                                 onChange={handleChange}
                                 disabled={readOnly}
-                                className="w-full rounded bg-slate-800 p-2 disabled:cursor-not-allowed disabled:bg-slate-700"
+                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                             />
 
                         </td>
 
-                        <td className="border border-white p-2">
+                        <td className="border border-current p-2">
                             &gt;40million/ejaculate
                         </td>
 
@@ -551,7 +551,7 @@ export default function SemenAnalysisForm({
 
                 <div className="text-center">
 
-                    <div className="border-t border-white pt-2">
+                    <div className="border-t border-current pt-2">
                         Pathologist
                     </div>
 
@@ -559,7 +559,7 @@ export default function SemenAnalysisForm({
 
                 <div className="text-center">
 
-                    <div className="border-t border-white pt-2">
+                    <div className="border-t border-current pt-2">
                         Medical Technologist
                     </div>
 
@@ -573,7 +573,7 @@ export default function SemenAnalysisForm({
 
                     <button
                         type="submit"
-                        className="rounded-lg bg-cyan-600 px-6 py-3 hover:bg-cyan-500"
+                        className="rd-btn rd-press rd-focus"
                     >
                         {hasExistingResult  ? "Update Result" : "Save Result"}
                     </button>

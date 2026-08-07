@@ -102,7 +102,7 @@ body: JSON.stringify({
     if (!patient) {
 
         return (
-            <div className="p-6 text-white">
+            <div className="p-6 text-rd-muted">
                 Loading...
             </div>
         );
@@ -113,13 +113,13 @@ body: JSON.stringify({
 
         <div className="space-y-6">
 
-            <header className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
+            <header className="rounded-2xl border border-rd-hair bg-rd-card p-6">
 
-                <h1 className="text-2xl font-bold text-white">
+                <h1 className="text-2xl font-bold text-rd-title">
                     Patient Laboratory Request
                 </h1>
 
-                <p className="mt-2 text-slate-400">
+                <p className="mt-2 text-rd-muted">
                     Review patient information and assign laboratory tests.
                 </p>
 
@@ -127,13 +127,15 @@ body: JSON.stringify({
 
             <div className="grid gap-6 lg:grid-cols-3">
 
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
+                <div className="rounded-2xl border border-rd-hair bg-rd-card p-6">
 
-                    <h2 className="mb-5 text-lg font-semibold text-white">
+                    <h2 className="mb-5 text-lg font-semibold text-rd-title">
                         Patient Information
                     </h2>
 
-                    <div className="space-y-3 text-slate-300">
+                    {/* The <strong> labels inherit this colour, so the value beside them
+                        needs to carry the weight — hence label muted, value titled. */}
+                    <div className="space-y-3 text-rd-label [&_strong]:font-semibold [&_strong]:text-rd-title">
 
                         <p><strong>Name:</strong> {patient.name}</p>
 
@@ -157,9 +159,9 @@ body: JSON.stringify({
 
                 </div>
 
-                <div className="lg:col-span-2 rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
+                <div className="lg:col-span-2 rounded-2xl border border-rd-hair bg-rd-card p-6">
 
-                    <h2 className="mb-5 text-lg font-semibold text-white">
+                    <h2 className="mb-5 text-lg font-semibold text-rd-title">
                         Requested Laboratory Tests
                     </h2>
 
@@ -167,21 +169,21 @@ body: JSON.stringify({
 
                         <thead>
 
-                            <tr className="border-b border-slate-700">
+                            <tr className="border-b border-rd-hair-strong">
 
-                                <th className="p-3 text-left text-slate-300">
+                                <th className="p-3 text-left text-rd-label">
                                     Test
                                 </th>
 
-                                <th className="p-3 text-left text-slate-300">
+                                <th className="p-3 text-left text-rd-label">
                                     Status
                                 </th>
 
-                                <th className="p-3 text-left text-slate-300">
+                                <th className="p-3 text-left text-rd-label">
                                     Assigned Medical Technologist
                                 </th>
 
-                                <th className="p-3 text-left text-slate-300">
+                                <th className="p-3 text-left text-rd-label">
                                     Action
                                 </th>
 
@@ -195,14 +197,14 @@ body: JSON.stringify({
 
                                 <tr
                                     key={test.id}
-                                    className="border-b border-slate-800"
+                                    className="border-b border-rd-hair"
                                 >
 
-                                    <td className="p-3 text-white">
+                                    <td className="p-3 text-rd-title">
                                         {test.name}
                                     </td>
 
-                                    <td className="p-3 text-yellow-300">
+                                    <td className="p-3 text-rd-label">
                                         {test.status}
                                     </td>
 
@@ -214,7 +216,7 @@ body: JSON.stringify({
                                             onChange={(e) =>
                                                 assignMedtech(test.id, e.target.value)
                                             }
-                                            className="w-full rounded-lg border border-slate-700 bg-slate-950 p-2 text-white"
+                                            className="w-full rounded-lg border border-rd-hair-strong bg-rd-field p-2 text-rd-text"
                                         >
 
                                             <option value="">
@@ -240,12 +242,12 @@ body: JSON.stringify({
                                         {(test.status === "Done" || test.status === "Approved") ? (
                                             <a
                                                 href={`/dashboard/doctor/result/${test.id}`}
-                                                className="rounded-lg bg-cyan-600 px-4 py-2 text-sm text-white hover:bg-cyan-500"
+                                                className="rd-btn rd-press rd-focus"
                                             >
                                                 View Result
                                             </a>
                                         ) : (
-                                            <span className="text-slate-500">-</span>
+                                            <span className="text-rd-muted">-</span>
                                         )}
                                     </td>
 
@@ -261,7 +263,7 @@ body: JSON.stringify({
 
                         <button
                             onClick={handleSave}
-                            className="rounded-lg bg-cyan-600 px-6 py-3 text-white hover:bg-cyan-500"
+                            className="rd-btn rd-press rd-focus"
                         >
                             Assign Tests
                         </button>
