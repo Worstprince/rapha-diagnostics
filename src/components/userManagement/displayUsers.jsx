@@ -68,6 +68,8 @@ export default function DisplayUsers() {
 
     const [users, setUsers] = useState([]);
 
+    const [sortBy, setSortBy] = useState("");
+
     const [loading, setLoading] = useState(true);
 
     const [search, setSearch] = useState("");
@@ -135,71 +137,95 @@ export default function DisplayUsers() {
     }, [users]);
 
 
-const filteredUsers = useMemo(() => {
 
-    const searchValue = search.trim().toLowerCase();
 
-    const filtered = users.filter(user => {
+    const filteredUsers = useMemo(() => {
 
-        const matchesSearch =
-            !searchValue ||
-            String(user.id).toLowerCase().includes(searchValue) ||
-            String(user.username ?? "").toLowerCase().includes(searchValue) ||
-            String(user.role ?? "").toLowerCase().includes(searchValue);
+        const searchValue = search.trim().toLowerCase();
 
-        const matchesRole =
-            !roleFilter ||
-            user.role === roleFilter;
+        const filtered = users.filter(user => {
 
-        const isArchived =
-            Boolean(user.archivestatus);
+            const matchesSearch =
+                !searchValue ||
+                String(user.id).toLowerCase().includes(searchValue) ||
+                String(user.username ?? "").toLowerCase().includes(searchValue) ||
+                String(user.role ?? "").toLowerCase().includes(searchValue);
 
-        const matchesStatus =
-            !statusFilter ||
-            (statusFilter === "active" && !isArchived) ||
-            (statusFilter === "archived" && isArchived);
+            const matchesRole =
+                !roleFilter ||
+                user.role === roleFilter;
 
-        return (
-            matchesSearch &&
-            matchesRole &&
-            matchesStatus
-        );
+            const isArchived =
+                Boolean(user.archivestatus);
 
-    });
+            const matchesStatus =
+                !statusFilter ||
+                (statusFilter === "active" && !isArchived) ||
+                (statusFilter === "archived" && isArchived);
 
-    if (sortDate === "newest") {
+            return (
+                matchesSearch &&
+                matchesRole &&
+                matchesStatus
+            );
 
-        filtered.sort(
-            (a, b) =>
-                new Date(b.created_at) - new Date(a.created_at)
-        );
+        });
 
-    }
+        if (sortDate === "newest") {
 
-    if (sortDate === "oldest") {
+            filtered.sort(
+                (a, b) =>
+                    new Date(b.created_at) - new Date(a.created_at)
+            );
 
-        filtered.sort(
-            (a, b) =>
-                new Date(a.created_at) - new Date(b.created_at)
-        );
+        }
 
-    }
+        if (sortDate === "oldest") {
 
-    return filtered;
+            filtered.sort(
+                (a, b) =>
+                    new Date(a.created_at) - new Date(b.created_at)
+            );
 
-}, [
-    users,
-    search,
-    roleFilter,
-    statusFilter,
-    sortDate
-]);
+        }
+
+        if (sortBy === "username-asc") {
+
+            filtered.sort((a, b) =>
+                String(a.username ?? "").localeCompare(
+                    String(b.username ?? "")
+                )
+            );
+
+        }
+
+        if (sortBy === "username-desc") {
+
+            filtered.sort((a, b) =>
+                String(b.username ?? "").localeCompare(
+                    String(a.username ?? "")
+                )
+            );
+
+        }
+
+        return filtered;
+
+    }, [
+        users,
+        search,
+        roleFilter,
+        statusFilter,
+        sortDate,
+        sortBy
+    ]);
     function clearFilters() {
 
         setSearch("");
         setRoleFilter("");
         setStatusFilter("");
         setSortDate("");
+        setSortBy("");
 
     }
 
@@ -331,10 +357,7 @@ const filteredUsers = useMemo(() => {
                             </select>
 
                         </div>
-
-
                         {/* STATUS */}
-
                         <div>
 
                             <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-rd-muted">
@@ -363,35 +386,64 @@ const filteredUsers = useMemo(() => {
 
                         </div>
 
+                        <div>
+
+                    <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-rd-muted">
+                        Sort by Date
+                    </label>
+
+                    <select
+                        value={sortDate}
+                        onChange={(e) => setSortDate(e.target.value)}
+                        className="w-full rounded-lg border border-rd-hair-strong bg-rd-sunken px-3 py-2.5 text-sm text-rd-label outline-none focus:border-rd-cyan/50"
+                    >
+
+                        <option value="">
+                            Default
+                        </option>
+
+                        <option value="newest">
+                            Newest First
+                        </option>
+
+                        <option value="oldest">
+                            Oldest First
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div>
+
+                    <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-rd-muted">
+                        Sort by Username
+                    </label>
+
+                    <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="w-full rounded-lg border border-rd-hair-strong bg-rd-sunken px-3 py-2.5 text-sm text-rd-label outline-none focus:border-rd-cyan/50"
+                    >
+
+                        <option value="">
+                            Default
+                        </option>
+
+                        <option value="username-asc">
+                            A → Z
+                        </option>
+
+                        <option value="username-desc">
+                            Z → A
+                        </option>
+
+                    </select>
+
+                </div>
                     </div>
                     
-                    <div>
-
-    <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-rd-muted">
-        Sort by Date
-    </label>
-
-    <select
-        value={sortDate}
-        onChange={(e) => setSortDate(e.target.value)}
-        className="w-full rounded-lg border border-rd-hair-strong bg-rd-sunken px-3 py-2.5 text-sm text-rd-label outline-none focus:border-rd-cyan/50"
-    >
-
-        <option value="">
-            Default
-        </option>
-
-        <option value="newest">
-            Newest First
-        </option>
-
-        <option value="oldest">
-            Oldest First
-        </option>
-
-    </select>
-
-</div>
+                    
 
                     {/* CLEAR */}
 

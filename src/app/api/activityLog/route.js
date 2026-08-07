@@ -12,7 +12,8 @@ export async function GET() {
                 description,
                 userid,
                 datetime,
-                username 
+                username,
+                module 
             FROM tblactivitylog 
             INNER JOIN tblusers ON tblactivitylog.userid = tblusers.id
             ORDER BY datetime DESC
