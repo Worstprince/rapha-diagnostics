@@ -84,6 +84,16 @@ export function FileTextIcon(props) {
     );
 }
 
+export function PrinterIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="M7 9V4h10v5" />
+            <path d="M7 19H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2" />
+            <rect x="7" y="15" width="10" height="6" rx="1" />
+        </Icon>
+    );
+}
+
 export function InboxIcon(props) {
     return (
         <Icon {...props}>
@@ -99,10 +109,10 @@ export const th =
 export const td = "px-4 py-3 text-sm text-rd-label";
 
 export const rowAction =
-    "rd-press rd-focus inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-rd-hair-strong bg-rd-sunken px-3.5 text-sm font-medium text-rd-label hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan";
+    "rd-press rd-focus inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-rd-hair-strong bg-rd-sunken px-3.5 text-sm font-medium text-rd-label hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan hover:shadow-[0_0_18px_-6px_rgba(34,211,238,0.5)]";
 
 export const backLink =
-    "rd-press rd-focus inline-flex w-fit min-h-11 items-center gap-2 rounded-xl border border-transparent px-3 text-sm font-medium text-rd-muted hover:border-rd-hair-strong hover:bg-rd-raised hover:text-rd-title";
+    "rd-press rd-focus inline-flex w-fit min-h-11 items-center gap-2 rounded-xl border border-transparent px-3 text-sm font-medium text-rd-muted hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan hover:shadow-[0_0_18px_-6px_rgba(34,211,238,0.5)]";
 
 export function initialsOf(name) {
     if (!name) return "";

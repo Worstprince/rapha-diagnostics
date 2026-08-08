@@ -4,7 +4,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
-import { ArrowLeftIcon, Avatar, EmptyState, FlaskIcon, Pill, backLink } from "../../_ui";
+import {
+    ArrowLeftIcon,
+    Avatar,
+    EmptyState,
+    FlaskIcon,
+    Pill,
+    PrinterIcon,
+    backLink,
+} from "../../_ui";
 
 import BloodTypeForm from "@/components/labforms/bloodtypeform";
 import ChemistryForm from "@/components/labforms/chemistryform";
@@ -132,6 +140,20 @@ async function handleApprove() {
     window.location.reload();
 }
 
+    function handlePrint() {
+
+        document.body.classList.add("printing");
+
+        window.addEventListener(
+            "afterprint",
+            () => document.body.classList.remove("printing"),
+            { once: true }
+        );
+
+        window.print();
+
+    }
+
     if (!patient || !test || !result) {
 
         return (
@@ -160,9 +182,9 @@ async function handleApprove() {
     }
 
     return (
-        <div className="mx-auto flex max-w-5xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
+        <div className="mx-auto flex max-w-5xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden print:h-auto print:overflow-visible">
 
-            <div className="rd-panel flex flex-none flex-wrap items-center gap-x-4 gap-y-3 p-4">
+            <div className="no-print rd-panel flex flex-none flex-wrap items-center gap-x-4 gap-y-3 p-4">
 
                 <Link
                     href={`/dashboard/doctor/visitation/${test.visitid}`}
@@ -193,7 +215,9 @@ async function handleApprove() {
 
             </div>
 
-            <div className={`rd-scroll-thin min-h-0 flex-1 overflow-auto ${reportSkin}`}>
+            <div
+                className={`print-result rd-scroll-thin min-h-0 flex-1 overflow-auto print:h-auto print:overflow-visible ${reportSkin}`}
+            >
 
                 <FormComponent
                     patient={patient}
@@ -203,24 +227,40 @@ async function handleApprove() {
 
             </div>
 
-            {test.status !== "Approved" && (
+            <div className="no-print rd-panel flex flex-none flex-wrap items-center justify-between gap-3 p-4">
 
-                <div className="rd-panel flex flex-none flex-wrap items-center justify-between gap-3 p-4">
+                <p className="text-sm text-rd-muted">
+                    {test.status === "Approved"
+                        ? "This result has been approved and released."
+                        : "Approving releases this result to the patient record."}
+                </p>
 
-                    <p className="text-sm text-rd-muted">
-                        Approving releases this result to the patient record.
-                    </p>
+                <div className="flex flex-wrap items-center gap-3">
 
                     <button
-                        onClick={handleApprove}
-                        className="rd-btn rd-press rd-focus"
+                        type="button"
+                        onClick={handlePrint}
+                        className="rd-btn-ghost rd-press rd-focus min-h-11 py-0 hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan hover:shadow-[0_0_18px_-6px_rgba(34,211,238,0.5)]"
                     >
-                        Approve
+                        <PrinterIcon size={16} />
+                        Print Result
                     </button>
+
+                    {test.status !== "Approved" && (
+
+                        <button
+                            type="button"
+                            onClick={handleApprove}
+                            className="rd-btn rd-press rd-focus"
+                        >
+                            Approve
+                        </button>
+
+                    )}
 
                 </div>
 
-            )}
+            </div>
 
         </div>
     );
