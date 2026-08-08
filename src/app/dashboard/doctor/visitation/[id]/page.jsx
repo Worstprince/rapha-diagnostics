@@ -1,7 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
+
+import {
+    ArrowLeftIcon,
+    Avatar,
+    ChevronRightIcon,
+    EmptyState,
+    FlaskIcon,
+    HeaderGlow,
+    Pill,
+    backLink,
+    rowAction,
+    td,
+    th,
+} from "../../_ui";
+
+function Detail({ label, children }) {
+    return (
+        <div>
+            <dt className="text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
+                {label}
+            </dt>
+            <dd className="mt-1 text-sm font-medium text-rd-title">{children || "—"}</dd>
+        </div>
+    );
+}
 
 export default function VisitationDetailsPage() {
 
@@ -99,178 +125,268 @@ body: JSON.stringify({
 
 }
 
+    const backToQueue = (
+        <Link href="/dashboard/doctor/visitation" className={backLink}>
+            <ArrowLeftIcon size={16} />
+            Back to visitations
+        </Link>
+    );
+
     if (!patient) {
 
         return (
-            <div className="p-6 text-rd-muted">
-                Loading...
+            <div className="mx-auto max-w-6xl space-y-5">
+
+                {backToQueue}
+
+                <div className="rd-panel h-32 animate-pulse motion-reduce:animate-none" />
+
+                <div className="grid gap-4 lg:grid-cols-3">
+                    <div className="rd-panel h-80 animate-pulse motion-reduce:animate-none" />
+                    <div className="rd-panel h-80 animate-pulse motion-reduce:animate-none lg:col-span-2" />
+                </div>
+
             </div>
         );
 
     }
 
+    const medtechOf = (test) =>
+        medtechs.find((medtech) => String(medtech.id) === String(test.medtechid));
+
     return (
 
-        <div className="space-y-6">
+        <div className="mx-auto flex max-w-6xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
 
-            <header className="rounded-2xl border border-rd-hair bg-rd-card p-6">
+            <div className="flex-none">{backToQueue}</div>
 
-                <h1 className="text-2xl font-bold text-rd-title">
-                    Patient Laboratory Request
-                </h1>
+            <header className="rd-panel relative flex-none overflow-hidden p-6">
 
-                <p className="mt-2 text-rd-muted">
-                    Review patient information and assign laboratory tests.
-                </p>
+                <HeaderGlow />
+
+                <div className="relative flex flex-wrap items-end justify-between gap-4">
+
+                    <div>
+
+                        <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
+                            Doctor
+                        </p>
+
+                        <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">
+                            Patient Laboratory Request
+                        </h1>
+
+                        <p className="mt-2 text-sm text-rd-muted">
+                            Review patient information and assign laboratory tests.
+                        </p>
+
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Pill value={patient.priority} />
+                        <Pill value={patient.status} />
+                    </div>
+
+                </div>
 
             </header>
 
-            <div className="grid gap-6 lg:grid-cols-3">
+            <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-3">
 
-                <div className="rounded-2xl border border-rd-hair bg-rd-card p-6">
+                <section className="rd-panel flex min-h-0 flex-col overflow-hidden max-lg:h-fit">
 
-                    <h2 className="mb-5 text-lg font-semibold text-rd-title">
-                        Patient Information
-                    </h2>
+                    <div className="flex flex-none items-center gap-3 border-b border-rd-hair p-4">
 
-                    {/* The <strong> labels inherit this colour, so the value beside them
-                        needs to carry the weight — hence label muted, value titled. */}
-                    <div className="space-y-3 text-rd-label [&_strong]:font-semibold [&_strong]:text-rd-title">
+                        <Avatar name={patient.name} className="size-11 text-sm" />
 
-                        <p><strong>Name:</strong> {patient.name}</p>
-
-                        <p><strong>Age:</strong> {patient.age}</p>
-
-                        <p><strong>Sex:</strong> {patient.sex}</p>
-
-                        <p><strong>Birthdate:</strong> {patient.birthdate}</p>
-
-                        <p><strong>Mobile:</strong> {patient.mobileNum}</p>
-
-                        <p><strong>Address:</strong> {patient.address}</p>
-
-                        <p><strong>Visit Date:</strong> {patient.visited_at}</p>
-
-                        <p><strong>Priority:</strong> {patient.priority}</p>
-
-                        <p><strong>Status:</strong> {patient.status}</p>
+                        <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-rd-title">
+                                {patient.name}
+                            </p>
+                            <p className="truncate text-xs text-rd-muted">
+                                Patient Information
+                            </p>
+                        </div>
 
                     </div>
 
-                </div>
+                    <dl className="rd-scroll-thin grid min-h-0 flex-1 gap-4 overflow-y-auto p-4 sm:grid-cols-2 lg:grid-cols-1">
 
-                <div className="lg:col-span-2 rounded-2xl border border-rd-hair bg-rd-card p-6">
+                        <Detail label="Age">{patient.age}</Detail>
 
-                    <h2 className="mb-5 text-lg font-semibold text-rd-title">
-                        Requested Laboratory Tests
-                    </h2>
+                        <Detail label="Sex">{patient.sex}</Detail>
 
-                    <table className="w-full border-collapse">
+                        <Detail label="Birthdate">{patient.birthdate}</Detail>
 
-                        <thead>
+                        <Detail label="Mobile">{patient.mobileNum}</Detail>
 
-                            <tr className="border-b border-rd-hair-strong">
+                        <Detail label="Address">{patient.address}</Detail>
 
-                                <th className="p-3 text-left text-rd-label">
-                                    Test
-                                </th>
+                        <Detail label="Visit Date">{patient.visited_at}</Detail>
 
-                                <th className="p-3 text-left text-rd-label">
-                                    Status
-                                </th>
+                    </dl>
 
-                                <th className="p-3 text-left text-rd-label">
-                                    Assigned Medical Technologist
-                                </th>
+                </section>
 
-                                <th className="p-3 text-left text-rd-label">
-                                    Action
-                                </th>
+                <section className="rd-panel flex min-h-0 flex-col overflow-hidden lg:col-span-2">
 
-                            </tr>
+                    <div className="flex flex-none flex-wrap items-center justify-between gap-3 border-b border-rd-hair p-4">
 
-                        </thead>
+                        <div>
 
-                        <tbody>
+                            <h2 className="text-lg font-semibold text-rd-title">
+                                Requested Laboratory Tests
+                            </h2>
 
-                            {tests.map(test => (
+                            <p className="mt-0.5 text-sm text-rd-muted">
+                                {tests.length} requested
+                            </p>
 
-                                <tr
-                                    key={test.id}
-                                    className="border-b border-rd-hair"
-                                >
+                        </div>
 
-                                    <td className="p-3 text-rd-title">
-                                        {test.name}
-                                    </td>
+                    </div>
 
-                                    <td className="p-3 text-rd-label">
-                                        {test.status}
-                                    </td>
+                    {tests.length === 0 ? (
 
-                                    <td className="p-3">
+                        <EmptyState
+                            title="No tests requested"
+                            hint="Laboratory tests requested for this visit will appear here."
+                            Icon={FlaskIcon}
+                        />
 
-                                        <select
-                                            disabled={test.status === "Done"}
-                                            value={test.medtechid ?? ""}
-                                            onChange={(e) =>
-                                                assignMedtech(test.id, e.target.value)
-                                            }
-                                            className="w-full rounded-lg border border-rd-hair-strong bg-rd-field p-2 text-rd-text"
-                                        >
+                    ) : (
 
-                                            <option value="">
-                                                Select Medical Technologist
-                                            </option>
+                        <>
 
-                                            {medtechs.map(medtech => (
+                            <div className="rd-scroll-thin min-h-0 flex-1 overflow-auto">
 
-                                                <option
-                                                    key={medtech.id}
-                                                    value={medtech.id}
+                                <table className="w-full min-w-[720px] border-collapse">
+
+                                    <thead>
+
+                                        <tr className="border-b border-rd-hair">
+
+                                            <th className={th}>Test</th>
+
+                                            <th className={th}>Status</th>
+
+                                            <th className={th}>Assigned Medical Technologist</th>
+
+                                            <th className={`${th} text-right`}>Action</th>
+
+                                        </tr>
+
+                                    </thead>
+
+                                    <tbody>
+
+                                        {tests.map(test => {
+
+                                            const locked = test.status === "Done";
+
+                                            return (
+
+                                                <tr
+                                                    key={test.id}
+                                                    className="border-b border-rd-hair transition-colors last:border-0 hover:bg-rd-raised"
                                                 >
-                                                    {medtech.username}
-                                                </option>
 
-                                            ))}
+                                                    <td className={`${td} font-medium text-rd-title`}>
+                                                        {test.name}
+                                                    </td>
 
-                                        </select>
+                                                    <td className={td}>
+                                                        <Pill value={test.status} />
+                                                    </td>
 
-                                    </td>
+                                                    <td className={td}>
 
-                                    <td className="p-3">
-                                        {(test.status === "Done" || test.status === "Approved") ? (
-                                            <a
-                                                href={`/dashboard/doctor/result/${test.id}`}
-                                                className="rd-btn rd-press rd-focus"
-                                            >
-                                                View Result
-                                            </a>
-                                        ) : (
-                                            <span className="text-rd-muted">-</span>
-                                        )}
-                                    </td>
+                                                        {locked ? (
 
-                                </tr>
+                                                            <span className="text-rd-label">
+                                                                {medtechOf(test)?.username ?? "—"}
+                                                            </span>
 
-                            ))}
+                                                        ) : (
 
-                        </tbody>
+                                                            <select
+                                                                aria-label={`Assign a medical technologist to ${test.name}`}
+                                                                value={test.medtechid ?? ""}
+                                                                onChange={(e) =>
+                                                                    assignMedtech(test.id, e.target.value)
+                                                                }
+                                                                data-empty={!test.medtechid}
+                                                                className="rd-input min-w-[15rem]"
+                                                            >
 
-                    </table>
+                                                                <option value="" disabled hidden>
+                                                                    Select Medical Technologist
+                                                                </option>
 
-                    <div className="mt-6 flex justify-end">
+                                                                {medtechs.map(medtech => (
 
-                        <button
-                            onClick={handleSave}
-                            className="rd-btn rd-press rd-focus"
-                        >
-                            Assign Tests
-                        </button>
+                                                                    <option
+                                                                        key={medtech.id}
+                                                                        value={medtech.id}
+                                                                    >
+                                                                        {medtech.username}
+                                                                    </option>
 
-                    </div>
+                                                                ))}
 
-                </div>
+                                                            </select>
+
+                                                        )}
+
+                                                    </td>
+
+                                                    <td className={`${td} text-right`}>
+                                                        {(test.status === "Done" || test.status === "Approved") ? (
+                                                            <Link
+                                                                href={`/dashboard/doctor/result/${test.id}`}
+                                                                aria-label={`View the result for ${test.name}`}
+                                                                className={rowAction}
+                                                            >
+                                                                View Result
+                                                                <ChevronRightIcon size={16} />
+                                                            </Link>
+                                                        ) : (
+                                                            <span className="text-rd-muted">—</span>
+                                                        )}
+                                                    </td>
+
+                                                </tr>
+
+                                            );
+
+                                        })}
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                            <div className="flex flex-none flex-wrap items-center justify-between gap-3 border-t border-rd-hair p-4">
+
+                                <p className="text-sm text-rd-muted">
+                                    Assignments are saved together.
+                                </p>
+
+                                <button
+                                    onClick={handleSave}
+                                    className="rd-btn rd-press rd-focus"
+                                >
+                                    Assign Tests
+                                </button>
+
+                            </div>
+
+                        </>
+
+                    )}
+
+                </section>
 
             </div>
 

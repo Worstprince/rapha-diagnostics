@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
+
+import { ArrowLeftIcon, Avatar, EmptyState, FlaskIcon, Pill, backLink } from "../../_ui";
 
 import BloodTypeForm from "@/components/labforms/bloodtypeform";
 import ChemistryForm from "@/components/labforms/chemistryform";
@@ -34,6 +37,39 @@ const forms = {
     13: vdrl
 
 };
+
+const reportSkin = [
+
+    "[&>form]:mx-auto [&>form]:space-y-6 [&>form]:p-6 sm:[&>form]:p-10",
+
+    "[&_h1]:text-xl [&_h1]:font-bold [&_h1]:uppercase [&_h1]:tracking-[0.14em] [&_h1]:text-rd-title",
+    "[&_h1~p]:text-xs [&_h1~p]:leading-relaxed [&_h1~p]:text-rd-muted",
+
+    "[&_h2]:text-sm [&_h2]:font-bold [&_h2]:uppercase [&_h2]:tracking-[0.22em] [&_h2]:text-rd-cyan",
+
+    "[&_.grid.border]:rounded-xl [&_.grid.border]:border-rd-hair [&_.grid.border]:bg-rd-sunken [&_.grid.border]:p-5 [&_.grid.border]:text-sm [&_.grid.border]:gap-x-8 [&_.grid.border]:gap-y-3",
+
+    "[&_b]:mr-1.5 [&_b]:text-[11px] [&_b]:font-semibold [&_b]:uppercase [&_b]:tracking-wider [&_b]:text-rd-muted",
+
+    "[&_table]:w-full [&_table]:max-w-full",
+
+    "[&_table]:border-rd-hair [&_th]:border-rd-hair [&_td]:border-rd-hair [&_.border]:border-rd-hair",
+
+    "[&_thead_th]:bg-rd-sunken [&_thead_th]:py-3 [&_thead_th]:text-[11px] [&_thead_th]:font-semibold [&_thead_th]:uppercase [&_thead_th]:tracking-wider [&_thead_th]:text-rd-muted",
+
+    "[&_tbody_tr:nth-child(even)]:bg-rd-sunken/40",
+
+    "[&_tbody_td]:py-2.5 [&_tbody_td]:text-sm [&_tbody_td]:text-rd-label",
+
+    "[&_tbody_td:first-child]:font-medium [&_tbody_td:first-child]:text-rd-title",
+
+    "[&_select:disabled]:border-transparent [&_select:disabled]:bg-transparent [&_select:disabled]:bg-none [&_select:disabled]:p-0 [&_select:disabled]:text-center [&_select:disabled]:font-semibold [&_select:disabled]:text-rd-title",
+    "[&_input:read-only]:border-transparent [&_input:read-only]:bg-transparent [&_input:read-only]:p-0 [&_input:read-only]:text-center [&_input:read-only]:font-semibold [&_input:read-only]:text-rd-title",
+    "[&_textarea:read-only]:border-transparent [&_textarea:read-only]:bg-transparent [&_textarea:read-only]:text-rd-title",
+
+    "[&_.pt-16]:pt-10 [&_.gap-20]:gap-12",
+
+].join(" ");
 
 export default function DoctorResultPage() {
 
@@ -98,7 +134,12 @@ async function handleApprove() {
 
     if (!patient || !test || !result) {
 
-        return <p className="p-6 text-rd-muted">Loading...</p>;
+        return (
+            <div className="mx-auto max-w-5xl space-y-5">
+                <div className="rd-panel h-16 animate-pulse motion-reduce:animate-none" />
+                <div className="rd-panel h-96 animate-pulse motion-reduce:animate-none" />
+            </div>
+        );
 
     }
 
@@ -106,44 +147,99 @@ async function handleApprove() {
 
     if (!FormComponent) {
 
-        return <p className="text-rd-muted">Unknown Test</p>;
+        return (
+            <div className="rd-panel mx-auto max-w-5xl">
+                <EmptyState
+                    title="Unknown test"
+                    hint="No report layout is registered for this test type."
+                    Icon={FlaskIcon}
+                />
+            </div>
+        );
 
     }
 
-return (
-    <>
-        <div className="print-result">
-            <FormComponent
-                patient={patient}
-                initialData={result}
-                readOnly={true}
-            />
-        </div>
+    return (
+        <div className="mx-auto flex max-w-5xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden print:h-auto print:overflow-visible">
 
-        <div className="no-print mt-6 flex justify-end gap-3">
+            <div className="no-print rd-panel flex flex-none flex-wrap items-center gap-x-4 gap-y-3 p-4">
 
-<button
-    type="button"
-    onClick={() => {
-        document.body.classList.add("printing");
-        window.print();
-    }}
-    className="no-print rounded-lg bg-cyan-600 px-4 py-2 text-sm text-white"
->
-    Print Result
-</button>
-
-            {test.status !== "Approved" && (
-                <button
-                    type="button"
-                    onClick={handleApprove}
-                    className="rounded-lg bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-500"
+                <Link
+                    href={`/dashboard/doctor/visitation/${test.visitid}`}
+                    className={backLink}
                 >
-                    Approve
-                </button>
-            )}
+                    <ArrowLeftIcon size={16} />
+                    Back to request
+                </Link>
+
+                <span aria-hidden="true" className="hidden h-6 w-px bg-rd-hair-strong sm:block" />
+
+                <div className="flex min-w-0 items-center gap-3">
+
+                    <Avatar name={patient.name} />
+
+                    <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-rd-title">
+                            {patient.name}
+                        </p>
+                        <p className="truncate text-xs text-rd-muted">{test.name}</p>
+                    </div>
+
+                </div>
+
+                <div className="ml-auto">
+                    <Pill value={test.status} />
+                </div>
+
+            </div>
+
+            <div
+                className={`print-result rd-scroll-thin min-h-0 flex-1 overflow-auto print:h-auto print:overflow-visible ${reportSkin}`}
+            >
+
+                <FormComponent
+                    patient={patient}
+                    initialData={result}
+                    readOnly={true}
+                />
+
+            </div>
+
+            <div className="no-print rd-panel flex flex-none flex-wrap items-center justify-between gap-3 p-4">
+
+                <p className="text-sm text-rd-muted">
+                    {test.status === "Approved"
+                        ? "This result has been approved and released."
+                        : "Approving releases this result to the patient record."}
+                </p>
+
+                <div className="flex flex-wrap items-center gap-3">
+
+                    <button
+                        type="button"
+                        onClick={() => {
+                            document.body.classList.add("printing");
+                            window.print();
+                        }}
+                        className="rd-btn-ghost rd-press rd-focus"
+                    >
+                        Print Result
+                    </button>
+
+                    {test.status !== "Approved" && (
+                        <button
+                            type="button"
+                            onClick={handleApprove}
+                            className="rd-btn rd-press rd-focus"
+                        >
+                            Approve
+                        </button>
+                    )}
+
+                </div>
+
+            </div>
 
         </div>
-    </>
-);
+    );
 }

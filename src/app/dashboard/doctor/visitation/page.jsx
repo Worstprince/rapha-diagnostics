@@ -2,10 +2,26 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+
+import {
+    Avatar,
+    ChevronRightIcon,
+    EmptyState,
+    HeaderGlow,
+    Pill,
+    SearchIcon,
+    TableSkeleton,
+    rowAction,
+    td,
+    th,
+} from "../_ui";
+
 export default function DoctorVisitationPage() {
 
     const [visitations, setVisitations] = useState([]);
     const [search, setSearch] = useState("");
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
 
         fetchVisitations(search);
@@ -22,114 +38,182 @@ export default function DoctorVisitationPage() {
             setVisitations(data);
         } catch (error) {
             console.error(error);
+        } finally {
+            setLoading(false);
         }
 
     }
 
+    const rows = Array.isArray(visitations) ? visitations : [];
+
     return (
 
-        <div className="space-y-6">
+        <div className="mx-auto flex max-w-6xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
 
-            <header className="rounded-2xl border border-rd-hair bg-rd-card p-6">
+            <header className="rd-panel relative flex-none overflow-hidden p-6">
 
-                <h1 className="text-3xl font-semibold text-rd-title">
-                    Patient Visitations
-                </h1>
+                <HeaderGlow />
 
-                <p className="mt-2 text-sm text-rd-muted">
-                    View today's patients and begin consultations.
-                </p>
+                <div className="relative">
 
-            </header>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
+                        Doctor
+                    </p>
 
-            <div className="rounded-2xl border border-rd-hair bg-rd-card p-6">
+                    <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">
+                        Patient Visitations
+                    </h1>
 
-                <div className="mb-5 flex items-center justify-between">
-
-                    <h2 className="text-xl font-semibold text-rd-title">
-                        Waiting Patients
-                    </h2>
-
-                    <input
-                        type="text"
-                        placeholder="Search patient..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="rounded-lg border border-rd-hair-strong bg-rd-field px-4 py-2 text-rd-text outline-none"
-                    />
+                    <p className="mt-2 text-sm text-rd-muted">
+                        View today&apos;s patients and begin consultations.
+                    </p>
 
                 </div>
 
-                <table className="w-full border-collapse">
+            </header>
 
-                    <thead>
+            <section className="rd-panel flex min-h-0 flex-1 flex-col overflow-hidden">
 
-                        <tr className="border-b border-rd-hair-strong text-left text-rd-label">
+                <div className="flex flex-none flex-wrap items-center justify-between gap-4 border-b border-rd-hair p-4">
 
-                            <th className="p-3">Patient</th>
-                            <th className="p-3">Age</th>
-                            <th className="p-3">Sex</th>
-                            <th className="p-3">Visit Date</th>
-                            <th className="p-3">Status</th>
-                            <th className="p-3">Priority</th>
-                            <th className="p-3">Action</th>
-                        </tr>
+                    <div>
 
-                    </thead>
+                        <h2 className="text-lg font-semibold text-rd-title">
+                            Waiting Patients
+                        </h2>
 
-                    <tbody>
+                        <p className="mt-0.5 text-sm text-rd-muted">
+                            {loading ? "Loading the queue…" : `${rows.length} in the queue`}
+                        </p>
 
-                        {visitations.map((visit) => (
+                    </div>
 
-                            <tr
-                                key={visit.visitid}
-                                className="border-b border-rd-hair hover:bg-rd-raised"
-                            >
+                    <div className="relative w-full sm:w-72">
 
-                                <td className="p-3 text-rd-title">{visit.name}</td>
-                                <td className="p-3 text-rd-label">{visit.age}</td>
-                                <td className="p-3 text-rd-label">{visit.sex}</td>
-                                <td className="p-3 text-rd-label">{new Date(visit.visited_at).toLocaleString()}</td>
+                        <span
+                            aria-hidden="true"
+                            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-rd-placeholder"
+                        >
+                            <SearchIcon />
+                        </span>
 
-                                <td className="p-3">
+                        <input
+                            type="search"
+                            aria-label="Search patients"
+                            placeholder="Search patient…"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="rd-input pl-11"
+                        />
 
-                                    {/* No amber token exists, and a pale yellow reads as nearly
-                                        invisible on a light card — the neutral surface pair is
-                                        legible in both themes. */}
-                                    <span className="rounded-full border border-rd-hair-strong bg-rd-raised px-3 py-1 text-xs font-medium text-rd-label">
-                                        {visit.status}
-                                    </span>
+                    </div>
 
-                                </td>
+                </div>
 
-                                <td className="p-3">
+                {loading ? (
 
-                                    <span className="rounded-full border border-rd-danger-edge bg-rd-danger-bg px-3 py-1 text-xs font-medium text-rd-danger">
-                                        {visit.priority}
-                                    </span>
+                    <TableSkeleton />
 
-                                </td>
+                ) : rows.length === 0 ? (
 
-                                <td className="p-3">
+                    <EmptyState
+                        title="No patients waiting"
+                        hint={
+                            search
+                                ? "No visitation matches that search."
+                                : "Visitations appear here once reception checks a patient in."
+                        }
+                    />
 
-                                <Link
-                                    href={`/dashboard/doctor/visitation/${visit.visitid}`}
-                                    className="rd-btn rd-press rd-focus"
-                                >
-                                    Open
-                                </Link>
+                ) : (
 
-                                </td>
+                    <div className="rd-scroll-thin min-h-0 flex-1 overflow-auto">
 
-                            </tr>
+                        <table className="w-full min-w-[860px] border-collapse">
 
-                        ))}
+                            <thead>
 
-                    </tbody>
+                                <tr className="border-b border-rd-hair">
 
-                </table>
+                                    <th className={th}>Patient</th>
+                                    <th className={th}>Age</th>
+                                    <th className={th}>Sex</th>
+                                    <th className={th}>Visit Date</th>
+                                    <th className={th}>Status</th>
+                                    <th className={th}>Priority</th>
+                                    <th className={`${th} text-right`}>
+                                        <span className="sr-only">Action</span>
+                                    </th>
 
-            </div>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                {rows.map((visit) => (
+
+                                    <tr
+                                        key={visit.visitid}
+                                        className="border-b border-rd-hair transition-colors last:border-0 hover:bg-rd-raised"
+                                    >
+
+                                        <td className={td}>
+
+                                            <div className="flex items-center gap-3">
+
+                                                <Avatar name={visit.name} />
+
+                                                <span className="font-medium text-rd-title">
+                                                    {visit.name}
+                                                </span>
+
+                                            </div>
+
+                                        </td>
+
+                                        <td className={`${td} tabular-nums`}>{visit.age}</td>
+
+                                        <td className={td}>{visit.sex}</td>
+
+                                        <td className={`${td} tabular-nums`}>
+                                            {new Date(visit.visited_at).toLocaleString()}
+                                        </td>
+
+                                        <td className={td}>
+                                            <Pill value={visit.status} />
+                                        </td>
+
+                                        <td className={td}>
+                                            <Pill value={visit.priority} />
+                                        </td>
+
+                                        <td className={`${td} text-right`}>
+
+                                            <Link
+                                                href={`/dashboard/doctor/visitation/${visit.visitid}`}
+                                                aria-label={`Open the visitation for ${visit.name}`}
+                                                className={rowAction}
+                                            >
+                                                Open
+                                                <ChevronRightIcon size={16} />
+                                            </Link>
+
+                                        </td>
+
+                                    </tr>
+
+                                ))}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                )}
+
+            </section>
 
         </div>
 
