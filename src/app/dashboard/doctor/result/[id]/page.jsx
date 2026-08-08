@@ -4,7 +4,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
-import { ArrowLeftIcon, Avatar, EmptyState, FlaskIcon, Pill, backLink } from "../../_ui";
+import {
+    ArrowLeftIcon,
+    Avatar,
+    EmptyState,
+    FlaskIcon,
+    Pill,
+    PrinterIcon,
+    backLink,
+} from "../../_ui";
 
 import BloodTypeForm from "@/components/labforms/bloodtypeform";
 import ChemistryForm from "@/components/labforms/chemistryform";
@@ -132,6 +140,20 @@ async function handleApprove() {
     window.location.reload();
 }
 
+    function handlePrint() {
+
+        document.body.classList.add("printing");
+
+        window.addEventListener(
+            "afterprint",
+            () => document.body.classList.remove("printing"),
+            { once: true }
+        );
+
+        window.print();
+
+    }
+
     if (!patient || !test || !result) {
 
         return (
@@ -217,16 +239,15 @@ async function handleApprove() {
 
                     <button
                         type="button"
-                        onClick={() => {
-                            document.body.classList.add("printing");
-                            window.print();
-                        }}
-                        className="rd-btn-ghost rd-press rd-focus"
+                        onClick={handlePrint}
+                        className="rd-btn-ghost rd-press rd-focus min-h-11 py-0 hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan hover:shadow-[0_0_18px_-6px_rgba(34,211,238,0.5)]"
                     >
+                        <PrinterIcon size={16} />
                         Print Result
                     </button>
 
                     {test.status !== "Approved" && (
+
                         <button
                             type="button"
                             onClick={handleApprove}
@@ -234,6 +255,7 @@ async function handleApprove() {
                         >
                             Approve
                         </button>
+
                     )}
 
                 </div>
