@@ -110,25 +110,40 @@ async function handleApprove() {
 
     }
 
-    return (
-<>
-        <FormComponent
-            patient={patient}
-            initialData={result}
-            readOnly={true}
-        />
+return (
+    <>
+        <div className="print-result">
+            <FormComponent
+                patient={patient}
+                initialData={result}
+                readOnly={true}
+            />
+        </div>
 
-{test.status !== "Approved" && (
-    <div className="flex justify-end gap-4 mt-6">
-        <button
-            onClick={handleApprove}
-            className="rd-btn rd-press rd-focus"
-        >
-            Approve
-        </button>
-    </div>
-)}
-</>
-    );
+        <div className="no-print mt-6 flex justify-end gap-3">
 
+<button
+    type="button"
+    onClick={() => {
+        document.body.classList.add("printing");
+        window.print();
+    }}
+    className="no-print rounded-lg bg-cyan-600 px-4 py-2 text-sm text-white"
+>
+    Print Result
+</button>
+
+            {test.status !== "Approved" && (
+                <button
+                    type="button"
+                    onClick={handleApprove}
+                    className="rounded-lg bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-500"
+                >
+                    Approve
+                </button>
+            )}
+
+        </div>
+    </>
+);
 }

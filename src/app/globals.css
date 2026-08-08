@@ -75,6 +75,37 @@
   --rd-toggle-border: rgba(15, 45, 85, 0.14);
 }
 
+@media print {
+
+    body {
+        background: white !important;
+        color: black !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    .print-result,
+    .print-result * {
+        color: black !important;
+        background: white !important;
+        border-color: #d1d5db !important;
+        box-shadow: none !important;
+        opacity: 1 !important;
+        filter: none !important;
+    }
+
+    .print-result input,
+    .print-result textarea,
+    .print-result select {
+        color: black !important;
+        background: white !important;
+        border: 1px solid #d1d5db !important;
+        -webkit-text-fill-color: black !important;
+    }
+}
+
 /* `inline` matters: it compiles utilities down to var(--rd-*) rather than
    freezing the value, so bg-rd-card re-resolves when the theme flips instead of
    staying stuck on whichever palette was current at build time. */

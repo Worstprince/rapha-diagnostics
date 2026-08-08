@@ -306,7 +306,7 @@ export default function DashboardLayout({ children }) {
     <div className="min-h-dvh bg-rd-canvas text-rd-text">
       <div className="flex min-h-dvh flex-col lg:flex-row lg:gap-4 lg:p-4">
         {/* Flush bar on mobile; a floating panel once there's room to inset it. */}
-        <aside className="border-b border-rd-hair bg-rd-card backdrop-blur-xl lg:sticky lg:top-4 lg:flex lg:h-[calc(100dvh-2rem)] lg:w-72 lg:flex-none lg:flex-col lg:rounded-2xl lg:border lg:shadow-[var(--rd-card-shadow)]">
+        <aside className="no-print border-b border-rd-hair bg-rd-card backdrop-blur-xl lg:sticky lg:top-4 lg:flex lg:h-[calc(100dvh-2rem)] lg:w-72 lg:flex-none lg:flex-col lg:rounded-2xl lg:border lg:shadow-[var(--rd-card-shadow)]">
           <div className="flex items-center justify-between gap-3 p-5 lg:p-4">
             <Wordmark />
             <div className="flex items-center gap-2">
@@ -334,7 +334,7 @@ export default function DashboardLayout({ children }) {
         </aside>
 
         {menuOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="no-print fixed inset-0 z-50 lg:hidden">
             <div className="rd-scrim absolute inset-0 bg-black/50" onClick={closeMenu} aria-hidden="true" />
             <div
               id="dashboard-menu"
