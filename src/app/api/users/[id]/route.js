@@ -166,7 +166,7 @@ export async function PUT(request, { params }) {
         
         // Update WITH password
         else {
-            const hashedPassword = await bcrypt.hash(user.password, 10);
+            const hashedPassword = await bcrypt.hash(user.password, 12);
             await db.query(
                 `
                 UPDATE tblusers

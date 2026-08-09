@@ -39,7 +39,7 @@ export async function POST(request) {
 
     }
     
-    const hashedPassword = await bcrypt.hash(user.password, 10);
+    const hashedPassword = await bcrypt.hash(user.password, 12);
 
     await db.query(
             `
