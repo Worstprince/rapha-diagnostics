@@ -186,9 +186,9 @@ export function Badge({ tone = "neutral", children }) {
 }
 
 export const th =
-    "px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-rd-muted";
+    "px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-rd-muted";
 
-export const td = "px-4 py-3 text-sm text-rd-label";
+export const td = "px-5 py-4 text-sm text-rd-label";
 
 export const rowAction =
     "rd-press rd-focus inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-rd-hair-strong bg-rd-sunken px-3.5 text-sm font-medium text-rd-label hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan-strong hover:shadow-[0_0_18px_-6px_rgba(34,211,238,0.5)]";

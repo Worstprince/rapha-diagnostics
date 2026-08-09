@@ -216,7 +216,7 @@ export default function DisplayUsers() {
 
     return (
 
-        <section className="flex min-h-0 flex-1 flex-col gap-4">
+        <section className="flex min-h-0 flex-1 flex-col gap-5">
 
             <div className="rd-panel flex-none overflow-hidden">
 
@@ -337,9 +337,7 @@ export default function DisplayUsers() {
 
                                     <th className={th}>Status</th>
 
-                                    <th className={`${th} text-right`}>
-                                        <span className="sr-only">Actions</span>
-                                    </th>
+                                    <th className={`${th} text-right`}>Actions</th>
 
                                 </tr>
 

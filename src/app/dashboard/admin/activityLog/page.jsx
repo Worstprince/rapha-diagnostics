@@ -216,7 +216,7 @@ export default function ActivityLogPage() {
 
     return (
 
-        <div className="mx-auto flex max-w-5xl flex-col gap-4 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
+        <div className="mx-auto flex max-w-5xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
 
             <PageHeader
                 title="Activity Log"
@@ -337,7 +337,7 @@ export default function ActivityLogPage() {
 
                 {!loading && filteredLogs.length > 0 && (
 
-                    <ol className="rd-scroll-thin min-h-0 flex-1 divide-y divide-rd-hair overflow-y-auto">
+                    <ol className="rd-scroll-thin min-h-0 flex-1 space-y-3 overflow-y-auto p-5">
 
                         {filteredLogs.map((log) => {
 
@@ -347,12 +347,12 @@ export default function ActivityLogPage() {
 
                             <li
                                 key={log.id}
-                                className="relative px-6 py-5 transition-colors hover:bg-rd-raised"
+                                className="relative overflow-hidden rounded-xl border border-rd-hair bg-rd-sunken px-6 py-5 transition-colors hover:border-rd-hair-strong hover:bg-rd-raised"
                             >
 
                                 <span
                                     aria-hidden="true"
-                                    className={`absolute inset-y-5 left-0 w-1 rounded-full ${toneBar[tone]}`}
+                                    className={`absolute inset-y-0 left-0 w-1 ${toneBar[tone]}`}
                                 />
 
                                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
