@@ -1,4 +1,5 @@
 import db from "@/lib/db";
+import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { logActivity } from "@/lib/logActivity";
 
@@ -38,9 +39,9 @@ export async function POST(request) {
 
     }
     
+    const hashedPassword = await bcrypt.hash(user.password, 10);
 
-
-        await db.query(
+    await db.query(
             `
             INSERT INTO tblusers
             (
@@ -54,7 +55,7 @@ export async function POST(request) {
             `,
             [
                 user.username,
-                user.password,
+                hashedPassword,
                 user.email,
                 user.role
             ]

@@ -1,13 +1,17 @@
 import db from "@/lib/db";
 import { NextResponse } from "next/server";
 import { logActivity } from "@/lib/logActivity";
+import bcrypt from "bcrypt";
 
 export async function POST(request) {
     try {
         const { email, password } = await request.json();
 
         // `email` is the login field value; users may enter their email OR username.
-        const identifier = typeof email === "string" ? email.trim() : email;
+        const identifier =
+            typeof email === "string"
+                ? email.trim()
+                : email;
 
         if (!identifier || !password) {
             return NextResponse.json(
@@ -23,19 +27,43 @@ export async function POST(request) {
 
         const [rows] = await db.query(
             `
-            SELECT id, username, email, role, password
+            SELECT
+                id,
+                username,
+                email,
+                role,
+                password
             FROM tblusers
             WHERE (email = ? OR username = ?)
             AND archivestatus = 0
             `,
-            [identifier, identifier]
+            [
+                identifier,
+                identifier
+            ]
         );
 
         const user = rows[0];
 
-        // NOTE: passwords are stored in plain text (see api/users/add), so we
-        // compare directly. Hash with bcrypt once storage is migrated.
-        if (!user || user.password !== password) {
+        if (!user) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Invalid email/username or password."
+                },
+                {
+                    status: 401
+                }
+            );
+        }
+
+        // Compare the entered password against the stored bcrypt hash.
+        const passwordMatch = await bcrypt.compare(
+            password,
+            user.password
+        );
+
+        if (!passwordMatch) {
             return NextResponse.json(
                 {
                     success: false,
@@ -66,6 +94,7 @@ export async function POST(request) {
 
     } catch (error) {
         console.error(error);
+
         return NextResponse.json(
             {
                 success: false,

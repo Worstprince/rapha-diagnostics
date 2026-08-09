@@ -1,4 +1,5 @@
 import db from "@/lib/db";
+import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { logActivity } from "@/lib/logActivity";
 
@@ -138,7 +139,7 @@ export async function PUT(request, { params }) {
 
         }
 
-
+        
         // Update WITHOUT changing password
         if (user.password === "") {
 
@@ -162,10 +163,10 @@ export async function PUT(request, { params }) {
             );
 
         }
-
+        
         // Update WITH password
         else {
-
+            const hashedPassword = await bcrypt.hash(user.password, 10);
             await db.query(
                 `
                 UPDATE tblusers
@@ -179,7 +180,7 @@ export async function PUT(request, { params }) {
                 `,
                 [
                     user.username,
-                    user.password,
+                    hashedPassword,
                     user.email,
                     user.role,
                     user.archivestatus,
