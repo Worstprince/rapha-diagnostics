@@ -44,7 +44,6 @@ export async function POST(request) {
         );
 
         const user = rows[0];
-
         if (!user) {
             return NextResponse.json(
                 {
