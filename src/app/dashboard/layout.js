@@ -20,9 +20,6 @@ import {
 import { signOut, useCurrentUser } from "@/lib/session";
 import { useTheme } from "@/lib/theme";
 
-/* Every role gets an Overview, but each one lands on that role's own dashboard
-   home. A single shared `/dashboard` link can't work: it redirects into the
-   admin dashboard, so it would drop the other roles somewhere they don't belong. */
 const ROLE_HOMES = {
   admin: "/dashboard/admin",
   reception: "/dashboard/reception",
@@ -44,9 +41,6 @@ const adminSections = [
   },
   {
     label: "User Management",
-    /* No Edit Users row: editing starts from the Edit button on a row in View
-       Users, which carries the account you picked. A bare link here would land
-       on the form with nothing selected. */
     links: [
       { href: "/dashboard/admin/viewUsers", label: "View Users", Icon: UsersIcon },
       { href: "/dashboard/admin/addUsers", label: "Add Users", Icon: UserPlusIcon },
@@ -136,15 +130,10 @@ const rowActive =
 
 const roleHomes = Object.values(ROLE_HOMES);
 
-/* A role home is the parent of every other row in that role's sidebar, so Overview
-   matches exactly — prefix matching would keep it lit on every subpage. `/dashboard`
-   redirects to `/dashboard/admin`, so the admin Overview answers to both. */
 function isLinkActive(href, pathname) {
   if (roleHomes.includes(href)) {
     return pathname === href || (href === ROLE_HOMES.admin && pathname === "/dashboard");
   }
-  /* The edit form has no row of its own — you get there from a row in View Users,
-     so that's the row that stays lit while you're editing. */
   if (href === "/dashboard/admin/viewUsers" && pathname.startsWith("/dashboard/admin/editUsers")) {
     return true;
   }
@@ -260,8 +249,6 @@ export default function DashboardLayout({ children }) {
   const menuButtonRef = useRef(null);
   const closeButtonRef = useRef(null);
 
-  /* One role's nav at a time — `/dashboard` only ever renders while its redirect
-     to the admin dashboard is in flight. */
   const sections = pathname.startsWith("/dashboard/admin") || pathname === "/dashboard"
     ? adminSections
     : pathname.startsWith("/dashboard/reception")

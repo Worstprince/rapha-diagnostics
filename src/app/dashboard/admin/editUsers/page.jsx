@@ -6,6 +6,9 @@ import { useSearchParams } from "next/navigation";
 
 import ConfirmDialog from "@/components/ConfirmDialog";
 
+import Toast from "../_toast";
+import { Badge, PageHeader, roleLabel } from "../_ui";
+
 const ROLES = [
   "Administrator",
   "Receptionist",
@@ -40,7 +43,7 @@ const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false);
     password: "",
     email: "",
     role: "",
-    archiveStatus: false,
+    archivestatus: false,
   });
 
   useEffect(() => {
@@ -65,7 +68,7 @@ const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false);
     setErrors({});
 
     if (!id) {
-      setUser({ username: "", password: "", email: "", role: "" });
+      setUser({ username: "", password: "", email: "", role: "", archivestatus: false });
       return;
     }
 
@@ -82,7 +85,7 @@ const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false);
       password: "",
       email: result.data.email,
       role: result.data.role ?? "",
-      archiveStatus: Boolean(result.data.archiveStatus),
+      archivestatus: Boolean(result.data.archivestatus),
     });
   }
 
@@ -197,7 +200,9 @@ const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false);
               data-empty={selectedUser === ""}
               className="rd-input"
             >
-              <option value="">Select User</option>
+              <option value="" disabled hidden>
+                Select User
+              </option>
               {users.map((entry) => (
                 <option key={entry.id} value={entry.id}>
                   {entry.username}
@@ -269,10 +274,12 @@ const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false);
                 aria-describedby={errors.role ? "editRole-error" : undefined}
                 className={field(errors.role)}
               >
-                <option value="">Select Role</option>
+                <option value="" disabled hidden>
+                  Select Role
+                </option>
                 {ROLES.map((role) => (
                   <option key={role} value={role}>
-                    {role}
+                    {roleLabel(role)}
                   </option>
                 ))}
               </select>
@@ -307,56 +314,54 @@ const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false);
             </div>
           </fieldset>
 
-          {status && (
-            <p
-              role={status.tone === "error" ? "alert" : "status"}
-              className={`rd-status rd-status--${status.tone}`}
-            >
-              {status.text}
-            </p>
-          )}
-
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-rd-muted">
-              {locked ? "Select a user to begin." : null}
-            </p>
-            {/* Cancel is a link, not a reset: this form is entered from a row in
-                View Users, so backing out means going back to that list. */}
-<div className="ml-auto flex items-center gap-3">
 
-  {!locked && (
-    <button
-      type="button"
-      onClick={() => setArchiveConfirmOpen(true)}
-      className={`rd-btn-ghost rd-press rd-focus ${
-        user.archivestatus
-          ? "text-rd-ok"
-          : "text-rd-danger"
-      }`}
-    >
-      {user.archivestatus ? "Restore User" : "Archive User"}
-    </button>
-  )}
+            {locked ? (
+              <p className="text-sm text-rd-muted">Select a user to begin.</p>
+            ) : (
+              <Badge tone={user.archivestatus ? "neutral" : "emerald"}>
+                {user.archivestatus ? "Archived" : "Active"}
+              </Badge>
+            )}
 
-  <Link
-    href="/dashboard/admin/viewUsers"
-    className="rd-btn-ghost rd-press rd-focus"
-  >
-    Cancel
-  </Link>
+            <div className="ml-auto flex flex-wrap items-center gap-3">
 
-  <button
-    type="submit"
-    disabled={locked || submitting}
-    className="rd-btn rd-press rd-focus"
-  >
-    {submitting ? "Saving…" : "Save Changes"}
-  </button>
+              {!locked && (
+                <button
+                  type="button"
+                  onClick={() => setArchiveConfirmOpen(true)}
+                  className={`rd-btn-ghost rd-press rd-focus min-h-11 py-0 ${
+                    user.archivestatus
+                      ? "hover:border-emerald-500/50 hover:text-rd-title"
+                      : "text-rd-danger hover:border-rd-danger-edge hover:bg-rd-danger-bg"
+                  }`}
+                >
+                  {user.archivestatus ? "Restore User" : "Archive User"}
+                </button>
+              )}
 
-</div>
+              <Link
+                href="/dashboard/admin/viewUsers"
+                className="rd-btn-ghost rd-press rd-focus min-h-11 py-0"
+              >
+                Cancel
+              </Link>
+
+              <button
+                type="submit"
+                disabled={locked || submitting}
+                className="rd-btn rd-press rd-focus"
+              >
+                {submitting ? "Saving…" : "Save Changes"}
+              </button>
+
+            </div>
+
           </div>
         </form>
     </section>
+
+    <Toast status={status} onDismiss={() => setStatus(null)} />
 
     <ConfirmDialog
       open={confirmOpen}
@@ -368,20 +373,34 @@ const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false);
     />
 
     <ConfirmDialog
-  open={archiveConfirmOpen}
-  title="Archive user?"
-  description={`“${user.username}” will be archived and will no longer be treated as an active user.`}
-  confirmLabel="Archive user"
-  onConfirm={() => {
-    setArchiveConfirmOpen(false);
+      open={archiveConfirmOpen}
+      tone={user.archivestatus ? "default" : "danger"}
+      title={user.archivestatus ? "Restore this user?" : "Archive this user?"}
+      description={
+        user.archivestatus
+          ? `“${user.username}” will be treated as an active user again once you save.`
+          : `“${user.username}” will no longer be treated as an active user once you save.`
+      }
+      confirmLabel={user.archivestatus ? "Restore user" : "Archive user"}
+      onConfirm={() => {
+        setArchiveConfirmOpen(false);
 
-    setUser(prev => ({
-      ...prev,
-      archivestatus: true
-    }));
-  }}
-  onCancel={() => setArchiveConfirmOpen(false)}
-/>
+        const archiving = !user.archivestatus;
+
+        setUser((prev) => ({
+          ...prev,
+          archivestatus: archiving,
+        }));
+
+        setStatus({
+          tone: "success",
+          text: archiving
+            ? `“${user.username}” is marked as archived. Choose Save Changes to apply it.`
+            : `“${user.username}” is marked as active. Choose Save Changes to apply it.`,
+        });
+      }}
+      onCancel={() => setArchiveConfirmOpen(false)}
+    />
 
     </>
   );
@@ -392,13 +411,10 @@ const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false);
 export default function EditUserPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-5">
-      <header className="rd-panel p-6">
-        <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">Admin</p>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">Edit User</h1>
-        <p className="mt-2 text-sm text-rd-muted">
-          Pick an account to edit. Leave the password blank to keep the current one.
-        </p>
-      </header>
+      <PageHeader
+        title="Edit User"
+        description="Pick an account to edit. Leave the password blank to keep the current one."
+      />
 
       <Suspense
         fallback={

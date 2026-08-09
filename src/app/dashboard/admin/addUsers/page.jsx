@@ -4,11 +4,14 @@ import { useState, useSyncExternalStore } from "react";
 
 import ConfirmDialog from "@/components/ConfirmDialog";
 
+import Toast from "../_toast";
+import { PageHeader, roleLabel } from "../_ui";
+
 const ROLES = [
-  { value: "Administrator", label: "Administrator" },
-  { value: "Receptionist", label: "Receptionist" },
-  { value: "Medical Technologist", label: "Medical Technologist" },
-  { value: "Pathologist", label: "Physician" },
+  "Administrator",
+  "Receptionist",
+  "Medical Technologist",
+  "Pathologist",
 ];
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -158,19 +161,14 @@ export default function AddUsers() {
     }
   }
 
-  /* "Pathologist" is stored but shown as "Physician", so the dialog has to echo
-     the label the user actually picked. */
-  const roleLabel = ROLES.find((entry) => entry.value === user.role)?.label ?? user.role;
+  const selectedRoleLabel = roleLabel(user.role);
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
-      <header className="rd-panel p-6">
-        <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">Admin</p>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">Add User</h1>
-        <p className="mt-2 text-sm text-rd-muted">
-          Create an account and assign the role that matches their department.
-        </p>
-      </header>
+      <PageHeader
+        title="Add User"
+        description="Create an account and assign the role that matches their department."
+      />
 
       <section className="rd-panel p-6">
         {/* noValidate because the checks below replace the browser's — without
@@ -256,10 +254,12 @@ export default function AddUsers() {
               aria-describedby={errors.role ? "role-error" : undefined}
               className={field(errors.role)}
             >
-              <option value="">Select Role</option>
+              <option value="" disabled hidden>
+                Select Role
+              </option>
               {ROLES.map((role) => (
-                <option key={role.value} value={role.value}>
-                  {role.label}
+                <option key={role} value={role}>
+                  {roleLabel(role)}
                 </option>
               ))}
             </select>
@@ -280,15 +280,6 @@ export default function AddUsers() {
             </p>
           </div>
 
-          {status && (
-            <p
-              role={status.tone === "error" ? "alert" : "status"}
-              className={`rd-status rd-status--${status.tone}`}
-            >
-              {status.text}
-            </p>
-          )}
-
           <div className="flex justify-end">
             <button type="submit" disabled={submitting} className="rd-btn rd-press rd-focus">
               {submitting ? "Adding…" : "Add User"}
@@ -297,10 +288,12 @@ export default function AddUsers() {
         </form>
       </section>
 
+      <Toast status={status} onDismiss={() => setStatus(null)} />
+
       <ConfirmDialog
         open={confirmOpen}
         title="Add this user?"
-        description={`“${user.username}” will be created with the ${roleLabel} role and can sign in immediately.`}
+        description={`“${user.username}” will be created with the ${selectedRoleLabel} role and can sign in immediately.`}
         confirmLabel="Add user"
         onConfirm={addUser}
         onCancel={() => setConfirmOpen(false)}

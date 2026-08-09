@@ -1,7 +1,15 @@
+import { FlaskIcon, PageHeader, UsersIcon, WalletIcon, toneChip } from "./_ui";
+
 const cards = [
-  { title: "Patients", value: "1,284", hint: "Active records" },
-  { title: "Pending tests", value: "38", hint: "Awaiting review" },
-  { title: "Monthly revenue", value: "$84.2k", hint: "Billing summary" },
+  { title: "Patients", value: "1,284", hint: "Active records", Icon: UsersIcon, tone: "cyan" },
+  { title: "Pending tests", value: "38", hint: "Awaiting review", Icon: FlaskIcon, tone: "amber" },
+  {
+    title: "Monthly revenue",
+    value: "$84.2k",
+    hint: "Billing summary",
+    Icon: WalletIcon,
+    tone: "emerald",
+  },
 ];
 
 const alerts = [
@@ -10,52 +18,58 @@ const alerts = [
   { tone: "info", text: "A doctor has requested a new report template." },
 ];
 
-function AlertDot({ tone }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={`mt-1.5 size-1.5 flex-none rounded-full ${
-        tone === "warn" ? "bg-rd-danger" : "bg-rd-cyan"
-      }`}
-    />
-  );
-}
+const alertTone = {
+  warn: "border-amber-500/45 bg-amber-500/12",
+  info: "border-rd-hair bg-rd-sunken",
+};
+
+const alertDot = {
+  warn: "bg-amber-500",
+  info: "bg-cyan-500",
+};
 
 export default function AdminDashboardPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-5">
-      <header className="rd-panel p-6">
-        <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">Admin</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-rd-title">
-          Operations overview
-        </h1>
-        <p className="mt-2 text-sm text-rd-muted">
-          Monitor system health, staffing, and financial performance.
-        </p>
-      </header>
+      <PageHeader
+        title="Operations overview"
+        description="Monitor system health, staffing, and financial performance."
+      />
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map((card) => (
-          <article key={card.title} className="rd-panel p-5">
-            <p className="text-sm text-rd-muted">{card.title}</p>
-            {/* Tabular figures stop the digits from shifting width as values change. */}
-            <p className="mt-3 text-3xl font-bold tabular-nums tracking-tight text-rd-title">
-              {card.value}
+        {cards.map(({ title, value, hint, Icon, tone }) => (
+          <article key={title} className="rd-panel p-5">
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-sm font-medium text-rd-label">{title}</p>
+              <span
+                className={`grid size-10 flex-none place-items-center rounded-xl ${toneChip[tone]}`}
+              >
+                <Icon size={20} />
+              </span>
+            </div>
+            <p className="mt-4 text-3xl font-bold tabular-nums tracking-tight text-rd-title">
+              {value}
             </p>
-            <p className="mt-1 text-sm text-rd-muted">{card.hint}</p>
+            <p className="mt-1 text-sm text-rd-muted">{hint}</p>
           </article>
         ))}
       </section>
 
-      <section className="rd-panel p-6">
-        <h2 className="text-lg font-semibold text-rd-title">Recent alerts</h2>
-        <ul className="mt-4 space-y-2.5">
+      <section className="rd-panel overflow-hidden">
+        <div className="border-b border-rd-hair p-4">
+          <h2 className="text-lg font-semibold text-rd-title">Recent alerts</h2>
+        </div>
+
+        <ul className="space-y-2.5 p-4">
           {alerts.map((alert) => (
             <li
               key={alert.text}
-              className="flex items-start gap-3 rounded-xl border border-rd-hair bg-rd-sunken p-3 text-sm text-rd-label"
+              className={`flex items-start gap-3 rounded-xl border p-3 text-sm text-rd-label ${alertTone[alert.tone]}`}
             >
-              <AlertDot tone={alert.tone} />
+              <span
+                aria-hidden="true"
+                className={`mt-1.5 size-1.5 flex-none rounded-full ${alertDot[alert.tone]}`}
+              />
               <span>{alert.text}</span>
             </li>
           ))}

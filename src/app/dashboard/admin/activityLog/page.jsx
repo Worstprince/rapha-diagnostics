@@ -2,6 +2,20 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import {
+    ClearFilters,
+    FilterField,
+    FilterToggle,
+    PageHeader,
+    ResultCount,
+    RowSkeleton,
+    SearchField,
+    StateMessage,
+    actionTone,
+    toneBar,
+    toneDot,
+} from "../_ui";
+
 export default function ActivityLogPage() {
 
     const [logs, setLogs] = useState([]);
@@ -62,10 +76,6 @@ export default function ActivityLogPage() {
     }, []);
 
 
-    /*
-        Get filter options dynamically from the activity logs.
-    */
-
     const modules = useMemo(() => {
 
         return [
@@ -104,10 +114,6 @@ export default function ActivityLogPage() {
 
     }, [logs]);
 
-
-    /*
-        Search + filters + sorting
-    */
 
     const filteredLogs = useMemo(() => {
 
@@ -192,7 +198,6 @@ export default function ActivityLogPage() {
 
     function clearFilters() {
 
-        setSearch("");
         setModuleFilter("");
         setActionFilter("");
         setUsernameFilter("");
@@ -201,361 +206,175 @@ export default function ActivityLogPage() {
     }
 
 
-    const filtersActive =
-        moduleFilter !== "" ||
-        actionFilter !== "" ||
-        usernameFilter !== "" ||
-        sortDate !== "";
+    const activeCount = [
+        moduleFilter,
+        actionFilter,
+        usernameFilter,
+        sortDate
+    ].filter(Boolean).length;
 
 
     return (
 
-        <div className="space-y-6">
+        <div className="mx-auto flex max-w-5xl flex-col gap-4 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
 
-            <div>
+            <PageHeader
+                title="Activity Log"
+                description="Monitor and review all user activities within the system."
+            />
 
-                <p className="text-sm font-medium text-rd-cyan">
-                    Admin
-                </p>
+            <section className="rd-panel flex-none overflow-hidden">
 
-                <h1 className="mt-1 text-3xl font-semibold text-rd-title">
-                    Activity Log
-                </h1>
+                <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
 
-                <p className="mt-2 text-sm text-rd-muted">
-                    Monitor and review all user activities within the system.
-                </p>
-
-            </div>
-
-
-            {/* SEARCH + FILTER BUTTON */}
-
-            <div className="flex flex-col gap-3 sm:flex-row">
-
-                <div className="relative flex-1">
-
-                    <input
-                        type="text"
+                    <SearchField
+                        label="Search activity"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search activity..."
-                        className="w-full rounded-xl border border-rd-hair-strong bg-rd-sunken px-4 py-3 pl-10 text-sm text-rd-title outline-none placeholder:text-rd-muted focus:border-rd-cyan/50 focus:ring-1 focus:ring-rd-cyan/30"
+                        placeholder="Search activity…"
                     />
 
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-rd-muted"
-                    >
+                    <div className="flex items-center justify-between gap-3">
 
-                        <circle
-                            cx="11"
-                            cy="11"
-                            r="8"
+                        {!loading && (
+                            <ResultCount
+                                shown={filteredLogs.length}
+                                total={logs.length}
+                                noun="activities"
+                            />
+                        )}
+
+                        <FilterToggle
+                            open={showFilters}
+                            count={activeCount}
+                            controls="activity-filters"
+                            onClick={() => setShowFilters(prev => !prev)}
                         />
-
-                        <path d="m21 21-4.3-4.3" />
-
-                    </svg>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    onClick={() => setShowFilters(prev => !prev)}
-                    className={`rd-press inline-flex min-h-[46px] items-center justify-center gap-2 rounded-xl border px-5 text-sm font-medium transition-colors ${
-                        showFilters || filtersActive
-                            ? "border-rd-cyan/50 bg-rd-cyan/10 text-rd-cyan"
-                            : "border-rd-hair-strong bg-rd-sunken text-rd-label hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan"
-                    }`}
-                >
-
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        className="size-4"
-                    >
-
-                        <path d="M4 6h16" />
-                        <path d="M7 12h10" />
-                        <path d="M10 18h4" />
-
-                    </svg>
-
-                    Filters
-
-                    {filtersActive && (
-
-                        <span className="flex size-5 items-center justify-center rounded-full bg-rd-cyan text-xs font-bold text-slate-950">
-                            !
-                        </span>
-
-                    )}
-
-                </button>
-
-            </div>
-
-
-            {/* FILTER PANEL */}
-
-            {showFilters && (
-
-                <div className="rounded-xl border border-rd-hair-strong bg-rd-raised p-5">
-
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-
-
-                        {/* MODULE */}
-
-                        <div>
-
-                            <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                Module
-                            </label>
-
-                            <select
-                                value={moduleFilter}
-                                onChange={(e) =>
-                                    setModuleFilter(e.target.value)
-                                }
-                                className="w-full rounded-lg border border-rd-hair-strong bg-rd-sunken px-3 py-2.5 text-sm text-rd-label outline-none focus:border-rd-cyan/50"
-                            >
-
-                                <option value="">
-                                    All Modules
-                                </option>
-
-                                {modules.map(module => (
-
-                                    <option
-                                        key={module}
-                                        value={module}
-                                    >
-                                        {module}
-                                    </option>
-
-                                ))}
-
-                            </select>
-
-                        </div>
-
-
-                        {/* ACTION */}
-
-                        <div>
-
-                            <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                Action
-                            </label>
-
-                            <select
-                                value={actionFilter}
-                                onChange={(e) =>
-                                    setActionFilter(e.target.value)
-                                }
-                                className="w-full rounded-lg border border-rd-hair-strong bg-rd-sunken px-3 py-2.5 text-sm text-rd-label outline-none focus:border-rd-cyan/50"
-                            >
-
-                                <option value="">
-                                    All Actions
-                                </option>
-
-                                {actions.map(action => (
-
-                                    <option
-                                        key={action}
-                                        value={action}
-                                    >
-                                        {action}
-                                    </option>
-
-                                ))}
-
-                            </select>
-
-                        </div>
-
-
-                        {/* USER */}
-
-                        <div>
-
-                            <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                User
-                            </label>
-
-                            <select
-                                value={usernameFilter}
-                                onChange={(e) =>
-                                    setUsernameFilter(e.target.value)
-                                }
-                                className="w-full rounded-lg border border-rd-hair-strong bg-rd-sunken px-3 py-2.5 text-sm text-rd-label outline-none focus:border-rd-cyan/50"
-                            >
-
-                                <option value="">
-                                    All Users
-                                </option>
-
-                                {usernames.map(username => (
-
-                                    <option
-                                        key={username}
-                                        value={username}
-                                    >
-                                        {username}
-                                    </option>
-
-                                ))}
-
-                            </select>
-
-                        </div>
-
-
-                        {/* DATE */}
-
-                        <div>
-
-                            <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                Sort by Date
-                            </label>
-
-                            <select
-                                value={sortDate}
-                                onChange={(e) =>
-                                    setSortDate(e.target.value)
-                                }
-                                className="w-full rounded-lg border border-rd-hair-strong bg-rd-sunken px-3 py-2.5 text-sm text-rd-label outline-none focus:border-rd-cyan/50"
-                            >
-
-                                <option value="">
-                                    Default
-                                </option>
-
-                                <option value="newest">
-                                    Newest First
-                                </option>
-
-                                <option value="oldest">
-                                    Oldest First
-                                </option>
-
-                            </select>
-
-                        </div>
 
                     </div>
 
+                </div>
 
-                    {filtersActive && (
+                {showFilters && (
 
-                        <div className="mt-4 flex justify-end">
+                    <div id="activity-filters" className="border-t border-rd-hair p-4">
 
-                            <button
-                                type="button"
-                                onClick={clearFilters}
-                                className="text-sm text-rd-muted hover:text-rd-cyan"
+                        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+
+                            <FilterField
+                                label="Module"
+                                value={moduleFilter}
+                                onChange={(e) => setModuleFilter(e.target.value)}
                             >
-                                Clear filters
-                            </button>
+                                <option value="">All modules</option>
+                                {modules.map(module => (
+                                    <option key={module} value={module}>
+                                        {module}
+                                    </option>
+                                ))}
+                            </FilterField>
+
+                            <FilterField
+                                label="Action"
+                                value={actionFilter}
+                                onChange={(e) => setActionFilter(e.target.value)}
+                            >
+                                <option value="">All actions</option>
+                                {actions.map(action => (
+                                    <option key={action} value={action}>
+                                        {action}
+                                    </option>
+                                ))}
+                            </FilterField>
+
+                            <FilterField
+                                label="User"
+                                value={usernameFilter}
+                                onChange={(e) => setUsernameFilter(e.target.value)}
+                            >
+                                <option value="">All users</option>
+                                {usernames.map(username => (
+                                    <option key={username} value={username}>
+                                        {username}
+                                    </option>
+                                ))}
+                            </FilterField>
+
+                            <FilterField
+                                label="Sort by date"
+                                value={sortDate}
+                                onChange={(e) => setSortDate(e.target.value)}
+                            >
+                                <option value="">Default order</option>
+                                <option value="newest">Newest first</option>
+                                <option value="oldest">Oldest first</option>
+                            </FilterField>
 
                         </div>
 
-                    )}
+                        <ClearFilters count={activeCount} onClear={clearFilters} />
 
-                </div>
-
-            )}
-
-
-            {/* RESULT COUNT */}
-
-            {!loading && (
-
-                <div className="text-sm text-rd-muted">
-
-                    Showing{" "}
-                    <span className="font-medium text-rd-label">
-                        {filteredLogs.length}
-                    </span>{" "}
-                    of{" "}
-                    <span className="font-medium text-rd-label">
-                        {logs.length}
-                    </span>{" "}
-                    activities
-
-                </div>
-
-            )}
-
-
-            {/* ACTIVITY LOG */}
-
-            <section className="rd-panel max-h-[70vh] overflow-y-auto p-6 rd-scroll-thin">
-
-                {loading && (
-
-                    <p className="py-10 text-center text-sm text-rd-muted">
-                        Loading activity…
-                    </p>
+                    </div>
 
                 )}
 
+            </section>
+
+            <section className="rd-panel flex min-h-0 flex-1 flex-col overflow-hidden max-lg:max-h-[70vh]">
+
+                {loading && <RowSkeleton />}
 
                 {!loading && filteredLogs.length === 0 && (
-
-                    <p className="py-10 text-center text-sm text-rd-muted">
-                        No activity found.
-                    </p>
-
+                    <StateMessage
+                        title="No activity found"
+                        hint={
+                            search || activeCount > 0
+                                ? "Nothing matches the current search and filters."
+                                : "Activity appears here as staff use the system."
+                        }
+                    />
                 )}
-
 
                 {!loading && filteredLogs.length > 0 && (
 
-                    <ol className="space-y-2.5">
+                    <ol className="rd-scroll-thin min-h-0 flex-1 divide-y divide-rd-hair overflow-y-auto">
 
-                        {filteredLogs.map((log) => (
+                        {filteredLogs.map((log) => {
+
+                            const tone = actionTone(log.action);
+
+                            return (
 
                             <li
                                 key={log.id}
-                                className="relative overflow-hidden rounded-xl border border-rd-hair bg-rd-sunken p-4 pl-5"
+                                className="relative px-6 py-5 transition-colors hover:bg-rd-raised"
                             >
 
                                 <span
                                     aria-hidden="true"
-                                    className="absolute inset-y-3 left-0 w-0.5 rounded-full bg-rd-cyan/40"
+                                    className={`absolute inset-y-5 left-0 w-1 rounded-full ${toneBar[tone]}`}
                                 />
 
+                                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
 
-                                <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                                    <div className="flex flex-wrap items-center gap-2.5">
 
-                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span
+                                            aria-hidden="true"
+                                            className={`size-2 flex-none rounded-full ${toneDot[tone]}`}
+                                        />
 
-                                        <h2 className="text-sm font-semibold text-rd-title">
+                                        <p className="text-[15px] font-semibold text-rd-title">
                                             {log.action}
-                                        </h2>
+                                        </p>
 
                                         {log.module && (
-
-                                            <span className="rounded-full border border-rd-hair-strong bg-rd-raised px-2 py-0.5 text-xs text-rd-muted">
+                                            <span className="rounded-full border border-rd-hair-strong bg-rd-raised px-2.5 py-1 text-xs font-medium text-rd-label">
                                                 {log.module}
                                             </span>
-
                                         )}
 
                                     </div>
-
 
                                     <time className="text-xs tabular-nums text-rd-muted">
                                         {log.datetime}
@@ -563,25 +382,22 @@ export default function ActivityLogPage() {
 
                                 </div>
 
-
-                                <p className="mt-1.5 text-sm text-rd-label">
+                                <p className="mt-2.5 text-sm leading-relaxed text-rd-label">
                                     {log.description}
                                 </p>
 
-
-                                <p className="mt-2 text-xs text-rd-muted">
-
+                                <p className="mt-3 text-xs text-rd-muted">
                                     Performed by{" "}
-
-                                    <span className="font-medium text-rd-label">
+                                    <span className="font-semibold text-rd-label">
                                         {log.username}
                                     </span>
-
                                 </p>
 
                             </li>
 
-                        ))}
+                            );
+
+                        })}
 
                     </ol>
 
