@@ -16,8 +16,8 @@ const EMPTY_PATIENT = {
 };
 
 const fieldClasses =
-  "w-full min-w-0 rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 focus:bg-slate-800/80";
-const labelClasses = "mb-1.5 block text-sm font-medium text-slate-300";
+  "w-full min-w-0 rounded-xl border border-rd-hair-strong bg-rd-field px-4 py-3 text-sm text-rd-title outline-none transition placeholder:text-rd-placeholder focus:border-rd-cyan focus:ring-2 focus:ring-rd-cyan/30 focus:bg-rd-field";
+const labelClasses = "mb-1.5 block text-sm font-medium text-rd-label";
 
 export default function PatientRegistration() {
   const [patient, setPatient] = useState(EMPTY_PATIENT);
@@ -112,8 +112,8 @@ export default function PatientRegistration() {
         </div>
       )}
 
-      <fieldset className="w-full overflow-hidden rounded-xl border border-slate-800 bg-slate-950/70 p-4 sm:p-6">
-        <legend className="px-2 text-sm font-semibold uppercase tracking-[0.25em] text-cyan-400">
+      <fieldset className="w-full overflow-hidden rounded-xl border border-rd-hair bg-rd-sunken p-4 sm:p-6">
+        <legend className="px-2 text-sm font-semibold uppercase tracking-[0.25em] text-rd-cyan">
           Personal information
         </legend>
 
@@ -223,8 +223,8 @@ export default function PatientRegistration() {
         </div>
       </fieldset>
 
-      <fieldset className="w-full overflow-hidden rounded-xl border border-slate-800 bg-slate-950/70 p-4 sm:p-6">
-        <legend className="px-2 text-sm font-semibold uppercase tracking-[0.25em] text-cyan-400">
+      <fieldset className="w-full overflow-hidden rounded-xl border border-rd-hair bg-rd-sunken p-4 sm:p-6">
+        <legend className="px-2 text-sm font-semibold uppercase tracking-[0.25em] text-rd-cyan">
           Contact information
         </legend>
 
@@ -271,10 +271,10 @@ export default function PatientRegistration() {
       </fieldset>
 
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <button type="button" onClick={handleReset} disabled={submitting} className="rounded-xl border border-slate-700 px-6 py-3 text-sm font-semibold text-slate-300 transition hover:border-slate-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-50">
+        <button type="button" onClick={handleReset} disabled={submitting} className="rd-btn-ghost rd-press rd-focus min-h-11 py-0 disabled:cursor-not-allowed disabled:opacity-50">
           Clear
         </button>
-        <button type="submit" disabled={submitting} className="rounded-xl bg-cyan-500 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-60">
+        <button type="submit" disabled={submitting} className="rd-btn rd-press rd-focus disabled:cursor-not-allowed disabled:opacity-60">
           {submitting ? "Registering…" : "Register patient"}
         </button>
       </div>

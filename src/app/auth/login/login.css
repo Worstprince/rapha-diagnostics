@@ -286,12 +286,12 @@ html[data-theme="light"] .rd-dnafield {
 }
 
 .rd-eye:hover {
-  color: #67e8f9;
-  background: rgba(34, 211, 238, 0.1);
+  color: var(--rd-cyan-strong);
+  background: var(--rd-focus-ring);
 }
 
 .rd-eye:focus-visible {
-  outline: 2px solid rgba(34, 211, 238, 0.8);
+  outline: 2px solid var(--rd-cyan);
   outline-offset: 1px;
 }
 
@@ -328,9 +328,9 @@ html[data-theme="light"] .rd-dnafield {
   transition: color 160ms;
 }
 
-.rd-link:hover { color: #67e8f9; }
+.rd-link:hover { color: var(--rd-cyan-strong); }
 .rd-link:focus-visible {
-  outline: 2px solid rgba(34, 211, 238, 0.8);
+  outline: 2px solid var(--rd-cyan);
   outline-offset: 3px;
 }
 
@@ -341,26 +341,26 @@ html[data-theme="light"] .rd-dnafield {
   padding: 15px 16px;
   border: 0;
   border-radius: 12px;
-  background: linear-gradient(180deg, #3ddced 0%, #16b6d4 100%);
-  color: #04222c;
+  background: var(--rd-accent-grad);
+  color: var(--rd-on-cyan);
   font-size: 15px;
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
-  box-shadow: 0 12px 30px -12px rgba(34, 211, 238, 0.7);
+  box-shadow: 0 12px 30px -12px var(--rd-accent-shadow);
   transition: transform 140ms, box-shadow 180ms, filter 160ms;
 }
 
 .rd-submit:hover:not(:disabled) {
   transform: translateY(-1px);
   filter: brightness(1.06);
-  box-shadow: 0 18px 38px -14px rgba(34, 211, 238, 0.85);
+  box-shadow: 0 18px 38px -14px var(--rd-accent-shadow-strong);
 }
 
 .rd-submit:active:not(:disabled) { transform: translateY(1px); }
 
 .rd-submit:focus-visible {
-  outline: 2px solid rgba(34, 211, 238, 0.9);
+  outline: 2px solid var(--rd-cyan);
   outline-offset: 3px;
 }
 

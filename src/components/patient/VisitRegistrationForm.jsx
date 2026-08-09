@@ -78,11 +78,11 @@ export default function VisitRegistrationForm() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
   return (
-    <section className="rounded-[2rem] border border-slate-800 bg-slate-950/70 p-8 shadow-xl shadow-slate-950/20">
+    <section className="rounded-[2rem] border border-rd-hair bg-rd-sunken p-8 shadow-[var(--rd-card-shadow)]">
       <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-3">
-          <h1 className="text-3xl font-semibold tracking-tight text-white">Register Visit</h1>
-          <p className="max-w-2xl text-sm leading-6 text-slate-400">
+          <h1 className="text-3xl font-semibold tracking-tight text-rd-title">Register Visit</h1>
+          <p className="max-w-2xl text-sm leading-6 text-rd-muted">
             Find the patient, then select the tests requested for this visit.
           </p>
         </div>
@@ -96,175 +96,175 @@ export default function VisitRegistrationForm() {
 
       <div className="space-y-8">
         <div className="space-y-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Patient</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-rd-muted">Patient</p>
           <div id="patient-search-container" className="relative">
             <input
               type="text"
               value={patientSearch}
               onChange={handleChange}
               placeholder="Search by name or patient ID..."
-              className="w-full rounded-3xl border border-slate-800 bg-slate-900/70 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+              className="w-full rounded-3xl border border-rd-hair bg-rd-field px-4 py-3 text-rd-text placeholder:text-rd-placeholder focus:border-rd-cyan focus:outline-none focus:ring-2 focus:ring-rd-cyan/20"
             />
 
             {showDropdown && searchResults.length > 0 && (
-              <ul className="absolute z-10 mt-1 max-h-64 w-full overflow-y-auto rounded-2xl border border-slate-800 bg-slate-900 shadow-lg">
+              <ul className="absolute z-10 mt-1 max-h-64 w-full overflow-y-auto rounded-2xl border border-rd-hair bg-rd-popover shadow-lg">
                 {searchResults.map((patient) => (
                   <li
                     key={patient.id}
                     onClick={() => handleSelectPatient(patient)}
-                    className="cursor-pointer px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
+                    className="cursor-pointer px-4 py-2 text-sm text-rd-text hover:bg-rd-raised"
                   >
                     {patient.fname} {patient.mname} {patient.lname} {patient.suffix}
-                    <span className="ml-2 text-slate-500">{patient.birthdate}</span>
+                    <span className="ml-2 text-rd-muted">{patient.birthdate}</span>
                   </li>
                 ))}
               </ul>
             )}
 
             {showDropdown && patientSearch.trim() !== "" && searchResults.length === 0 && (
-              <div className="absolute z-10 mt-1 w-full rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-slate-500">
+              <div className="absolute z-10 mt-1 w-full rounded-2xl border border-rd-hair bg-rd-popover px-4 py-3 text-sm text-rd-muted">
                 No patients found.
               </div>
             )}
           </div>
 
-          <div className="space-y-4 rounded-[1.75rem] border border-slate-800 bg-slate-900/50 p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">Selected patient</p>
+          <div className="space-y-4 rounded-[1.75rem] border border-rd-hair bg-rd-sunken p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-rd-muted">Selected patient</p>
 
             <div className="grid gap-4 lg:grid-cols-3">
               <label className="space-y-2">
-                <span className="text-sm font-medium text-slate-300">First name</span>
+                <span className="text-sm font-medium text-rd-label">First name</span>
                 <input
                   type="text"
                   value={selectedPatient.fname}
                   disabled
                   readOnly
-                  className="w-full cursor-not-allowed rounded-3xl border border-slate-800 bg-slate-950/40 px-4 py-3 text-slate-400"
+                  className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
                 />
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-medium text-slate-300">Middle name</span>
+                <span className="text-sm font-medium text-rd-label">Middle name</span>
                 <input
                   type="text"
                   value={selectedPatient.mname}
                   disabled
                   readOnly
-                  className="w-full cursor-not-allowed rounded-3xl border border-slate-800 bg-slate-950/40 px-4 py-3 text-slate-400"
+                  className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
                 />
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-medium text-slate-300">Last name</span>
+                <span className="text-sm font-medium text-rd-label">Last name</span>
                 <input
                   type="text"
                   value={selectedPatient.lname}
                   disabled
                   readOnly
-                  className="w-full cursor-not-allowed rounded-3xl border border-slate-800 bg-slate-950/40 px-4 py-3 text-slate-400"
+                  className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
                 />
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-medium text-slate-300">Suffix</span>
+                <span className="text-sm font-medium text-rd-label">Suffix</span>
                 <input
                   type="text"
                   value={selectedPatient.suffix}
                   disabled
                   readOnly
-                  className="w-full cursor-not-allowed rounded-3xl border border-slate-800 bg-slate-950/40 px-4 py-3 text-slate-400"
+                  className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
                 />
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-medium text-slate-300">Birthdate</span>
+                <span className="text-sm font-medium text-rd-label">Birthdate</span>
                 <input
                   type="text"
                   value={selectedPatient.birthdate}
                   disabled
                   readOnly
-                  className="w-full cursor-not-allowed rounded-3xl border border-slate-800 bg-slate-950/40 px-4 py-3 text-slate-400"
+                  className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
                 />
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-medium text-slate-300">Sex</span>
+                <span className="text-sm font-medium text-rd-label">Sex</span>
                 <input
                   type="text"
                   value={selectedPatient.sex}
                   disabled
                   readOnly
-                  className="w-full cursor-not-allowed rounded-3xl border border-slate-800 bg-slate-950/40 px-4 py-3 text-slate-400"
+                  className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
                 />
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-medium text-slate-300">Civil status</span>
+                <span className="text-sm font-medium text-rd-label">Civil status</span>
                 <input
                   type="text"
                   value={selectedPatient.civilStatus}
                   disabled
                   readOnly
-                  className="w-full cursor-not-allowed rounded-3xl border border-slate-800 bg-slate-950/40 px-4 py-3 text-slate-400"
+                  className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
                 />
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-medium text-slate-300">Mobile number</span>
+                <span className="text-sm font-medium text-rd-label">Mobile number</span>
                 <input
                   type="text"
                   value={selectedPatient.mobileNum}
                   disabled
                   readOnly
-                  className="w-full cursor-not-allowed rounded-3xl border border-slate-800 bg-slate-950/40 px-4 py-3 text-slate-400"
+                  className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
                 />
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-medium text-slate-300">Email</span>
+                <span className="text-sm font-medium text-rd-label">Email</span>
                 <input
                   type="text"
                   value={selectedPatient.email}
                   disabled
                   readOnly
-                  className="w-full cursor-not-allowed rounded-3xl border border-slate-800 bg-slate-950/40 px-4 py-3 text-slate-400"
+                  className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
                 />
               </label>
             </div>
 
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-slate-300">Address</span>
+              <span className="text-sm font-medium text-rd-label">Address</span>
               <input
                 type="text"
                 value={selectedPatient.address}
                 disabled
                 readOnly
-                className="w-full cursor-not-allowed rounded-3xl border border-slate-800 bg-slate-950/40 px-4 py-3 text-slate-400"
+                className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
               />
             </label>
           </div>
         </div>
 
-        <div className="space-y-6 rounded-[1.75rem] border border-slate-800 bg-slate-900/50 p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Visit details</p>
+        <div className="space-y-6 rounded-[1.75rem] border border-rd-hair bg-rd-sunken p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-rd-muted">Visit details</p>
 
           <div className="grid gap-4 lg:grid-cols-3">
             <label className="space-y-2">
-              <span className="text-sm font-medium text-slate-300">Visit date</span>
+              <span className="text-sm font-medium text-rd-label">Visit date</span>
               <input
                 type="date"
                 value={visitDate}
                 onChange={(event) => setVisitDate(event.target.value)}
-                className="w-full rounded-3xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-slate-100 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                className="w-full rounded-3xl border border-rd-hair bg-rd-field px-4 py-3 text-rd-text focus:border-rd-cyan focus:outline-none focus:ring-2 focus:ring-rd-cyan/20"
               />
             </label>
 
             <label className="space-y-2">
-              <span className="text-sm font-medium text-slate-300">Priority</span>
+              <span className="text-sm font-medium text-rd-label">Priority</span>
               <select
                 value={priority}
                 onChange={(event) => setPriority(event.target.value)}
-                className="w-full rounded-3xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-slate-100 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                className="w-full rounded-3xl border border-rd-hair bg-rd-field px-4 py-3 text-rd-text focus:border-rd-cyan focus:outline-none focus:ring-2 focus:ring-rd-cyan/20"
               >
                 <option>Routine</option>
                 <option>Urgent</option>
@@ -273,11 +273,11 @@ export default function VisitRegistrationForm() {
             </label>
 
             <label className="space-y-2">
-              <span className="text-sm font-medium text-slate-300">Referring doctor</span>
+              <span className="text-sm font-medium text-rd-label">Referring doctor</span>
               <select
                 value={referringDoctor}
                 onChange={(event) => setReferringDoctor(event.target.value)}
-                className="w-full rounded-3xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-slate-100 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                className="w-full rounded-3xl border border-rd-hair bg-rd-field px-4 py-3 text-rd-text focus:border-rd-cyan focus:outline-none focus:ring-2 focus:ring-rd-cyan/20"
               >
                 <option>Walk-in / none</option>
                 <option>Dr. Amina Okoro</option>
@@ -288,24 +288,24 @@ export default function VisitRegistrationForm() {
           </div>
 
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-slate-300">Notes (optional)</span>
+            <span className="text-sm font-medium text-rd-label">Notes (optional)</span>
             <textarea
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
               rows={4}
               placeholder="Fasting status, symptoms, special instructions..."
-              className="w-full rounded-3xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+              className="w-full rounded-3xl border border-rd-hair bg-rd-field px-4 py-3 text-rd-text placeholder:text-rd-placeholder focus:border-rd-cyan focus:outline-none focus:ring-2 focus:ring-rd-cyan/20"
             />
           </label>
         </div>
 
-        <div className="rounded-[1.75rem] border border-slate-800 bg-slate-900/50 p-6">
+        <div className="rounded-[1.75rem] border border-rd-hair bg-rd-sunken p-6">
           <div className="flex items-center justify-between gap-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Tests requested</p>
-            <span className="text-sm text-slate-500">{selectedCountLabel}</span>
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-rd-muted">Tests requested</p>
+            <span className="text-sm text-rd-muted">{selectedCountLabel}</span>
           </div>
 
-          <div className="mt-6 rounded-3xl border border-dashed border-slate-800 bg-slate-950/60 p-6 text-sm text-slate-500">
+          <div className="mt-6 rounded-3xl border border-dashed border-rd-hair-strong bg-rd-sunken p-6 text-sm text-rd-muted">
             No tests selected yet. Select a test from the catalog to assign it to this visit.
           </div>
         </div>
@@ -313,7 +313,7 @@ export default function VisitRegistrationForm() {
         <div className="flex justify-end">
           <button
             type="button"
-            className="inline-flex items-center rounded-3xl bg-cyan-500 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/50"
+            className="rd-btn rd-press rd-focus"
           >
             Create Visit
           </button>
