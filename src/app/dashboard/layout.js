@@ -223,7 +223,7 @@ function UserFooter() {
         onClick={() => setConfirmOpen(true)}
         aria-label="Sign out"
         title="Sign out"
-        className="rd-press rd-focus ml-auto grid size-11 flex-none cursor-pointer place-items-center rounded-lg text-rd-muted hover:bg-rd-raised hover:text-rd-title"
+        className="rd-press rd-focus ml-auto grid size-11 flex-none cursor-pointer place-items-center rounded-lg text-rd-muted hover:bg-rd-danger-bg hover:text-rd-danger"
       >
         <SignOutIcon />
       </button>
