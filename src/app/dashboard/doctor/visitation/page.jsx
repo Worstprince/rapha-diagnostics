@@ -9,6 +9,7 @@ import {
     EmptyState,
     HeaderGlow,
     Pill,
+    PriorityPill,
     SearchIcon,
     TableSkeleton,
     rowAction,
@@ -185,7 +186,7 @@ export default function DoctorVisitationPage() {
                                         </td>
 
                                         <td className={td}>
-                                            <Pill value={visit.priority} />
+                                            <PriorityPill value={visit.priority} />
                                         </td>
 
                                         <td className={`${td} text-right`}>

@@ -55,21 +55,20 @@ const reportSkin = [
 
     "[&_h2]:text-sm [&_h2]:font-bold [&_h2]:uppercase [&_h2]:tracking-[0.22em] [&_h2]:text-rd-cyan",
 
-    "[&_.grid.border]:rounded-xl [&_.grid.border]:border-rd-hair [&_.grid.border]:bg-rd-sunken [&_.grid.border]:p-5 [&_.grid.border]:text-sm [&_.grid.border]:gap-x-8 [&_.grid.border]:gap-y-3",
+    "[&_.grid.border]:w-full [&_.grid.border]:rounded-none [&_.grid.border]:border-rd-hair [&_.grid.border]:bg-rd-sunken [&_.grid.border]:px-4 [&_.grid.border]:py-3.5 [&_.grid.border]:text-sm [&_.grid.border]:gap-x-10 [&_.grid.border]:gap-y-2.5",
 
     "[&_b]:mr-1.5 [&_b]:text-[11px] [&_b]:font-semibold [&_b]:uppercase [&_b]:tracking-wider [&_b]:text-rd-muted",
 
-    "[&_table]:w-full [&_table]:max-w-full",
+    "[&_table]:w-full [&_table]:max-w-full [&_table]:table-fixed [&_table]:border-collapse",
 
     "[&_table]:border-rd-hair [&_th]:border-rd-hair [&_td]:border-rd-hair [&_.border]:border-rd-hair",
 
-    "[&_thead_th]:bg-rd-sunken [&_thead_th]:py-3 [&_thead_th]:text-[11px] [&_thead_th]:font-semibold [&_thead_th]:uppercase [&_thead_th]:tracking-wider [&_thead_th]:text-rd-muted",
+    "[&_th]:px-4 [&_th]:py-3.5 [&_th]:align-middle [&_th]:leading-snug [&_th]:break-words",
+    "[&_td]:px-4 [&_td]:py-3.5 [&_td]:align-middle [&_td]:leading-snug [&_td]:break-words",
+
+    "[&_thead_th]:bg-rd-sunken [&_thead_th]:text-xs [&_thead_th]:font-semibold [&_thead_th]:uppercase [&_thead_th]:tracking-wider [&_thead_th]:text-rd-muted",
 
     "[&_tbody_tr:nth-child(even)]:bg-rd-sunken/40",
-
-    "[&_tbody_td]:py-2.5 [&_tbody_td]:text-sm [&_tbody_td]:text-rd-label",
-
-    "[&_tbody_td:first-child]:font-medium [&_tbody_td:first-child]:text-rd-title",
 
     "[&_select:disabled]:border-transparent [&_select:disabled]:bg-transparent [&_select:disabled]:bg-none [&_select:disabled]:p-0 [&_select:disabled]:text-center [&_select:disabled]:font-semibold [&_select:disabled]:text-rd-title",
     "[&_input:read-only]:border-transparent [&_input:read-only]:bg-transparent [&_input:read-only]:p-0 [&_input:read-only]:text-center [&_input:read-only]:font-semibold [&_input:read-only]:text-rd-title",

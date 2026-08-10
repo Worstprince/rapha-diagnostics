@@ -12,6 +12,7 @@ import {
     FlaskIcon,
     HeaderGlow,
     Pill,
+    PriorityPill,
     backLink,
     rowAction,
     td,
@@ -183,7 +184,7 @@ body: JSON.stringify({
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
-                        <Pill value={patient.priority} />
+                        <PriorityPill value={patient.priority} />
                         <Pill value={patient.status} />
                     </div>
 

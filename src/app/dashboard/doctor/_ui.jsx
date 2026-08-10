@@ -155,11 +155,29 @@ export function isUrgent(value) {
     return URGENT.test(String(value ?? "").toLowerCase());
 }
 
+const EMERGENCY = /emergency|stat|critical/;
+
+export function priorityTone(value) {
+    const text = String(value ?? "").toLowerCase();
+    if (EMERGENCY.test(text)) return "warn";
+    if (URGENT.test(text)) return "danger";
+    return "neutral";
+}
+
+export const toneBar = {
+    ok: "bg-emerald-500/70",
+    info: "bg-cyan-500/70",
+    warn: "bg-amber-500/70",
+    danger: "bg-red-500/70",
+    dead: "bg-rose-500/70",
+    neutral: "bg-rd-hair-strong",
+};
+
 const pillTone = {
     ok: "border-emerald-500/40 bg-emerald-500/12 text-rd-title",
     info: "border-cyan-500/40 bg-cyan-500/12 text-rd-title",
     warn: "border-amber-500/45 bg-amber-500/14 text-rd-title",
-    danger: "border-red-500/45 bg-red-500/12 text-rd-title",
+    danger: "border-red-500/50 bg-red-500/14 text-rd-title",
     dead: "border-rose-500/35 bg-rose-500/10 text-rd-muted",
     neutral: "border-rd-hair-strong bg-rd-raised text-rd-label",
 };
@@ -173,10 +191,10 @@ const dotTone = {
     neutral: "bg-rd-muted",
 };
 
-export function Pill({ value }) {
+export function Pill({ value, tone: forcedTone }) {
     if (!value) return <span className="text-rd-muted">—</span>;
 
-    const tone = toneOf(value);
+    const tone = forcedTone ?? toneOf(value);
 
     return (
         <span
@@ -186,6 +204,10 @@ export function Pill({ value }) {
             {value}
         </span>
     );
+}
+
+export function PriorityPill({ value }) {
+    return <Pill value={value} tone={priorityTone(value)} />;
 }
 
 export function HeaderGlow() {
