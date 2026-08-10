@@ -8,35 +8,44 @@ export async function GET(request, { params }) {
 
         const { id } = await params;
 
-        const [rows] = await db.query(
-            `
-            SELECT
-                v.id AS visitid,
-                pt.id,
-                pt.testid,
-                pt.visitid,
-                pt.status,
-                pt.medtechid,
+const [rows] = await db.query(
+    `
+    SELECT
+        v.id AS visitid,
+        pt.id,
+        pt.testid,
+        pt.visitid,
+        pt.status,
+        pt.medtechid,
 
-                p.id AS patientid,
-                CONCAT(p.fname,' ',p.lname) AS patientname,
-                p.birthdate,
-                TIMESTAMPDIFF(YEAR,p.birthdate,CURDATE()) AS age,
-                p.sex,
-                p.address
+        med.username AS medtechName,
+        doc.username AS doctorName,
 
-            FROM tblpatienttests pt
+        p.id AS patientid,
+        CONCAT(p.fname,' ',p.lname) AS patientname,
+        p.birthdate,
+        TIMESTAMPDIFF(YEAR,p.birthdate,CURDATE()) AS age,
+        p.sex,
+        p.address
 
-            INNER JOIN tblpatientvisitation v
-                ON pt.visitid = v.id
+    FROM tblpatienttests pt
 
-            INNER JOIN tblpatients p
-                ON v.patientid = p.id
+    INNER JOIN tblpatientvisitation v
+        ON pt.visitid = v.id
 
-            WHERE pt.id = ?
-            `,
-            [id]
-        );
+    INNER JOIN tblpatients p
+        ON v.patientid = p.id
+
+    LEFT JOIN tblusers med
+        ON pt.medtechid = med.id
+
+    LEFT JOIN tblusers doc
+        ON pt.doctorid = doc.id
+
+    WHERE pt.id = ?
+    `,
+    [id]
+);
 
         if (rows.length === 0) {
 

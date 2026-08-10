@@ -155,9 +155,9 @@ export default function BloodTypeForm({
             </table>
 
             <LabSignatures
-    medtechName={medtechName}
-    doctorName={doctorName}
-/>
+                medtechName={medtechName}
+                doctorName={doctorName}
+            />
 
             {!readOnly && (
 

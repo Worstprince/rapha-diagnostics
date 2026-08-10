@@ -109,13 +109,15 @@ async function fetchTest() {
         address: data.test.address
     });
 
-    setTest({
-        id: data.test.id,
-        testid: data.test.testid,
-        visitid: data.test.visitid,
-        status: data.test.status,
-        medtechid: data.test.medtechid
-    });
+        setTest({
+            id: data.test.id,
+            testid: data.test.testid,
+            visitid: data.test.visitid,
+            status: data.test.status,
+            medtechid: data.test.medtechid,
+            medtechName: data.test.medtechName,
+            doctorName: data.test.doctorName
+        });
 
     setResult(data.result);
 }
@@ -140,6 +142,8 @@ async function fetchTest() {
         test={test}
         initialData={result ?? {}}
         hasExistingResult={result !== null}
+    medtechName={test.medtechName}
+    doctorName={test.doctorName}
         onSubmit={handleSubmit}
     />
 );

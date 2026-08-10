@@ -2,13 +2,16 @@
 
 import { useState } from "react";
 import LabReportHeader from "./labReportHeader";
+import LabSignatures from "./labSignatures";
 
 export default function HematologyResult({
     patient,
     onSubmit,
     initialData = {},
     readOnly = false,
-    hasExistingResult = false
+    hasExistingResult = false,
+    medtechName = "",
+    doctorName = ""
 }) {
 
 const [result, setResult] = useState({
@@ -230,26 +233,10 @@ function handleSubmit(e) {
 
             {/* Signatures */}
 
-            <div className="grid md:grid-cols-2 gap-8 rounded-xl border border-rd-hair-strong bg-rd-card p-6">
-
-                <div>
-
-                    <p className="border-t border-rd-hair-strong pt-2 text-center text-rd-title">
-                        Pathologist
-                    </p>
-
-                </div>
-
-                <div>
-
-                    <p className="border-t border-rd-hair-strong pt-2 text-center text-rd-title">
-                        Medical Technologist
-                    </p>
-
-                </div>
-
-            </div>
-
+            <LabSignatures
+                medtechName={medtechName}
+                doctorName={doctorName}
+            />
             {!readOnly && (
 
                 <div className="flex justify-end">

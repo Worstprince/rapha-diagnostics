@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from "react";
 import LabReportHeader from "./labReportHeader";
+import LabSignatures from "./labSignatures";
 
 export default function HepatitisForm({
     patient,
     onSubmit,
     initialData = {},
     hasExistingResult = false,
-    readOnly = false
+    readOnly = false,
+        medtechName = "",
+    doctorName = "",
 }) {
 
     const [result, setResult] = useState({
@@ -124,25 +127,10 @@ export default function HepatitisForm({
 
             </table>
 
-            <div className="grid grid-cols-2 gap-20 pt-16">
-
-                <div className="text-center">
-
-                    <div className="border-t border-current pt-2">
-                        Pathologist
-                    </div>
-
-                </div>
-
-                <div className="text-center">
-
-                    <div className="border-t border-current pt-2">
-                        Medical Technologist
-                    </div>
-
-                </div>
-
-            </div>
+            <LabSignatures
+                medtechName={medtechName}
+                doctorName={doctorName}
+            />
 
             {!readOnly && (
 

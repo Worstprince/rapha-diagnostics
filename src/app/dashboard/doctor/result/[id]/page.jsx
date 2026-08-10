@@ -222,7 +222,7 @@ async function handleApprove() {
                     patient={patient}
                     initialData={result}
                     medtechName={test.medtechName}
-                     doctorName={test.doctorName}
+                    doctorName={test.doctorName}
                     readOnly={true}
                 />
 
