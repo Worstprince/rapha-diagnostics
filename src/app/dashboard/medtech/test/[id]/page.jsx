@@ -2,7 +2,17 @@
 
 import { useEffect, useState } from "react";
 
+import Link from "next/link";
 import { useParams } from "next/navigation";
+
+import {
+    ArrowLeftIcon,
+    Avatar,
+    EmptyState,
+    FlaskIcon,
+    Pill,
+    backLink,
+} from "../../_ui";
 
 import bloodtypeform from "@/components/labforms/bloodtypeform";
 import chemistryform from "@/components/labforms/chemistryform";
@@ -122,7 +132,12 @@ async function fetchTest() {
 
     if (!test || !patient) {
 
-        return <p>Loading...</p>;
+        return (
+            <div className="mx-auto max-w-5xl space-y-5">
+                <div className="rd-panel h-16 animate-pulse motion-reduce:animate-none" />
+                <div className="rd-panel h-96 animate-pulse motion-reduce:animate-none" />
+            </div>
+        );
 
     }
 
@@ -130,18 +145,66 @@ async function fetchTest() {
 
     if (!FormComponent) {
 
-        return <p>Unknown test.</p>;
+        return (
+            <div className="rd-panel mx-auto max-w-5xl">
+                <EmptyState
+                    title="Unknown test"
+                    hint="No encoding form is registered for this test type."
+                    Icon={FlaskIcon}
+                />
+            </div>
+        );
 
     }
 
     return (
-    <FormComponent
-        patient={patient}
-        test={test}
-        initialData={result ?? {}}
-        hasExistingResult={result !== null}
-        onSubmit={handleSubmit}
-    />
-);
+        <div className="mx-auto flex max-w-5xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
+
+            <div className="rd-panel flex flex-none flex-wrap items-center gap-x-4 gap-y-3 p-4">
+
+                <Link href="/dashboard/medtech/assignments" className={backLink}>
+                    <ArrowLeftIcon size={16} />
+                    Back to assignments
+                </Link>
+
+                <span aria-hidden="true" className="hidden h-6 w-px bg-rd-hair-strong sm:block" />
+
+                <div className="flex min-w-0 items-center gap-3">
+
+                    <Avatar name={patient.name} />
+
+                    <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-rd-title">
+                            {patient.name}
+                        </p>
+                        <p className="truncate text-xs text-rd-muted">
+                            {[patient.age ? `${patient.age} yrs` : null, patient.sex]
+                                .filter(Boolean)
+                                .join(" · ")}
+                        </p>
+                    </div>
+
+                </div>
+
+                <div className="ml-auto">
+                    <Pill value={test.status} />
+                </div>
+
+            </div>
+
+            <div className="rd-scroll-thin min-h-0 flex-1 overflow-auto">
+
+                <FormComponent
+                    patient={patient}
+                    test={test}
+                    initialData={result ?? {}}
+                    hasExistingResult={result !== null}
+                    onSubmit={handleSubmit}
+                />
+
+            </div>
+
+        </div>
+    );
 
 }
