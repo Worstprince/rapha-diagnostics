@@ -18,7 +18,10 @@ const RESULT_TABLES = {
 
 const RESULT_FIELDS = {
 
-    1: [],
+    1: [
+        "bloodtype",
+        "rhFactor"
+    ],
 
     2: [
         "glucose",
@@ -35,6 +38,115 @@ const RESULT_FIELDS = {
         "indirectBilirubin",
         "hba1c",
         "bun"
+    ],
+
+    3: [
+        "igg",
+        "igm",
+        "ns1"
+    ],
+
+    4: [
+        "fobtResult"
+    ],
+
+    5: [
+        "hbsagResult"
+    ],
+
+    6: [
+        "hemoglobinMass",
+        "rbcNumConcentration",
+        "wbcNumConcentration",
+        "bleedingTime",
+        "clottingTime",
+        "bloodGroup",
+        "plateletCount",
+        "hematocrit",
+        "segmenters",
+        "band",
+        "juvenile",
+        "lymphocytes",
+        "monocytes",
+        "eosinophils",
+        "basophils",
+        "mcv",
+        "mch",
+        "mchc",
+        "bsmp",
+        "rdwCv",
+        "other"
+    ],
+
+    7: [
+        "fbs",
+        "firstHour",
+        "secondHour"
+    ],
+
+    8: [
+        "ptHCGSerum"
+    ],
+
+    9: [
+        "appearance",
+        "volume",
+        "ph",
+        "viscosity",
+        "others",
+        "morphology",
+        "motility",
+        "wbc",
+        "rbc",
+        "m30mins",
+        "m1hr",
+        "m2hr",
+        "v30mins",
+        "v1hr",
+        "v2hr",
+        "spermConcentration",
+        "spermCount"
+    ],
+
+    10: [
+        "color",
+        "parasiticOva",
+        "pussCells",
+        "rbc",
+        "occultBlood",
+        "fecalysisNo",
+        "consistency",
+        "bacteria",
+        "fatGlobules",
+        "others"
+    ],
+
+    11: [
+        "t4",
+        "tsh"
+    ],
+
+    12: [
+        "color",
+        "transparency",
+        "reaction",
+        "sugar",
+        "albumin",
+        "specificgravity",
+        "pregnancytest",
+        "others",
+        "epithelialcells",
+        "mucustread",
+        "pus",
+        "rbc",
+        "cast",
+        "renalCells",
+        "crystal",
+        "bacteria"
+    ],
+
+    13: [
+        "vdrl"
     ]
 
 };
