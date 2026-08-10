@@ -11,10 +11,12 @@ import {
     EmptyState,
     FlaskIcon,
     HeaderGlow,
-    Pill,
+    PriorityPill,
     TableSkeleton,
     isUrgent,
+    priorityTone,
     rowAction,
+    toneBar,
 } from "./_ui";
 
 const SHORTLIST = 5;
@@ -29,6 +31,26 @@ function isToday(value) {
         date.getMonth() === now.getMonth() &&
         date.getFullYear() === now.getFullYear()
     );
+}
+
+function checkedInLabel(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+
+    if (isToday(value)) {
+        return `Checked in ${date.toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit",
+        })}`;
+    }
+
+    return date.toLocaleString();
+}
+
+function detailsOf(visit) {
+    return [visit.age ? `${visit.age} yrs` : null, visit.sex, checkedInLabel(visit.visited_at)]
+        .filter(Boolean)
+        .join(" · ");
 }
 
 export default function DoctorDashboardPage() {
@@ -82,9 +104,15 @@ export default function DoctorDashboardPage() {
         },
     ];
 
-    const shortlist = [...rows]
-        .sort((a, b) => Number(isUrgent(b.priority)) - Number(isUrgent(a.priority)))
-        .slice(0, SHORTLIST);
+    const urgent = rows
+        .filter((visit) => isUrgent(visit.priority))
+        .sort(
+            (a, b) =>
+                Number(priorityTone(a.priority) !== "danger") -
+                Number(priorityTone(b.priority) !== "danger")
+        );
+
+    const shortlist = urgent.slice(0, SHORTLIST);
 
     return (
         <div className="mx-auto flex max-w-5xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
@@ -150,7 +178,17 @@ export default function DoctorDashboardPage() {
 
                 <div className="flex flex-none flex-wrap items-center justify-between gap-3 border-b border-rd-hair p-4">
 
-                    <h2 className="text-lg font-semibold text-rd-title">Priority patients</h2>
+                    <div className="flex items-center gap-2.5">
+
+                        <h2 className="text-lg font-semibold text-rd-title">Priority patients</h2>
+
+                        {!loading && urgent.length > 0 && (
+                            <span className="grid min-w-6 place-items-center rounded-full border border-red-500/45 bg-red-500/12 px-1.5 py-0.5 text-xs font-bold tabular-nums text-rd-title">
+                                {urgent.length}
+                            </span>
+                        )}
+
+                    </div>
 
                     <Link
                         href="/dashboard/doctor/visitation"
@@ -170,50 +208,71 @@ export default function DoctorDashboardPage() {
                 ) : shortlist.length === 0 ? (
 
                     <EmptyState
-                        title="No patients waiting"
-                        hint="Visitations appear here once reception checks a patient in."
+                        title="No urgent patients"
+                        hint="Only visits marked Urgent or Emergency appear here. Open the queue to see everyone waiting."
                     />
 
                 ) : (
 
-                    <ul className="divide-y divide-rd-hair">
+                    <ul className="space-y-3 p-4">
 
-                        {shortlist.map((visit) => (
+                        {shortlist.map((visit) => {
 
-                            <li
-                                key={visit.visitid}
-                                className="flex flex-wrap items-center gap-3 p-4 transition-colors hover:bg-rd-raised"
-                            >
+                            const tone = priorityTone(visit.priority);
 
-                                <Avatar name={visit.name} />
+                            return (
 
-                                <div className="min-w-0">
-                                    <p className="truncate text-sm font-semibold text-rd-title">
-                                        {visit.name}
-                                    </p>
-                                    <p className="truncate text-sm text-rd-muted">
-                                        {new Date(visit.visited_at).toLocaleString()}
-                                    </p>
-                                </div>
+                                <li
+                                    key={visit.visitid}
+                                    className="relative flex flex-wrap items-center gap-x-4 gap-y-3 overflow-hidden rounded-xl border border-rd-hair bg-rd-sunken py-4 pl-6 pr-4 transition-colors hover:border-rd-hair-strong hover:bg-rd-raised"
+                                >
 
-                                <div className="ml-auto flex flex-wrap items-center gap-3">
+                                    <span
+                                        aria-hidden="true"
+                                        className={`absolute inset-y-0 left-0 w-1 ${toneBar[tone]}`}
+                                    />
 
-                                    <Pill value={visit.priority} />
+                                    <Avatar name={visit.name} className="size-10 text-sm" />
 
-                                    <Link
-                                        href={`/dashboard/doctor/visitation/${visit.visitid}`}
-                                        aria-label={`Open the visitation for ${visit.name}`}
-                                        className={rowAction}
-                                    >
-                                        Open
-                                        <ChevronRightIcon size={16} />
-                                    </Link>
+                                    <div className="min-w-0 flex-1">
 
-                                </div>
+                                        <p className="truncate text-[15px] font-semibold text-rd-title">
+                                            {visit.name}
+                                        </p>
 
+                                        <p className="mt-0.5 truncate text-sm text-rd-muted">
+                                            {detailsOf(visit)}
+                                        </p>
+
+                                    </div>
+
+                                    <div className="ml-auto flex flex-wrap items-center gap-3">
+
+                                        <PriorityPill value={visit.priority} />
+
+                                        <Link
+                                            href={`/dashboard/doctor/visitation/${visit.visitid}`}
+                                            aria-label={`Open the visitation for ${visit.name}`}
+                                            className={rowAction}
+                                        >
+                                            Open
+                                            <ChevronRightIcon size={16} />
+                                        </Link>
+
+                                    </div>
+
+                                </li>
+
+                            );
+
+                        })}
+
+                        {!loading && urgent.length > shortlist.length && (
+                            <li className="pt-1 text-center text-sm text-rd-muted">
+                                {urgent.length - shortlist.length} more urgent{" "}
+                                {urgent.length - shortlist.length === 1 ? "patient" : "patients"} in the queue
                             </li>
-
-                        ))}
+                        )}
 
                     </ul>
 

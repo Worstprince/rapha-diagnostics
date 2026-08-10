@@ -1,5 +1,25 @@
 "use client";
 
+function Field({ label, value }) {
+
+    return (
+
+        <div className="flex items-baseline gap-2">
+
+            <span className="w-24 flex-none font-semibold">
+                {label}:
+            </span>
+
+            <span className="min-w-0 flex-1 break-words">
+                {value || "—"}
+            </span>
+
+        </div>
+
+    );
+
+}
+
 export default function LabReportHeader({ patient, title }) {
 
 
@@ -16,49 +36,39 @@ export default function LabReportHeader({ patient, title }) {
 
             <div className="text-center">
 
-                <h1 className="text-4xl font-bold tracking-wide">
+                <h1 className="text-3xl font-bold uppercase tracking-wide">
                     RAPHA DIAGNOSTIC LABORATORY
                 </h1>
 
-                <p className="italic">
-                    "Your Health, Our Priority"
+                <p className="mt-1 text-sm italic">
+                    &quot;Your Health, Our Priority&quot;
                 </p>
 
-                <p>
+                <p className="text-sm">
                     Esperanza Building, Quezon Boulevard, Kidapawan City
                 </p>
 
-                <h2 className="mt-6 text-3xl font-bold text-rd-danger">
-                    {title}
-                </h2>
+                {title && (
+                    <h2 className="mt-5 text-2xl font-bold uppercase tracking-[0.18em] text-rd-danger">
+                        {title}
+                    </h2>
+                )}
 
             </div>
 
-            <div className="grid grid-cols-2 gap-6 border p-4">
+            <div className="grid grid-cols-1 gap-x-10 gap-y-2.5 border p-4 text-sm sm:grid-cols-2">
 
-                <div>
-                    <b>Name:</b> {patient.name}
-                </div>
+                <Field label="Name" value={patient.name} />
 
-                <div>
-                    <b>Age:</b> {patient.age}
-                </div>
+                <Field label="Age" value={patient.age} />
 
-                <div>
-                    <b>Address:</b> {patient.address}
-                </div>
+                <Field label="Address" value={patient.address} />
 
-                <div>
-                    <b>Sex:</b> {patient.sex}
-                </div>
+                <Field label="Sex" value={patient.sex} />
 
-                <div>
-                    <b>Date:</b> {today}
-                </div>
+                <Field label="Date" value={today} />
 
-                <div>
-                    <b>Physician:</b> {patient.physician}
-                </div>
+                <Field label="Physician" value={patient.physician} />
 
             </div>
 
