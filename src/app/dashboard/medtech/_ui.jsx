@@ -258,6 +258,38 @@ export function EmptyState({ title, hint, Icon: Glyph = InboxIcon }) {
     );
 }
 
+export const formSkin = [
+
+    "[&>form]:mx-auto [&>form]:space-y-6 [&>form]:p-6 sm:[&>form]:p-10",
+
+    "[&_h1]:text-xl [&_h1]:font-bold [&_h1]:uppercase [&_h1]:tracking-[0.14em] [&_h1]:text-rd-title",
+    "[&_h1~p]:text-xs [&_h1~p]:leading-relaxed [&_h1~p]:text-rd-muted",
+
+    "[&_h2]:text-sm [&_h2]:font-bold [&_h2]:uppercase [&_h2]:tracking-[0.22em] [&_h2]:text-rd-cyan",
+
+    "[&_.grid.border]:w-full [&_.grid.border]:rounded-none [&_.grid.border]:border-rd-hair [&_.grid.border]:bg-rd-sunken [&_.grid.border]:px-4 [&_.grid.border]:py-3.5 [&_.grid.border]:text-sm [&_.grid.border]:gap-x-10 [&_.grid.border]:gap-y-2.5",
+
+    "[&_b]:mr-1.5 [&_b]:text-[11px] [&_b]:font-semibold [&_b]:uppercase [&_b]:tracking-wider [&_b]:text-rd-muted",
+
+    "[&_table]:w-full [&_table]:max-w-full [&_table]:table-fixed [&_table]:border-collapse",
+
+    "[&_table]:border-rd-hair [&_th]:border-rd-hair [&_td]:border-rd-hair [&_.border]:border-rd-hair",
+
+    "[&_th]:px-4 [&_th]:py-3.5 [&_th]:align-middle [&_th]:leading-snug [&_th]:break-words",
+    "[&_td]:px-4 [&_td]:py-3.5 [&_td]:align-middle [&_td]:leading-snug [&_td]:break-words",
+
+    "[&_thead_th]:bg-rd-sunken [&_thead_th]:text-xs [&_thead_th]:font-semibold [&_thead_th]:uppercase [&_thead_th]:tracking-wider [&_thead_th]:text-rd-muted",
+
+    "[&_tbody_tr:nth-child(even)]:bg-rd-sunken/40",
+
+    "[&_input]:w-full [&_input]:rounded-lg [&_input]:border [&_input]:border-rd-hair-strong [&_input]:bg-rd-field [&_input]:px-3 [&_input]:py-2 [&_input]:text-center [&_input]:text-sm [&_input]:font-semibold [&_input]:text-rd-text",
+    "[&_select]:w-full [&_select]:rounded-lg [&_select]:border [&_select]:border-rd-hair-strong [&_select]:bg-rd-field [&_select]:py-2 [&_select]:pl-3 [&_select]:pr-10 [&_select]:text-sm [&_select]:font-semibold [&_select]:text-rd-text",
+    "[&_textarea]:w-full [&_textarea]:rounded-lg [&_textarea]:border [&_textarea]:border-rd-hair-strong [&_textarea]:bg-rd-field [&_textarea]:px-3 [&_textarea]:py-2 [&_textarea]:text-sm [&_textarea]:text-rd-text",
+
+    "[&_.pt-16]:pt-10 [&_.gap-20]:gap-12",
+
+].join(" ");
+
 export function TableSkeleton({ rows = 4 }) {
     return (
         <div className="space-y-2 p-4">

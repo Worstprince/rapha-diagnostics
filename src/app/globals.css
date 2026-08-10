@@ -435,7 +435,7 @@
   /* The popup is drawn by the OS and inherits from the select, so it needs an
      opaque background and a weight of its own — the 600 the field carries reads
      heavy in a list. */
-  select.rd-input option {
+  select option {
     background-color: var(--rd-popover);
     color: var(--rd-text);
     font-weight: 500;

@@ -12,6 +12,7 @@ import {
     FlaskIcon,
     Pill,
     backLink,
+    formSkin,
 } from "../../_ui";
 
 import bloodtypeform from "@/components/labforms/bloodtypeform";
@@ -192,7 +193,7 @@ async function fetchTest() {
 
             </div>
 
-            <div className="rd-scroll-thin min-h-0 flex-1 overflow-auto">
+            <div className={`rd-scroll-thin min-h-0 flex-1 overflow-auto ${formSkin}`}>
 
                 <FormComponent
                     patient={patient}
