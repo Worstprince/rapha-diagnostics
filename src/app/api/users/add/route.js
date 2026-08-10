@@ -1,5 +1,5 @@
 import db from "@/lib/db";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
 import { logActivity } from "@/lib/logActivity";
 

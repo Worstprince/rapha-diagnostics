@@ -69,6 +69,7 @@ export default function AddUsers() {
   const [user, setUser] = useState({
     username: "",
     password: "",
+    confirmPassword: "",
     email: "",
     role: "",
   });
@@ -109,6 +110,13 @@ export default function AddUsers() {
       found.password = "Password must include at least one number.";
     else if (!/[^A-Za-z0-9]/.test(user.password))
       found.password = "Password must include at least one symbol.";
+    
+    if (!user.confirmPassword) {
+    found.confirmPassword = "Please confirm the password.";
+    }
+    else if (user.password !== user.confirmPassword) {
+        found.confirmPassword = "Passwords do not match.";
+    }
 
     if (!user.email.trim()) found.email = "Email is required.";
     else if (!EMAIL.test(user.email)) found.email = "Enter a valid email address.";
@@ -136,12 +144,15 @@ export default function AddUsers() {
     setSubmitting(true);
 
     try {
+      
+      const { confirmPassword, ...userData } = user;
+
       const response = await fetch("/api/users/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(user),
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userData),
       });
 
       const result = await response.json();
@@ -152,7 +163,7 @@ export default function AddUsers() {
       }
 
       setStatus({ tone: "success", text: `User “${user.username}” added successfully.` });
-      setUser({ username: "", password: "", email: "", role: "" });
+      setUser({ username: "", password: "", confirmPassword: "", email: "", role: "" });
       setErrors({});
     } catch {
       setStatus({ tone: "error", text: "Unable to reach the server. Please try again." });
@@ -217,6 +228,34 @@ export default function AddUsers() {
               </p>
             )}
           </div>
+
+          <div>
+            <label htmlFor="confirmPassword" className="rd-label">
+                Confirm Password
+            </label>
+
+            <input
+                id="confirmPassword"
+                type="password"
+                name="confirmPassword"
+                autoComplete="new-password"
+                value={user.confirmPassword}
+                onChange={handleChange}
+                aria-invalid={errors.confirmPassword ? true : undefined}
+                aria-describedby={
+                    errors.confirmPassword
+                        ? "confirmPassword-error"
+                        : undefined
+                }
+                className={field(errors.confirmPassword)}
+            />
+
+            {errors.confirmPassword && (
+                <p id="confirmPassword-error" className={errText}>
+                    {errors.confirmPassword}
+                </p>
+            )}
+        </div>
 
           <div>
             <label htmlFor="email" className="rd-label">
