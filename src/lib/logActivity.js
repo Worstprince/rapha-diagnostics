@@ -1,6 +1,6 @@
 import db from "@/lib/db";
 
-export async function logActivity(userId, action, description) {
+export async function logActivity(userId, action, description, module) {
 
     await db.query(
         `
@@ -9,14 +9,16 @@ export async function logActivity(userId, action, description) {
             userid,
             action,
             description,
-            datetime
+            datetime,
+            module
         )
-        VALUES (?, ?, ?, NOW())
+        VALUES (?, ?, ?, NOW(), ?)
         `,
         [
             userId,
             action,
-            description
+            description,
+            module
         ]
     );
 
