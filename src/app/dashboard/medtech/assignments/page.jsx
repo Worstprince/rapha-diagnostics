@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useCurrentUser } from "@/lib/session";
 
 import {
     Avatar,
@@ -21,20 +22,21 @@ import {
 } from "../_ui";
 
 export default function MedTechAssignmentsPage() {
-
+    const user = useCurrentUser();
     const [openVisit, setOpenVisit] = useState(null);
     const [tests, setTests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
 
-    useEffect(() => {
-        fetchAssignments();
-    }, []);
+useEffect(() => {
+    if (!user?.id) return;
+    fetchAssignments();
+}, [user?.id]);
 
     async function fetchAssignments() {
 
         try {
-            const response = await fetch("/api/medtech/assignments");
+            const response = await fetch(`/api/medtech/assignments?medtechId=${user.id}`);
             const result = await response.json();
             setTests(result);
         } catch (error) {
