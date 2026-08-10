@@ -2,7 +2,7 @@
 
 import { useCurrentUser } from "@/lib/session";
 
-export default function labSignatures({ doctorName = "" }) {
+export default function LabSignatures({ doctorName = "" }) {
     const user = useCurrentUser();
 
     console.log("labSignatures user:", user);
@@ -12,8 +12,11 @@ export default function labSignatures({ doctorName = "" }) {
 
             <div className="text-center">
 
-                <div className="border-t border-current pt-2">
+                <p className="mb-2 text-base font-semibold">
                     {user?.username || ""}
+                </p>
+
+                <div className="border-t border-current pt-2">
                 </div>
 
                 <p className="text-sm">
@@ -24,8 +27,11 @@ export default function labSignatures({ doctorName = "" }) {
 
             <div className="text-center">
 
-                <div className="border-t border-current pt-2">
+                <p className="mb-2 text-base font-semibold">
                     {doctorName}
+                </p>
+
+                <div className="border-t border-current pt-2">
                 </div>
 
                 <p className="text-sm">

@@ -35,6 +35,7 @@ export async function GET(request) {
                 ON t.id = pt.testid
             INNER JOIN tblpatients p
                 ON p.id = pv.patientid
+            WHERE pt.status != 'Approved'
             AND pt.medtechid = ?
             ORDER BY pv.visited_at DESC, pt.visitid
             `,
