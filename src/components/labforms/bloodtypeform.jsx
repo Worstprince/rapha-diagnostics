@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import LabReportHeader from "./labReportHeader";
+import LabSignatures from "./labSignatures";
 
 export default function BloodTypeForm({
     patient,
@@ -151,25 +152,7 @@ export default function BloodTypeForm({
 
             </table>
 
-            <div className="grid grid-cols-2 gap-20 pt-10">
-
-                <div className="text-center">
-
-                    <div className="border-t border-current pt-2">
-                        Pathologist
-                    </div>
-
-                </div>
-
-                <div className="text-center">
-
-                    <div className="border-t border-current pt-2">
-                        Medical Technologist
-                    </div>
-
-                </div>
-
-            </div>
+            <LabSignatures />
 
             {!readOnly && (
 
