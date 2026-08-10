@@ -2,24 +2,26 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useCurrentUser } from "@/lib/session";
 
 export default function MedTechAssignmentsPage() {
+    const user = useCurrentUser();
     const [openVisit, setOpenVisit] = useState(null);
     const [tests, setTests] = useState([]);
 
-    useEffect(() => {
-        fetchAssignments();
-    }, []);
+useEffect(() => {
+    if (!user?.id) return;
 
-    async function fetchAssignments() {
+    fetch(`/api/medtech/assignments?medtechId=${user.id}`)
+        .then(res => res.json())
+        .then(data => {
+            setTests(data);
+        })
+        .catch(error => {
+            console.error(error);
+        });
 
-        const response = await fetch("/api/medtech/assignments");
-
-        const result = await response.json();
-console.log(result);
-        setTests(result);
-
-    }
+}, [user]);
 
     return (
 
