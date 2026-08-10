@@ -263,14 +263,7 @@ export default function DoctorPatientsPage() {
                                                     href={`/dashboard/doctor/patients/${patient.patientid}`}
                                                     className="rd-press rd-focus inline-flex min-h-10 items-center rounded-xl border border-rd-hair-strong bg-rd-sunken px-3.5 text-sm font-medium text-rd-label transition hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan"
                                                 >
-                                                    Details
-                                                </Link>
-
-                                                <Link
-                                                    href={`/dashboard/doctor/patients/${patient.patientid}/history`}
-                                                    className="rd-press rd-focus inline-flex min-h-10 items-center rounded-xl border border-rd-hair-strong bg-rd-sunken px-3.5 text-sm font-medium text-rd-label transition hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan"
-                                                >
-                                                    History
+                                                    Details & History
                                                 </Link>
 
                                             </div>
