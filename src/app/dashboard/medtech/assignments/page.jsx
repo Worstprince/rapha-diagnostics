@@ -17,6 +17,7 @@ import {
     rowAction,
     td,
     th,
+    toneBar,
 } from "../_ui";
 
 export default function MedTechAssignmentsPage() {
@@ -64,6 +65,30 @@ export default function MedTechAssignmentsPage() {
 
     const pendingCount = (visit) =>
         (visit.tests ?? []).filter((test) => !isDone(test.status)).length;
+
+    function visitedLabel(value) {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "";
+
+        const now = new Date();
+        const sameDay =
+            date.getDate() === now.getDate() &&
+            date.getMonth() === now.getMonth() &&
+            date.getFullYear() === now.getFullYear();
+
+        if (sameDay) {
+            return `Today, ${date.toLocaleTimeString([], {
+                hour: "numeric",
+                minute: "2-digit",
+            })}`;
+        }
+
+        return date.toLocaleDateString([], {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+        });
+    }
 
     return (
 
@@ -144,13 +169,21 @@ export default function MedTechAssignmentsPage() {
 
                                 const open = openVisit === visit.visitid;
                                 const pending = pendingCount(visit);
+                                const total = (visit.tests ?? []).length;
 
                                 return (
 
                                     <li
                                         key={visit.visitid}
-                                        className="overflow-hidden rounded-xl border border-rd-hair bg-rd-sunken"
+                                        className="relative overflow-hidden rounded-xl border border-rd-hair bg-rd-sunken transition-colors hover:border-rd-hair-strong"
                                     >
+
+                                        <span
+                                            aria-hidden="true"
+                                            className={`absolute inset-y-0 left-0 w-1 ${
+                                                pending > 0 ? toneBar.warn : toneBar.ok
+                                            }`}
+                                        />
 
                                         <button
                                             type="button"
@@ -158,7 +191,9 @@ export default function MedTechAssignmentsPage() {
                                                 setOpenVisit(open ? null : visit.visitid)
                                             }
                                             aria-expanded={open}
-                                            className="rd-press rd-focus flex w-full cursor-pointer items-center gap-4 p-4 text-left transition-colors hover:bg-rd-raised"
+                                            className={`rd-focus flex w-full cursor-pointer items-center gap-4 p-4 text-left transition-colors hover:bg-rd-raised ${
+                                                open ? "bg-rd-raised" : ""
+                                            }`}
                                         >
 
                                             <Avatar name={visit.patientname} className="size-10 text-sm" />
@@ -169,18 +204,34 @@ export default function MedTechAssignmentsPage() {
                                                     {visit.patientname}
                                                 </p>
 
-                                                <p className="mt-0.5 truncate text-sm tabular-nums text-rd-muted">
-                                                    {new Date(visit.visited_at).toLocaleString()}
+                                                <p className="mt-0.5 truncate text-sm text-rd-muted">
+                                                    {visitedLabel(visit.visited_at)}
+                                                    {total > 0 && (
+                                                        <span className="tabular-nums">
+                                                            {" · "}
+                                                            {total} {total === 1 ? "test" : "tests"}
+                                                        </span>
+                                                    )}
                                                 </p>
 
                                             </div>
 
                                             <div className="ml-auto flex flex-none items-center gap-3">
 
-                                                <span className="hidden text-sm text-rd-muted sm:block">
-                                                    {pending > 0
-                                                        ? `${pending} pending`
-                                                        : "All encoded"}
+                                                <span
+                                                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${
+                                                        pending > 0
+                                                            ? "border-amber-500/45 bg-amber-500/14 text-rd-title"
+                                                            : "border-emerald-500/40 bg-emerald-500/12 text-rd-title"
+                                                    }`}
+                                                >
+                                                    <span
+                                                        aria-hidden="true"
+                                                        className={`size-1.5 rounded-full ${
+                                                            pending > 0 ? "bg-amber-500" : "bg-emerald-500"
+                                                        }`}
+                                                    />
+                                                    {pending > 0 ? `${pending} pending` : "All encoded"}
                                                 </span>
 
                                                 <span
@@ -201,19 +252,19 @@ export default function MedTechAssignmentsPage() {
 
                                         {open && (
 
-                                            <div className="overflow-x-auto border-t border-rd-hair">
+                                            <div className="overflow-x-auto border-t border-rd-hair bg-rd-card">
 
-                                                <table className="w-full min-w-[560px] border-collapse">
+                                                <table className="w-full min-w-[520px] table-fixed border-collapse">
 
                                                     <thead>
 
                                                         <tr className="border-b border-rd-hair">
 
-                                                            <th className={th}>Test</th>
+                                                            <th className={`${th} w-[46%]`}>Test</th>
 
-                                                            <th className={th}>Status</th>
+                                                            <th className={`${th} w-[26%]`}>Status</th>
 
-                                                            <th className={`${th} text-right`}>
+                                                            <th className={`${th} w-[28%] text-right`}>
                                                                 <span className="sr-only">Action</span>
                                                             </th>
 
@@ -230,7 +281,7 @@ export default function MedTechAssignmentsPage() {
                                                                 className="border-b border-rd-hair transition-colors last:border-0 hover:bg-rd-raised"
                                                             >
 
-                                                                <td className={`${td} font-medium text-rd-title`}>
+                                                                <td className={`${td} break-words font-medium text-rd-title`}>
                                                                     {test.name}
                                                                 </td>
 

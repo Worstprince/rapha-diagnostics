@@ -11,11 +11,8 @@ import {
     EmptyState,
     FlaskIcon,
     HeaderGlow,
-    Pill,
     TableSkeleton,
     isDone,
-    rowAction,
-    statusTone,
     toneBar,
 } from "./_ui";
 
@@ -48,13 +45,7 @@ export default function MedtechDashboardPage() {
 
     const rows = Array.isArray(visits) ? visits : [];
 
-    const allTests = rows.flatMap((visit) =>
-        (visit.tests ?? []).map((test) => ({
-            ...test,
-            patientname: visit.patientname,
-            visitid: visit.visitid,
-        }))
-    );
+    const allTests = rows.flatMap((visit) => visit.tests ?? []);
 
     const pending = allTests.filter((test) => !isDone(test.status));
     const completed = allTests.filter((test) => isDone(test.status));
@@ -83,7 +74,20 @@ export default function MedtechDashboardPage() {
         },
     ];
 
-    const shortlist = pending.slice(0, SHORTLIST);
+    const outstanding = rows
+        .map((visit) => {
+            const tests = visit.tests ?? [];
+            return {
+                visitid: visit.visitid,
+                patientname: visit.patientname,
+                visited_at: visit.visited_at,
+                total: tests.length,
+                pendingTests: tests.filter((test) => !isDone(test.status)),
+            };
+        })
+        .filter((visit) => visit.pendingTests.length > 0);
+
+    const shortlist = outstanding.slice(0, SHORTLIST);
 
     return (
         <div className="mx-auto flex max-w-5xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
@@ -92,29 +96,19 @@ export default function MedtechDashboardPage() {
 
                 <HeaderGlow />
 
-                <div className="relative flex flex-wrap items-end justify-between gap-4">
+                <div className="relative">
 
-                    <div>
-                        <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
-                            Medtech
-                        </p>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
+                        Medtech
+                    </p>
 
-                        <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">
-                            Lab workflow station
-                        </h1>
+                    <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">
+                        Lab workflow station
+                    </h1>
 
-                        <p className="mt-2 text-sm text-rd-muted">
-                            Track sample progress and encode results without leaving the bench.
-                        </p>
-                    </div>
-
-                    <Link
-                        href="/dashboard/medtech/assignments"
-                        className="rd-btn rd-press rd-focus"
-                    >
-                        Open assignments
-                        <ChevronRightIcon />
-                    </Link>
+                    <p className="mt-2 text-sm text-rd-muted">
+                        Track sample progress and encode results without leaving the bench.
+                    </p>
 
                 </div>
 
@@ -154,11 +148,11 @@ export default function MedtechDashboardPage() {
 
                     <div className="flex items-center gap-2.5">
 
-                        <h2 className="text-lg font-semibold text-rd-title">Pending tests</h2>
+                        <h2 className="text-lg font-semibold text-rd-title">Awaiting results</h2>
 
-                        {!loading && pending.length > 0 && (
+                        {!loading && outstanding.length > 0 && (
                             <span className="grid min-w-6 place-items-center rounded-full border border-amber-500/45 bg-amber-500/14 px-1.5 py-0.5 text-xs font-bold tabular-nums text-rd-title">
-                                {pending.length}
+                                {outstanding.length}
                             </span>
                         )}
 
@@ -182,8 +176,8 @@ export default function MedtechDashboardPage() {
                     ) : shortlist.length === 0 ? (
 
                         <EmptyState
-                            title="Nothing pending"
-                            hint="Tests assigned to you appear here until their results are encoded."
+                            title="Nothing awaiting results"
+                            hint="Patients with tests still to encode appear here."
                             Icon={FlaskIcon}
                         />
 
@@ -191,61 +185,85 @@ export default function MedtechDashboardPage() {
 
                         <ul className="space-y-3 p-4">
 
-                            {shortlist.map((test) => {
+                            {shortlist.map((visit) => (
 
-                                const tone = statusTone(test.status);
+                                <li
+                                    key={visit.visitid}
+                                    className="relative overflow-hidden rounded-xl border border-rd-hair bg-rd-sunken p-4 pl-6 transition-colors hover:border-rd-hair-strong"
+                                >
 
-                                return (
+                                    <span
+                                        aria-hidden="true"
+                                        className={`absolute inset-y-0 left-0 w-1 ${toneBar.warn}`}
+                                    />
 
-                                    <li
-                                        key={test.assignmentid}
-                                        className="relative flex flex-wrap items-center gap-x-4 gap-y-3 overflow-hidden rounded-xl border border-rd-hair bg-rd-sunken py-4 pl-6 pr-4 transition-colors hover:border-rd-hair-strong hover:bg-rd-raised"
-                                    >
+                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
 
-                                        <span
-                                            aria-hidden="true"
-                                            className={`absolute inset-y-0 left-0 w-1 ${toneBar[tone]}`}
-                                        />
-
-                                        <Avatar name={test.patientname} className="size-10 text-sm" />
+                                        <Avatar name={visit.patientname} className="size-10 text-sm" />
 
                                         <div className="min-w-0 flex-1">
 
                                             <p className="truncate text-[15px] font-semibold text-rd-title">
-                                                {test.name}
+                                                {visit.patientname}
                                             </p>
 
-                                            <p className="mt-0.5 truncate text-sm text-rd-muted">
-                                                {test.patientname}
+                                            <p className="mt-0.5 truncate text-sm tabular-nums text-rd-muted">
+                                                {visit.pendingTests.length} of {visit.total}{" "}
+                                                {visit.total === 1 ? "test" : "tests"} awaiting results
                                             </p>
 
                                         </div>
 
-                                        <div className="ml-auto flex flex-wrap items-center gap-3">
+                                        <span className="ml-auto inline-flex flex-none items-center gap-1.5 rounded-full border border-amber-500/45 bg-amber-500/14 px-2.5 py-1 text-xs font-medium text-rd-title">
+                                            <span
+                                                aria-hidden="true"
+                                                className="size-1.5 rounded-full bg-amber-500"
+                                            />
+                                            {visit.pendingTests.length} pending
+                                        </span>
 
-                                            <Pill value={test.status} />
+                                    </div>
 
-                                            <Link
-                                                href={`/dashboard/medtech/test/${test.assignmentid}`}
-                                                aria-label={`Open ${test.name} for ${test.patientname}`}
-                                                className={rowAction}
-                                            >
-                                                Open
-                                                <ChevronRightIcon size={16} />
-                                            </Link>
+                                    <ul className="mt-3 space-y-1 border-t border-rd-hair pt-3">
 
-                                        </div>
+                                        {visit.pendingTests.map((test) => (
 
-                                    </li>
+                                            <li key={test.assignmentid}>
 
-                                );
+                                                <Link
+                                                    href={`/dashboard/medtech/test/${test.assignmentid}`}
+                                                    aria-label={`Encode ${test.name} for ${visit.patientname}`}
+                                                    className="rd-press rd-focus flex min-h-11 items-center gap-3 rounded-lg px-2 text-sm font-medium text-rd-label transition-colors hover:bg-rd-raised hover:text-rd-cyan"
+                                                >
 
-                            })}
+                                                    <span
+                                                        aria-hidden="true"
+                                                        className="size-1.5 flex-none rounded-full bg-amber-500"
+                                                    />
 
-                            {pending.length > shortlist.length && (
+                                                    <span className="min-w-0 flex-1 truncate">
+                                                        {test.name}
+                                                    </span>
+
+                                                    <ChevronRightIcon size={16} />
+
+                                                </Link>
+
+                                            </li>
+
+                                        ))}
+
+                                    </ul>
+
+                                </li>
+
+                            ))}
+
+                            {outstanding.length > shortlist.length && (
                                 <li className="pt-1 text-center text-sm text-rd-muted">
-                                    {pending.length - shortlist.length} more pending{" "}
-                                    {pending.length - shortlist.length === 1 ? "test" : "tests"} in your assignments
+                                    {outstanding.length - shortlist.length} more{" "}
+                                    {outstanding.length - shortlist.length === 1 ? "patient" : "patients"}{" "}
+                                    awaiting results
                                 </li>
                             )}
 
