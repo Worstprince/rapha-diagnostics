@@ -8,18 +8,28 @@ export async function GET(request, { params }) {
     try {
         const { id: assignmentId } = await params;
 
-        const [assignmentRows] = await db.query(
-            `
-            SELECT
-                pt.*,
-                t.name
-            FROM tblpatienttests pt
-            INNER JOIN tbltests t
-                ON pt.testid = t.id
-            WHERE pt.id = ?
-            `,
-            [assignmentId]
-        );
+const [assignmentRows] = await db.query(
+    `
+    SELECT
+        pt.*,
+        t.name,
+        med.username AS medtechName,
+        doc.username AS doctorName
+    FROM tblpatienttests pt
+
+    INNER JOIN tbltests t
+        ON pt.testid = t.id
+
+    LEFT JOIN tblusers med
+        ON pt.medtechid = med.id
+
+    LEFT JOIN tblusers doc
+        ON pt.doctorid = doc.id
+
+    WHERE pt.id = ?
+    `,
+    [assignmentId]
+);
 
         if (assignmentRows.length === 0) {
 
@@ -88,13 +98,15 @@ export async function GET(request, { params }) {
 
             patient: patientRows[0],
 
-            test: {
-                id: assignment.id,
-                visitid: assignment.visitid,
-                testid: assignment.testid,
-                status: assignment.status,
-                name: assignment.name
-            },
+test: {
+    id: assignment.id,
+    visitid: assignment.visitid,
+    testid: assignment.testid,
+    status: assignment.status,
+    name: assignment.name,
+    medtechName: assignment.medtechName,
+    doctorName: assignment.doctorName
+},
 
             result
 
@@ -120,31 +132,61 @@ export async function GET(request, { params }) {
 
 export async function PATCH(request, { params }) {
     try {
-
         const { id: assignmentId } = await params;
 
-        const { status } = await request.json();
+        const { status, doctorId } = await request.json();
+
+        if (!doctorId) {
+            return NextResponse.json(
+                {
+                    message: "Doctor ID is required."
+                },
+                {
+                    status: 400
+                }
+            );
+        }
+
         const [rows] = await db.query(
             "SELECT visitid FROM tblpatienttests WHERE id = ?",
             [assignmentId]
         );
 
+        if (rows.length === 0) {
+            return NextResponse.json(
+                {
+                    message: "Assignment not found."
+                },
+                {
+                    status: 404
+                }
+            );
+        }
+
         const visitationId = rows[0].visitid;
+
         await db.query(
             `
             UPDATE tblpatienttests
-            SET status = ?
+            SET
+                status = ?,
+                doctorid = ?
             WHERE id = ?
             `,
-            [status, assignmentId]
+            [
+                status,
+                doctorId,
+                assignmentId
+            ]
         );
+
         await checkVisitApproved(visitationId);
+
         return NextResponse.json({
             message: "Result approved successfully."
         });
-        
-    }
-    catch (error) {
+
+    } catch (error) {
 
         console.error(error);
 
@@ -156,7 +198,5 @@ export async function PATCH(request, { params }) {
                 status: 500
             }
         );
-
     }
-
 }

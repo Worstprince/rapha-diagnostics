@@ -1,19 +1,16 @@
 "use client";
 
-import { useCurrentUser } from "@/lib/session";
-
-export default function LabSignatures({ doctorName = "" }) {
-    const user = useCurrentUser();
-
-    console.log("labSignatures user:", user);
-
+export default function LabSignatures({
+    medtechName = "",
+    doctorName = ""
+}) {
     return (
         <div className="grid grid-cols-2 gap-20 pt-10">
 
             <div className="text-center">
 
                 <p className="mb-2 text-base font-semibold">
-                    {user?.username || ""}
+                    {medtechName}
                 </p>
 
                 <div className="border-t border-current pt-2">
@@ -35,7 +32,7 @@ export default function LabSignatures({ doctorName = "" }) {
                 </div>
 
                 <p className="text-sm">
-                    Pathologist
+                    Physician
                 </p>
 
             </div>

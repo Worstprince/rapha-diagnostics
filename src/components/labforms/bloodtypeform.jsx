@@ -9,7 +9,9 @@ export default function BloodTypeForm({
     onSubmit,
     initialData = {},
     hasExistingResult = false,
-    readOnly = false
+    readOnly = false,
+    medtechName = "",
+    doctorName = ""
 }) {
 
     const [result, setResult] = useState({
@@ -152,7 +154,10 @@ export default function BloodTypeForm({
 
             </table>
 
-            <LabSignatures />
+            <LabSignatures
+    medtechName={medtechName}
+    doctorName={doctorName}
+/>
 
             {!readOnly && (
 

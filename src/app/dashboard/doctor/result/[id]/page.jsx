@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-
+import { useCurrentUser } from "@/lib/session";
 import {
     ArrowLeftIcon,
     Avatar,
@@ -81,7 +81,7 @@ const reportSkin = [
 export default function DoctorResultPage() {
 
     const { id } = useParams();
-
+    const user = useCurrentUser();
     const [patient, setPatient] = useState(null);
     const [test, setTest] = useState(null);
     const [result, setResult] = useState(null);
@@ -109,7 +109,6 @@ export default function DoctorResultPage() {
     }
 
 async function handleApprove() {
-
     const confirmed = window.confirm(
         "Are you sure you want to approve this laboratory result?"
     );
@@ -122,7 +121,8 @@ async function handleApprove() {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            status: "Approved"
+            status: "Approved",
+            doctorId: user.id
         })
     });
 
@@ -221,6 +221,8 @@ async function handleApprove() {
                 <FormComponent
                     patient={patient}
                     initialData={result}
+                    medtechName={test.medtechName}
+                     doctorName={test.doctorName}
                     readOnly={true}
                 />
 
