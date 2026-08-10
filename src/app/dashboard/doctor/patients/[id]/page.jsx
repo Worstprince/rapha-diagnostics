@@ -559,159 +559,6 @@ function handleFieldChange(e) {
             </section>
 
 
-            {/* TEST HISTORY */}
-
-            <section className="rd-panel p-5">
-
-                <h2 className="text-lg font-semibold text-rd-title">
-                    Test History
-                </h2>
-
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
-
-                    <div>
-
-                        <label className="text-sm font-medium text-rd-label">
-                            Test
-                        </label>
-
-                        <select
-                            value={selectedTest?.id ?? ""}
-                            onChange={handleTestChange}
-                            className="mt-1 w-full rounded-xl border border-rd-hair-strong bg-rd-field px-4 py-3"
-                        >
-
-                            <option value="">
-                                Select a test
-                            </option>
-
-                            {tests.map(test => (
-
-                                <option
-                                    key={test.id}
-                                    value={test.id}
-                                >
-                                    {test.name}
-                                </option>
-
-                            ))}
-
-                        </select>
-
-                    </div>
-
-
-                    <div>
-
-                        <label className="text-sm font-medium text-rd-label">
-                            Value
-                        </label>
-
-                        <select
-                            value={selectedField ?? ""}
-                            onChange={handleFieldChange}
-                            disabled={!selectedTest}
-                            className="mt-1 w-full rounded-xl border border-rd-hair-strong bg-rd-field px-4 py-3 disabled:opacity-50"
-                        >
-
-                            <option value="">
-                                Select a value
-                            </option>
-
-                            {selectedTest?.fields.map(field => (
-
-                                <option
-                                    key={field.value}
-                                    value={field.value}
-                                >
-                                    {field.label}
-                                </option>
-
-                            ))}
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-
-                {selectedField && (
-
-                    <div className="mt-5">
-
-                        {loadingHistory ? (
-
-                            <p className="text-sm text-rd-muted">
-                                Loading history...
-                            </p>
-
-                        ) : history.length === 0 ? (
-
-                            <p className="text-sm text-rd-muted">
-                                No historical data available.
-                            </p>
-
-) : isNumeric ? (
-
-    chartLoading ? (
-
-        <p className="text-sm text-rd-muted">
-            Loading chart...
-        </p>
-
-    ) : chartData.length === 0 ? (
-
-        <p className="text-sm text-rd-muted">
-            No chart data available.
-        </p>
-
-    ) : (
-
-        <PatientTestChart
-            data={chartData}
-            title={
-                selectedTest?.fields.find(
-                    field => field.value === selectedField
-                )?.label
-            }
-        />
-
-    )
-
-) : (
-
-                            <div className="space-y-2">
-
-                                {history.map((item, index) => (
-
-                                    <div
-                                        key={index}
-                                        className="flex items-center justify-between rounded-xl border border-rd-hair bg-rd-sunken p-4"
-                                    >
-
-                                        <span className="text-sm text-rd-muted">
-                                            {new Date(item.date).toLocaleDateString()}
-                                        </span>
-
-                                        <span className="font-medium text-rd-title">
-                                            {item.value}
-                                        </span>
-
-                                    </div>
-
-                                ))}
-
-                            </div>
-
-                        )}
-
-                    </div>
-
-                )}
-
-            </section>
-
 
             {/* VISIT SUMMARY */}
 
@@ -884,6 +731,161 @@ function handleFieldChange(e) {
                 )}
 
             </section>
+
+            {/* TEST HISTORY */}
+
+            <section className="rd-panel p-5">
+
+                <h2 className="text-lg font-semibold text-rd-title">
+                    Test History
+                </h2>
+
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+
+                    <div>
+
+                        <label className="text-sm font-medium text-rd-label">
+                            Test
+                        </label>
+
+                        <select
+                            value={selectedTest?.id ?? ""}
+                            onChange={handleTestChange}
+                            className="mt-1 w-full rounded-xl border border-rd-hair-strong bg-rd-field px-4 py-3"
+                        >
+
+                            <option value="">
+                                Select a test
+                            </option>
+
+                            {tests.map(test => (
+
+                                <option
+                                    key={test.id}
+                                    value={test.id}
+                                >
+                                    {test.name}
+                                </option>
+
+                            ))}
+
+                        </select>
+
+                    </div>
+
+
+                    <div>
+
+                        <label className="text-sm font-medium text-rd-label">
+                            Value
+                        </label>
+
+                        <select
+                            value={selectedField ?? ""}
+                            onChange={handleFieldChange}
+                            disabled={!selectedTest}
+                            className="mt-1 w-full rounded-xl border border-rd-hair-strong bg-rd-field px-4 py-3 disabled:opacity-50"
+                        >
+
+                            <option value="">
+                                Select a value
+                            </option>
+
+                            {selectedTest?.fields.map(field => (
+
+                                <option
+                                    key={field.value}
+                                    value={field.value}
+                                >
+                                    {field.label}
+                                </option>
+
+                            ))}
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                {selectedField && (
+
+                    <div className="mt-5">
+
+                        {loadingHistory ? (
+
+                            <p className="text-sm text-rd-muted">
+                                Loading history...
+                            </p>
+
+                        ) : history.length === 0 ? (
+
+                            <p className="text-sm text-rd-muted">
+                                No historical data available.
+                            </p>
+
+) : isNumeric ? (
+
+    chartLoading ? (
+
+        <p className="text-sm text-rd-muted">
+            Loading chart...
+        </p>
+
+    ) : chartData.length === 0 ? (
+
+        <p className="text-sm text-rd-muted">
+            No chart data available.
+        </p>
+
+    ) : (
+
+        <PatientTestChart
+            data={chartData}
+            title={
+                selectedTest?.fields.find(
+                    field => field.value === selectedField
+                )?.label
+            }
+        />
+
+    )
+
+) : (
+
+                            <div className="space-y-2">
+
+                                {history.map((item, index) => (
+
+                                    <div
+                                        key={index}
+                                        className="flex items-center justify-between rounded-xl border border-rd-hair bg-rd-sunken p-4"
+                                    >
+
+                                        <span className="text-sm text-rd-muted">
+                                            {new Date(item.date).toLocaleDateString()}
+                                        </span>
+
+                                        <span className="font-medium text-rd-title">
+                                            {item.value}
+                                        </span>
+
+                                    </div>
+
+                                ))}
+
+                            </div>
+
+                        )}
+
+                    </div>
+
+                )}
+
+            </section>
+
+
 
         </div>
 
