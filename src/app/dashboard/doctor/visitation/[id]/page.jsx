@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useCurrentUser } from "@/lib/session";
 
 import {
     ArrowLeftIcon,
@@ -33,7 +34,8 @@ function Detail({ label, children }) {
 export default function VisitationDetailsPage() {
 
     const { id } = useParams();
-
+    
+    const currentUser = useCurrentUser();
     const [patient, setPatient] = useState(null);
 
     const [tests, setTests] = useState([]);
@@ -105,7 +107,6 @@ export default function VisitationDetailsPage() {
     }
 
 async function handleSave() {
-
     const response = await fetch("/api/doctor/assignMedTech", {
 
         method: "POST",
@@ -115,7 +116,8 @@ async function handleSave() {
         },
 
 body: JSON.stringify({
-    tests
+    tests,
+    userId: currentUser?.id
 })
 
     });

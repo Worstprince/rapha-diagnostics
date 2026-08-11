@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useCurrentUser } from "@/lib/session";
 
 import {
     ArrowLeftIcon,
@@ -79,7 +80,7 @@ const reportSkin = [
 ].join(" ");
 
 export default function DoctorResultPage() {
-
+    const currentUser = useCurrentUser();
     const { id } = useParams();
 
     const [patient, setPatient] = useState(null);
@@ -122,7 +123,8 @@ async function handleApprove() {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            status: "Approved"
+            status: "Approved",
+            userId: currentUser?.id
         })
     });
 
