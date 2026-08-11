@@ -12,6 +12,7 @@ export async function POST(request) {
     priority,
     notes,
     tests, 
+    userId
   } = body;
 
   // Basic validation
@@ -58,7 +59,7 @@ export async function POST(request) {
     await connection.commit();
 
     await logActivity(
-      useCurrentUser().id,
+      userId,
       "Visitation created",
       `Created new visitation for patient ID: ${patientId}`,
       "Patient Management"

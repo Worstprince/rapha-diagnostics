@@ -2,7 +2,6 @@ import db from "@/lib/db";
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
 import { logActivity } from "@/lib/logActivity";
-import { useCurrentUser } from "@/lib/session";
 
 export async function GET(request, { params }) {
 
@@ -71,9 +70,11 @@ export async function PUT(request, { params }) {
 
     try {
 
-        const { id, userId } = await params;
+        const { id } = await params;
 
         const user = await request.json();
+
+        const { userId } = user;
 
 
         // Get the user's current information

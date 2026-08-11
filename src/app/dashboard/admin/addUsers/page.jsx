@@ -3,6 +3,7 @@
 import { useState, useSyncExternalStore } from "react";
 
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { useCurrentUser } from "@/lib/session";
 
 import Toast from "../_toast";
 import { PageHeader, roleLabel } from "../_ui";
@@ -13,7 +14,7 @@ const ROLES = [
   "Medical Technologist",
   "Pathologist",
 ];
-
+const currentUser = useCurrentUser();
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD = 8;
 const MIN_USERNAME = 3;
@@ -153,6 +154,7 @@ export default function AddUsers() {
               "Content-Type": "application/json",
           },
           body: JSON.stringify(userData),
+          userId: currentUser?.id,
       });
 
       const result = await response.json();

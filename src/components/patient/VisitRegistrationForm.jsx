@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useCurrentUser } from "@/lib/session";
 
 const today = new Date().toISOString().slice(0, 10);
 
 export default function VisitRegistrationForm() {
+  const currentUser = useCurrentUser();
   const [patientSearch, setPatientSearch] = useState("");
   const [visitDate, setVisitDate] = useState(today);
   const [priority, setPriority] = useState("Routine");
@@ -106,6 +108,7 @@ export default function VisitRegistrationForm() {
         priority,
         notes,
         tests: selectedTests.map((test) => test.id),
+        userId: currentUser.id,
       }),
     });
 

@@ -213,8 +213,10 @@ function EditUserForm() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(userData),
-          userId: currentUser?.id,
+          body: JSON.stringify({
+            ...userData,
+            userId: currentUser?.id
+          }),
         }
       );
 
