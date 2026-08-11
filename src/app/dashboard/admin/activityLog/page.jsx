@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
     ClearFilters,
@@ -19,6 +19,15 @@ import {
 export default function ActivityLogPage() {
 
     const [logs, setLogs] = useState([]);
+
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [total, setTotal] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+
+    const [modules, setModules] = useState([]);
+    const [actions, setActions] = useState([]);
+    const [usernames, setUsernames] = useState([]);
 
     const [loading, setLoading] = useState(true);
 
@@ -39,25 +48,70 @@ export default function ActivityLogPage() {
 
         let cancelled = false;
 
-        (async () => {
+        async function fetchLogs() {
+
+            setLoading(true);
 
             try {
 
-                const response = await fetch("/api/activityLog");
+                const params = new URLSearchParams();
+
+                params.set("page", page);
+                params.set("limit", limit);
+
+                if (search.trim()) {
+                    params.set("search", search.trim());
+                }
+
+                if (moduleFilter) {
+                    params.set("module", moduleFilter);
+                }
+
+                if (actionFilter) {
+                    params.set("action", actionFilter);
+                }
+
+                if (usernameFilter) {
+                    params.set("username", usernameFilter);
+                }
+
+                if (sortDate) {
+                    params.set("sortDate", sortDate);
+                }
+
+                const response = await fetch(
+                    `/api/activityLog?${params.toString()}`
+                );
 
                 const data = await response.json();
 
                 if (cancelled) return;
 
-                setLogs(
-                    Array.isArray(data)
-                        ? data
-                        : (data?.rows ?? [])
-                );
+                if (!response.ok) {
+                    console.error(data.message);
+                    setLogs([]);
+                    setTotal(0);
+                    setTotalPages(0);
+                    return;
+                }
+
+                setLogs(data.rows ?? []);
+                setTotal(data.total ?? 0);
+                setTotalPages(data.totalPages ?? 0);
+
+                setModules(data.modules ?? []);
+                setActions(data.actions ?? []);
+                setUsernames(data.usernames ?? []);
 
             } catch (error) {
 
                 console.error(error);
+
+                if (!cancelled) {
+                    setLogs([]);
+                    setTotal(0);
+                    setTotalPages(0);
+                }
 
             } finally {
 
@@ -67,127 +121,17 @@ export default function ActivityLogPage() {
 
             }
 
-        })();
+        }
+
+        fetchLogs();
 
         return () => {
             cancelled = true;
         };
 
-    }, []);
-
-
-    const modules = useMemo(() => {
-
-        return [
-            ...new Set(
-                logs
-                    .map(log => log.module)
-                    .filter(Boolean)
-            )
-        ];
-
-    }, [logs]);
-
-
-    const actions = useMemo(() => {
-
-        return [
-            ...new Set(
-                logs
-                    .map(log => log.action)
-                    .filter(Boolean)
-            )
-        ];
-
-    }, [logs]);
-
-
-    const usernames = useMemo(() => {
-
-        return [
-            ...new Set(
-                logs
-                    .map(log => log.username)
-                    .filter(Boolean)
-            )
-        ];
-
-    }, [logs]);
-
-
-    const filteredLogs = useMemo(() => {
-
-        const searchValue = search.trim().toLowerCase();
-
-        const filtered = logs.filter(log => {
-
-            const matchesSearch =
-                !searchValue ||
-                String(log.username ?? "")
-                    .toLowerCase()
-                    .includes(searchValue) ||
-                String(log.action ?? "")
-                    .toLowerCase()
-                    .includes(searchValue) ||
-                String(log.module ?? "")
-                    .toLowerCase()
-                    .includes(searchValue) ||
-                String(log.description ?? "")
-                    .toLowerCase()
-                    .includes(searchValue);
-
-
-            const matchesModule =
-                !moduleFilter ||
-                log.module === moduleFilter;
-
-
-            const matchesAction =
-                !actionFilter ||
-                log.action === actionFilter;
-
-
-            const matchesUsername =
-                !usernameFilter ||
-                log.username === usernameFilter;
-
-
-            return (
-                matchesSearch &&
-                matchesModule &&
-                matchesAction &&
-                matchesUsername
-            );
-
-        });
-
-
-        if (sortDate === "newest") {
-
-            filtered.sort(
-                (a, b) =>
-                    new Date(b.datetime) -
-                    new Date(a.datetime)
-            );
-
-        }
-
-
-        if (sortDate === "oldest") {
-
-            filtered.sort(
-                (a, b) =>
-                    new Date(a.datetime) -
-                    new Date(b.datetime)
-            );
-
-        }
-
-
-        return filtered;
-
     }, [
-        logs,
+        page,
+        limit,
         search,
         moduleFilter,
         actionFilter,
@@ -198,15 +142,18 @@ export default function ActivityLogPage() {
 
     function clearFilters() {
 
+        setSearch("");
         setModuleFilter("");
         setActionFilter("");
         setUsernameFilter("");
         setSortDate("");
+        setPage(1);
 
     }
 
 
     const activeCount = [
+        search,
         moduleFilter,
         actionFilter,
         usernameFilter,
@@ -230,7 +177,10 @@ export default function ActivityLogPage() {
                     <SearchField
                         label="Search activity"
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        onChange={(e) => {
+                            setSearch(e.target.value);
+                            setPage(1);
+                        }}
                         placeholder="Search activity…"
                     />
 
@@ -238,8 +188,8 @@ export default function ActivityLogPage() {
 
                         {!loading && (
                             <ResultCount
-                                shown={filteredLogs.length}
-                                total={logs.length}
+                                shown={logs.length}
+                                total={total}
                                 noun="activities"
                             />
                         )}
@@ -248,71 +198,136 @@ export default function ActivityLogPage() {
                             open={showFilters}
                             count={activeCount}
                             controls="activity-filters"
-                            onClick={() => setShowFilters(prev => !prev)}
+                            onClick={() =>
+                                setShowFilters(prev => !prev)
+                            }
                         />
 
                     </div>
 
                 </div>
 
+
                 {showFilters && (
 
-                    <div id="activity-filters" className="border-t border-rd-hair p-4">
+                    <div
+                        id="activity-filters"
+                        className="border-t border-rd-hair p-4"
+                    >
 
                         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
 
                             <FilterField
                                 label="Module"
                                 value={moduleFilter}
-                                onChange={(e) => setModuleFilter(e.target.value)}
+                                onChange={(e) => {
+                                    setModuleFilter(e.target.value);
+                                    setPage(1);
+                                }}
                             >
-                                <option value="">All modules</option>
+
+                                <option value="">
+                                    All modules
+                                </option>
+
                                 {modules.map(module => (
-                                    <option key={module} value={module}>
+
+                                    <option
+                                        key={module}
+                                        value={module}
+                                    >
                                         {module}
                                     </option>
+
                                 ))}
+
                             </FilterField>
+
 
                             <FilterField
                                 label="Action"
                                 value={actionFilter}
-                                onChange={(e) => setActionFilter(e.target.value)}
+                                onChange={(e) => {
+                                    setActionFilter(e.target.value);
+                                    setPage(1);
+                                }}
                             >
-                                <option value="">All actions</option>
+
+                                <option value="">
+                                    All actions
+                                </option>
+
                                 {actions.map(action => (
-                                    <option key={action} value={action}>
+
+                                    <option
+                                        key={action}
+                                        value={action}
+                                    >
                                         {action}
                                     </option>
+
                                 ))}
+
                             </FilterField>
+
 
                             <FilterField
                                 label="User"
                                 value={usernameFilter}
-                                onChange={(e) => setUsernameFilter(e.target.value)}
+                                onChange={(e) => {
+                                    setUsernameFilter(e.target.value);
+                                    setPage(1);
+                                }}
                             >
-                                <option value="">All users</option>
+
+                                <option value="">
+                                    All users
+                                </option>
+
                                 {usernames.map(username => (
-                                    <option key={username} value={username}>
+
+                                    <option
+                                        key={username}
+                                        value={username}
+                                    >
                                         {username}
                                     </option>
+
                                 ))}
+
                             </FilterField>
+
 
                             <FilterField
                                 label="Sort by date"
                                 value={sortDate}
-                                onChange={(e) => setSortDate(e.target.value)}
+                                onChange={(e) => {
+                                    setSortDate(e.target.value);
+                                    setPage(1);
+                                }}
                             >
-                                <option value="">Default order</option>
-                                <option value="newest">Newest first</option>
-                                <option value="oldest">Oldest first</option>
+
+                                <option value="">
+                                    Default order
+                                </option>
+
+                                <option value="newest">
+                                    Newest first
+                                </option>
+
+                                <option value="oldest">
+                                    Oldest first
+                                </option>
+
                             </FilterField>
 
                         </div>
 
-                        <ClearFilters count={activeCount} onClear={clearFilters} />
+
+                        <ClearFilters
+                            count={activeCount}
+                            onClear={clearFilters}
+                        />
 
                     </div>
 
@@ -320,86 +335,148 @@ export default function ActivityLogPage() {
 
             </section>
 
+
             <section className="rd-panel flex min-h-0 flex-1 flex-col overflow-hidden max-lg:max-h-[70vh]">
 
                 {loading && <RowSkeleton />}
 
-                {!loading && filteredLogs.length === 0 && (
+
+                {!loading && logs.length === 0 && (
+
                     <StateMessage
                         title="No activity found"
                         hint={
-                            search || activeCount > 0
+                            search ||
+                            moduleFilter ||
+                            actionFilter ||
+                            usernameFilter ||
+                            sortDate
                                 ? "Nothing matches the current search and filters."
                                 : "Activity appears here as staff use the system."
                         }
                     />
+
                 )}
 
-                {!loading && filteredLogs.length > 0 && (
+
+                {!loading && logs.length > 0 && (
 
                     <ol className="rd-scroll-thin min-h-0 flex-1 space-y-3 overflow-y-auto p-5">
 
-                        {filteredLogs.map((log) => {
+                        {logs.map((log) => {
 
                             const tone = actionTone(log.action);
 
                             return (
 
-                            <li
-                                key={log.id}
-                                className="relative overflow-hidden rounded-xl border border-rd-hair bg-rd-sunken px-6 py-5 transition-colors hover:border-rd-hair-strong hover:bg-rd-raised"
-                            >
+                                <li
+                                    key={log.id}
+                                    className="relative overflow-hidden rounded-xl border border-rd-hair bg-rd-sunken px-6 py-5 transition-colors hover:border-rd-hair-strong hover:bg-rd-raised"
+                                >
 
-                                <span
-                                    aria-hidden="true"
-                                    className={`absolute inset-y-0 left-0 w-1 ${toneBar[tone]}`}
-                                />
+                                    <span
+                                        aria-hidden="true"
+                                        className={`absolute inset-y-0 left-0 w-1 ${toneBar[tone]}`}
+                                    />
 
-                                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
 
-                                    <div className="flex flex-wrap items-center gap-2.5">
+                                    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
 
-                                        <span
-                                            aria-hidden="true"
-                                            className={`size-2 flex-none rounded-full ${toneDot[tone]}`}
-                                        />
+                                        <div className="flex flex-wrap items-center gap-2.5">
 
-                                        <p className="text-[15px] font-semibold text-rd-title">
-                                            {log.action}
-                                        </p>
+                                            <span
+                                                aria-hidden="true"
+                                                className={`size-2 flex-none rounded-full ${toneDot[tone]}`}
+                                            />
 
-                                        {log.module && (
-                                            <span className="rounded-full border border-rd-hair-strong bg-rd-raised px-2.5 py-1 text-xs font-medium text-rd-label">
-                                                {log.module}
-                                            </span>
-                                        )}
+                                            <p className="text-[15px] font-semibold text-rd-title">
+                                                {log.action}
+                                            </p>
+
+
+                                            {log.module && (
+
+                                                <span className="rounded-full border border-rd-hair-strong bg-rd-raised px-2.5 py-1 text-xs font-medium text-rd-label">
+                                                    {log.module}
+                                                </span>
+
+                                            )}
+
+                                        </div>
+
+
+                                        <time className="text-xs tabular-nums text-rd-muted">
+                                            {log.datetime}
+                                        </time>
 
                                     </div>
 
-                                    <time className="text-xs tabular-nums text-rd-muted">
-                                        {log.datetime}
-                                    </time>
 
-                                </div>
+                                    <p className="mt-2.5 text-sm leading-relaxed text-rd-label">
+                                        {log.description}
+                                    </p>
 
-                                <p className="mt-2.5 text-sm leading-relaxed text-rd-label">
-                                    {log.description}
-                                </p>
 
-                                <p className="mt-3 text-xs text-rd-muted">
-                                    Performed by{" "}
-                                    <span className="font-semibold text-rd-label">
-                                        {log.username}
-                                    </span>
-                                </p>
+                                    <p className="mt-3 text-xs text-rd-muted">
 
-                            </li>
+                                        Performed by{" "}
+
+                                        <span className="font-semibold text-rd-label">
+                                            {log.username}
+                                        </span>
+
+                                    </p>
+
+                                </li>
 
                             );
 
                         })}
 
                     </ol>
+
+                )}
+
+
+                {!loading && logs.length > 0 && (
+
+                    <div className="flex items-center justify-between border-t border-rd-hair px-5 py-4">
+
+                        <p className="text-sm text-rd-muted">
+                            Page {page} of {totalPages}
+                        </p>
+
+
+                        <div className="flex items-center gap-2">
+
+                            <button
+                                type="button"
+                                disabled={page <= 1}
+                                onClick={() =>
+                                    setPage(prev => Math.max(1, prev - 1))
+                                }
+                                className="rd-btn-ghost rd-press rd-focus min-h-10 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Previous
+                            </button>
+
+
+                            <button
+                                type="button"
+                                disabled={page >= totalPages}
+                                onClick={() =>
+                                    setPage(prev =>
+                                        Math.min(totalPages, prev + 1)
+                                    )
+                                }
+                                className="rd-btn rd-press rd-focus min-h-10 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Next
+                            </button>
+
+                        </div>
+
+                    </div>
 
                 )}
 
