@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useCurrentUser } from "@/lib/session";
 
 const EMPTY_PATIENT = {
   firstName: "",
@@ -20,6 +21,7 @@ const fieldClasses =
 const labelClasses = "mb-1.5 block text-sm font-medium text-rd-label";
 
 export default function PatientRegistration() {
+  const currentUser = useCurrentUser();
   const [patient, setPatient] = useState(EMPTY_PATIENT);
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState(null);
@@ -61,41 +63,75 @@ export default function PatientRegistration() {
     setErrors({});
   }
 
-  async function handleSubmit(e) {
+async function handleSubmit(e) {
     e.preventDefault();
     setStatus(null);
 
     if (!validate()) return;
 
-    setSubmitting(true);
-    try {
-     
-      const payload = { ...patient };
-      if (!payload.suffix) delete payload.suffix;
-
-      const response = await fetch("/api/patients", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        setStatus({ type: "error", message: result.message || "Registration failed." });
+    if (!currentUser?.id) {
+        alert("User session not found.");
+        console.log("CURRENT USER:", currentUser);
         return;
-      }
-
-      setStatus({ type: "success", message: "Patient registered successfully." });
-      setPatient(EMPTY_PATIENT);
-      setErrors({});
-    } catch (error) {
-      console.error(error);
-      setStatus({ type: "error", message: "Unable to connect to the server." });
-    } finally {
-      setSubmitting(false);
     }
-  }
+
+    setSubmitting(true);
+
+    try {
+
+        const payload = {
+            ...patient,
+            userId: currentUser.id
+        };
+
+        console.log("CURRENT USER:", currentUser);
+        console.log("PAYLOAD:", payload);
+
+        if (!payload.suffix) {
+            delete payload.suffix;
+        }
+
+        const response = await fetch("/api/patients", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            setStatus({
+                type: "error",
+                message: result.message || "Registration failed."
+            });
+            return;
+        }
+
+        setStatus({
+            type: "success",
+            message: "Patient registered successfully."
+        });
+
+        setPatient(EMPTY_PATIENT);
+        setErrors({});
+
+    } catch (error) {
+
+        console.error(error);
+
+        setStatus({
+            type: "error",
+            message: "Unable to connect to the server."
+        });
+
+    } finally {
+
+        setSubmitting(false);
+
+    }
+}
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-full space-y-6 overflow-x-hidden">

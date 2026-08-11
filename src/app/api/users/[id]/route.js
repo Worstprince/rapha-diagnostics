@@ -71,7 +71,7 @@ export async function PUT(request, { params }) {
 
     try {
 
-        const { id } = await params;
+        const { id, userId } = await params;
 
         const user = await request.json();
 
@@ -200,7 +200,7 @@ export async function PUT(request, { params }) {
         ) {
 
             await logActivity(
-                useCurrentUser().id,
+                userId,
                 "User Archived",
                 `Archived user: ${user.username}`,
                 "User Management"
@@ -214,7 +214,7 @@ export async function PUT(request, { params }) {
         ) {
 
             await logActivity(
-                useCurrentUser().id,
+                userId,
                 "User Restored",
                 `Restored user: ${user.username}`,
                 "User Management"
@@ -225,7 +225,7 @@ export async function PUT(request, { params }) {
         else {
 
             await logActivity(
-                useCurrentUser().id,
+                userId,
                 "User Update",
                 `Updated user: ${user.username}`,
                 "User Management"
