@@ -34,7 +34,7 @@ export default function PregnancyForm({
 
         if (readOnly) return;
 
-        onSubmit(result);
+        onSubmit(result, hasExistingResult);
 
     }
 

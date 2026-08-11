@@ -36,7 +36,7 @@ export default function OGTTForm({
 
         if (readOnly) return;
 
-        onSubmit(result);
+        onSubmit(result, hasExistingResult);
 
     }
 

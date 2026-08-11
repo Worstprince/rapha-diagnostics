@@ -34,7 +34,7 @@ export default function FOBTForm({
 
         if (readOnly) return;
 
-        onSubmit(result);
+        onSubmit(result, hasExistingResult);
 
     }
 

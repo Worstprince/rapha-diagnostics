@@ -39,7 +39,7 @@ export default function StoolExamForm({
 
         e.preventDefault();
 
-        onSubmit(result);
+        onSubmit(result, hasExistingResult);
 
     }
 

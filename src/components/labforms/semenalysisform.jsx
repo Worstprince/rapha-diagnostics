@@ -49,7 +49,7 @@ export default function SemenAnalysisForm({
 
         e.preventDefault();
 
-        onSubmit(result);
+        onSubmit(result, hasExistingResult);
 
     }
 

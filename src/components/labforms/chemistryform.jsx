@@ -47,7 +47,7 @@ function handleSubmit(e) {
 
     if (readOnly) return;
 
-    onSubmit(result);
+    onSubmit(result, hasExistingResult);
 
 }
 

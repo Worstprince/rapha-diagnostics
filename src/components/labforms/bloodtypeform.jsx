@@ -35,7 +35,7 @@ export default function BloodTypeForm({
 
         if (readOnly) return;
 
-        onSubmit(result);
+        onSubmit(result, hasExistingResult);
 
     }
 

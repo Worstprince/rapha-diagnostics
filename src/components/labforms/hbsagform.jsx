@@ -46,7 +46,7 @@ export default function HepatitisForm({
 
         if (readOnly) return;
 
-        onSubmit(result);
+        onSubmit(result, hasExistingResult);
 
     }
 
