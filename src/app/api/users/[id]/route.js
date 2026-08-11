@@ -2,6 +2,7 @@ import db from "@/lib/db";
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
 import { logActivity } from "@/lib/logActivity";
+import { useCurrentUser } from "@/lib/session";
 
 export async function GET(request, { params }) {
 
@@ -199,7 +200,7 @@ export async function PUT(request, { params }) {
         ) {
 
             await logActivity(
-                1, // Replace with logged-in user's ID later
+                useCurrentUser().id,
                 "User Archived",
                 `Archived user: ${user.username}`,
                 "User Management"
@@ -213,7 +214,7 @@ export async function PUT(request, { params }) {
         ) {
 
             await logActivity(
-                1, // Replace with logged-in user's ID later
+                useCurrentUser().id,
                 "User Restored",
                 `Restored user: ${user.username}`,
                 "User Management"
@@ -224,7 +225,7 @@ export async function PUT(request, { params }) {
         else {
 
             await logActivity(
-                1, // Replace with logged-in user's ID later
+                useCurrentUser().id,
                 "User Update",
                 `Updated user: ${user.username}`,
                 "User Management"

@@ -77,7 +77,8 @@ export async function POST(request) {
         await logActivity(
             user.id,
             "Login",
-            `User logged in: ${user.username}`
+            `User logged in: ${user.username}`,
+            "Authentication"
         );
 
         return NextResponse.json({

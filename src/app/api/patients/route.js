@@ -1,6 +1,7 @@
 import db from "@/lib/db";
 import { NextResponse } from "next/server";
 import { logActivity } from "@/lib/logActivity";
+import {useCurrentUser} from "@/lib/session";
 
 
 export async function POST(request) {
@@ -70,9 +71,10 @@ export async function POST(request) {
     );
 
     await logActivity(
-        patient.userId , //to be changed to userId from session
+        useCurrentUser().id,
         "Patient registration",
-        `Registered new patient: ${patient.firstName} ${patient.lastName}`
+        `Registered new patient: ${patient.firstName} ${patient.lastName}`,
+        "Patient Management"
     );
 
     return NextResponse.json({

@@ -2,6 +2,7 @@ import db from "@/lib/db";
 import { NextResponse } from "next/server";
 import checkVisitApproved from "@/lib/checkVisitApproved";
 import getTestResult from "@/lib/getTestResults";
+import ActivityLog from "@/lib/logActivity";
 
 export async function GET(request, { params }) {
 
@@ -139,6 +140,12 @@ export async function PATCH(request, { params }) {
             [status, assignmentId]
         );
         await checkVisitApproved(visitationId);
+        await ActivityLog(
+            1,
+            "Result Approved",
+            `Result for assignment ID ${assignmentId} has been approved.`,
+            "Laboratory"
+        );
         return NextResponse.json({
             message: "Result approved successfully."
         });

@@ -2,6 +2,7 @@ import db from "@/lib/db";
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
 import { logActivity } from "@/lib/logActivity";
+import { useCurrentUser } from "@/lib/session";
 
 
 
@@ -62,9 +63,10 @@ export async function POST(request) {
         );
 
         await logActivity(
-            1 , //to be changed to userId from session
+            useCurrentUser().id,
             "User registration",
-            `Registered new user: ${user.username}`
+            `Registered new user: ${user.username}`,
+            "User Management"
         );
 
         return NextResponse.json({

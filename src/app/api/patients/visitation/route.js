@@ -57,6 +57,13 @@ export async function POST(request) {
 
     await connection.commit();
 
+    await logActivity(
+      useCurrentUser().id,
+      "Visitation created",
+      `Created new visitation for patient ID: ${patientId}`,
+      "Patient Management"
+    );
+
     return NextResponse.json({
       success: true,
       visitId,
