@@ -69,6 +69,11 @@ const doctorSections = [
         label: "View Visitations",
         Icon: CalendarCheckIcon,
       },
+      {
+        href: "/dashboard/doctor/visitation/history",
+        label: "View Visitation History",
+        Icon: CalendarCheckIcon,
+      },
     ],
   },
 ];
