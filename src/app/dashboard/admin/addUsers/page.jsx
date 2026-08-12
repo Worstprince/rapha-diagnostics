@@ -62,11 +62,7 @@ function LiveTimestamp() {
     <input
       id="createdAt"
       type="text"
-      value={
-        tick === 0
-          ? ""
-          : new Date(tick * 1000).toLocaleString()
-      }
+      value={tick === 0 ? "" : new Date(tick * 1000).toLocaleString()}
       readOnly
       tabIndex={-1}
       aria-describedby="createdAt-hint"
@@ -76,13 +72,13 @@ function LiveTimestamp() {
 }
 
 export default function AddUsers() {
-
   const currentUser = useCurrentUser();
 
   const [user, setUser] = useState({
-    firstName: "",
-    lastName: "",
     username: "",
+    fname: "",
+    mname: "",
+    lname: "",
     password: "",
     confirmPassword: "",
     email: "",
@@ -94,9 +90,7 @@ export default function AddUsers() {
   const [submitting, setSubmitting] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-
   function handleChange(e) {
-
     const { name, value } = e.target;
 
     setUser((prev) => ({
@@ -105,148 +99,72 @@ export default function AddUsers() {
     }));
 
     setErrors((prev) => {
-
       if (!prev[name]) return prev;
 
       const next = { ...prev };
-
       delete next[name];
 
       return next;
-
     });
-
   }
 
-
   function validate() {
-
     const found = {};
 
-
-    if (!user.firstName.trim()) {
-
-      found.firstName = "First name is required.";
-
-    }
-
-
-    if (!user.lastName.trim()) {
-
-      found.lastName = "Last name is required.";
-
-    }
-
-
     if (!user.username.trim()) {
-
       found.username = "Username is required.";
-
+    } else if (user.username.trim().length < MIN_USERNAME) {
+      found.username = `Username must be at least ${MIN_USERNAME} characters.`;
     }
 
-    else if (
-      user.username.trim().length < MIN_USERNAME
-    ) {
-
-      found.username =
-        `Username must be at least ${MIN_USERNAME} characters.`;
-
+    if (!user.fname.trim()) {
+      found.fname = "First name is required.";
     }
 
+    if (!user.lname.trim()) {
+      found.lname = "Last name is required.";
+    }
 
     if (!user.password) {
-
       found.password = "Password is required.";
-
-    }
-
-    else if (
-      user.password.length < MIN_PASSWORD
-    ) {
-
-      found.password =
-        `Password must be at least ${MIN_PASSWORD} characters.`;
-
-    }
-
-    else if (!/[a-z]/.test(user.password)) {
-
+    } else if (user.password.length < MIN_PASSWORD) {
+      found.password = `Password must be at least ${MIN_PASSWORD} characters.`;
+    } else if (!/[a-z]/.test(user.password)) {
       found.password =
         "Password must include at least one lowercase letter.";
-
-    }
-
-    else if (!/[A-Z]/.test(user.password)) {
-
+    } else if (!/[A-Z]/.test(user.password)) {
       found.password =
         "Password must include at least one uppercase letter.";
-
-    }
-
-    else if (!/\d/.test(user.password)) {
-
+    } else if (!/\d/.test(user.password)) {
       found.password =
         "Password must include at least one number.";
-
-    }
-
-    else if (!/[^A-Za-z0-9]/.test(user.password)) {
-
+    } else if (!/[^A-Za-z0-9]/.test(user.password)) {
       found.password =
         "Password must include at least one symbol.";
-
     }
-
 
     if (!user.confirmPassword) {
-
-      found.confirmPassword =
-        "Please confirm the password.";
-
+      found.confirmPassword = "Please confirm the password.";
+    } else if (user.password !== user.confirmPassword) {
+      found.confirmPassword = "Passwords do not match.";
     }
-
-    else if (
-      user.password !== user.confirmPassword
-    ) {
-
-      found.confirmPassword =
-        "Passwords do not match.";
-
-    }
-
 
     if (!user.email.trim()) {
-
-      found.email =
-        "Email is required.";
-
+      found.email = "Email is required.";
+    } else if (!EMAIL.test(user.email)) {
+      found.email = "Enter a valid email address.";
     }
-
-    else if (!EMAIL.test(user.email)) {
-
-      found.email =
-        "Enter a valid email address.";
-
-    }
-
 
     if (!user.role) {
-
-      found.role =
-        "Please select a role.";
-
+      found.role = "Please select a role.";
     }
-
 
     setErrors(found);
 
     return Object.keys(found).length === 0;
-
   }
 
-
   function handleSubmit(e) {
-
     e.preventDefault();
 
     if (submitting) return;
@@ -256,47 +174,26 @@ export default function AddUsers() {
     if (!validate()) return;
 
     setConfirmOpen(true);
-
   }
 
-
   async function addUser() {
-
     setConfirmOpen(false);
-
     setSubmitting(true);
 
-
     try {
+      const { confirmPassword, ...userData } = user;
 
-      const {
-        confirmPassword,
-        ...userData
-      } = user;
-
-
-      const response = await fetch(
-        "/api/users/add",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            ...userData,
-            userId: currentUser?.id,
-          }),
-        }
-      );
-
+      const response = await fetch("/api/users/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...userData, userId: currentUser?.id })
+      });
 
       const result = await response.json();
 
-
       if (!response.ok) {
-
         setStatus({
           tone: "error",
           text:
@@ -306,61 +203,44 @@ export default function AddUsers() {
         });
 
         return;
-
       }
-
 
       setStatus({
         tone: "success",
-        text:
-          `User “${user.username}” added successfully.`,
+        text: `User “${user.username}” added successfully.`,
       });
 
-
       setUser({
-        firstName: "",
-        lastName: "",
         username: "",
+        fname: "",
+        mname: "",
+        lname: "",
         password: "",
         confirmPassword: "",
         email: "",
         role: "",
       });
 
-
       setErrors({});
-
-
     } catch {
-
       setStatus({
         tone: "error",
-        text:
-          "Unable to reach the server. Please try again.",
+        text: "Unable to reach the server. Please try again.",
       });
-
     } finally {
-
       setSubmitting(false);
-
     }
-
   }
 
-
-  const selectedRoleLabel =
-    roleLabel(user.role);
-
+  const selectedRoleLabel = roleLabel(user.role);
 
   return (
-
     <div className="mx-auto max-w-2xl space-y-5">
 
       <PageHeader
         title="Add User"
         description="Create an account and assign the role that matches their department."
       />
-
 
       <section className="rd-panel p-6">
 
@@ -370,100 +250,7 @@ export default function AddUsers() {
           noValidate
         >
 
-          {/* First Name */}
-
           <div>
-
-            <label
-              htmlFor="firstName"
-              className="rd-label"
-            >
-              First Name
-            </label>
-
-            <input
-              id="firstName"
-              type="text"
-              name="firstName"
-              autoComplete="given-name"
-              value={user.firstName}
-              onChange={handleChange}
-              aria-invalid={
-                errors.firstName
-                  ? true
-                  : undefined
-              }
-              aria-describedby={
-                errors.firstName
-                  ? "firstName-error"
-                  : undefined
-              }
-              className={field(errors.firstName)}
-            />
-
-            {errors.firstName && (
-
-              <p
-                id="firstName-error"
-                className={errText}
-              >
-                {errors.firstName}
-              </p>
-
-            )}
-
-          </div>
-
-
-          {/* Last Name */}
-
-          <div>
-
-            <label
-              htmlFor="lastName"
-              className="rd-label"
-            >
-              Last Name
-            </label>
-
-            <input
-              id="lastName"
-              type="text"
-              name="lastName"
-              autoComplete="family-name"
-              value={user.lastName}
-              onChange={handleChange}
-              aria-invalid={
-                errors.lastName
-                  ? true
-                  : undefined
-              }
-              aria-describedby={
-                errors.lastName
-                  ? "lastName-error"
-                  : undefined
-              }
-              className={field(errors.lastName)}
-            />
-
-            {errors.lastName && (
-
-              <p
-                id="lastName-error"
-                className={errText}
-              >
-                {errors.lastName}
-              </p>
-
-            )}
-
-          </div>
-
-
-          {/* Username */}
-
-          <div>
-
             <label
               htmlFor="username"
               className="rd-label"
@@ -479,9 +266,7 @@ export default function AddUsers() {
               value={user.username}
               onChange={handleChange}
               aria-invalid={
-                errors.username
-                  ? true
-                  : undefined
+                errors.username ? true : undefined
               }
               aria-describedby={
                 errors.username
@@ -492,23 +277,111 @@ export default function AddUsers() {
             />
 
             {errors.username && (
-
               <p
                 id="username-error"
                 className={errText}
               >
                 {errors.username}
               </p>
-
             )}
-
           </div>
 
 
-          {/* Password */}
+          <div>
+            <label
+              htmlFor="fname"
+              className="rd-label"
+            >
+              First Name
+            </label>
+
+            <input
+              id="fname"
+              type="text"
+              name="fname"
+              autoComplete="given-name"
+              value={user.fname}
+              onChange={handleChange}
+              aria-invalid={
+                errors.fname ? true : undefined
+              }
+              aria-describedby={
+                errors.fname
+                  ? "fname-error"
+                  : undefined
+              }
+              className={field(errors.fname)}
+            />
+
+            {errors.fname && (
+              <p
+                id="fname-error"
+                className={errText}
+              >
+                {errors.fname}
+              </p>
+            )}
+          </div>
+
 
           <div>
+            <label
+              htmlFor="mname"
+              className="rd-label"
+            >
+              Middle Name
+            </label>
 
+            <input
+              id="mname"
+              type="text"
+              name="mname"
+              autoComplete="additional-name"
+              value={user.mname}
+              onChange={handleChange}
+              className="rd-input"
+            />
+          </div>
+
+
+          <div>
+            <label
+              htmlFor="lname"
+              className="rd-label"
+            >
+              Last Name
+            </label>
+
+            <input
+              id="lname"
+              type="text"
+              name="lname"
+              autoComplete="family-name"
+              value={user.lname}
+              onChange={handleChange}
+              aria-invalid={
+                errors.lname ? true : undefined
+              }
+              aria-describedby={
+                errors.lname
+                  ? "lname-error"
+                  : undefined
+              }
+              className={field(errors.lname)}
+            />
+
+            {errors.lname && (
+              <p
+                id="lname-error"
+                className={errText}
+              >
+                {errors.lname}
+              </p>
+            )}
+          </div>
+
+
+          <div>
             <label
               htmlFor="password"
               className="rd-label"
@@ -524,9 +397,7 @@ export default function AddUsers() {
               value={user.password}
               onChange={handleChange}
               aria-invalid={
-                errors.password
-                  ? true
-                  : undefined
+                errors.password ? true : undefined
               }
               aria-describedby={
                 errors.password
@@ -537,23 +408,17 @@ export default function AddUsers() {
             />
 
             {errors.password && (
-
               <p
                 id="password-error"
                 className={errText}
               >
                 {errors.password}
               </p>
-
             )}
-
           </div>
 
 
-          {/* Confirm Password */}
-
           <div>
-
             <label
               htmlFor="confirmPassword"
               className="rd-label"
@@ -578,29 +443,21 @@ export default function AddUsers() {
                   ? "confirmPassword-error"
                   : undefined
               }
-              className={field(
-                errors.confirmPassword
-              )}
+              className={field(errors.confirmPassword)}
             />
 
             {errors.confirmPassword && (
-
               <p
                 id="confirmPassword-error"
                 className={errText}
               >
                 {errors.confirmPassword}
               </p>
-
             )}
-
           </div>
 
 
-          {/* Email */}
-
           <div>
-
             <label
               htmlFor="email"
               className="rd-label"
@@ -616,9 +473,7 @@ export default function AddUsers() {
               value={user.email}
               onChange={handleChange}
               aria-invalid={
-                errors.email
-                  ? true
-                  : undefined
+                errors.email ? true : undefined
               }
               aria-describedby={
                 errors.email
@@ -629,23 +484,17 @@ export default function AddUsers() {
             />
 
             {errors.email && (
-
               <p
                 id="email-error"
                 className={errText}
               >
                 {errors.email}
               </p>
-
             )}
-
           </div>
 
 
-          {/* Role */}
-
           <div>
-
             <label
               htmlFor="role"
               className="rd-label"
@@ -660,9 +509,7 @@ export default function AddUsers() {
               onChange={handleChange}
               data-empty={user.role === ""}
               aria-invalid={
-                errors.role
-                  ? true
-                  : undefined
+                errors.role ? true : undefined
               }
               aria-describedby={
                 errors.role
@@ -671,7 +518,6 @@ export default function AddUsers() {
               }
               className={field(errors.role)}
             >
-
               <option
                 value=""
                 disabled
@@ -681,36 +527,27 @@ export default function AddUsers() {
               </option>
 
               {ROLES.map((role) => (
-
                 <option
                   key={role}
                   value={role}
                 >
                   {roleLabel(role)}
                 </option>
-
               ))}
-
             </select>
 
             {errors.role && (
-
               <p
                 id="role-error"
                 className={errText}
               >
                 {errors.role}
               </p>
-
             )}
-
           </div>
 
 
-          {/* Created At */}
-
           <div>
-
             <label
               htmlFor="createdAt"
               className="rd-label"
@@ -726,7 +563,6 @@ export default function AddUsers() {
             >
               Recorded automatically when the account is saved.
             </p>
-
           </div>
 
 
@@ -758,16 +594,12 @@ export default function AddUsers() {
       <ConfirmDialog
         open={confirmOpen}
         title="Add this user?"
-        description={
-          `“${user.username}” will be created with the ${selectedRoleLabel} role and can sign in immediately.`
-        }
+        description={`“${user.username}” will be created with the ${selectedRoleLabel} role and can sign in immediately.`}
         confirmLabel="Add user"
         onConfirm={addUser}
         onCancel={() => setConfirmOpen(false)}
       />
 
     </div>
-
   );
-
 }
