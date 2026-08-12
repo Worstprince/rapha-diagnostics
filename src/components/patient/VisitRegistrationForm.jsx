@@ -636,7 +636,7 @@ export default function VisitRegistrationForm() {
 
             {showPatientDropdown && (
 
-              <ul className="absolute z-10 mt-1 max-h-64 w-full overflow-y-auto rounded-2xl border border-rd-hair bg-rd-popover shadow-lg">
+              <ul className="absolute z-10 mt-1 max-h-64 w-full overflow-y-auto rounded-2xl border border-rd-hair bg-slate-900 shadow-lg">
 
                 {filteredPatients.map(
                   (patient) => (
@@ -678,7 +678,7 @@ export default function VisitRegistrationForm() {
                 {filteredPatients.length ===
                   0 && (
 
-                    <li className="px-4 py-3 text-sm text-rd-muted">
+                    <li className="px-4 py-3 text-sm text-slate-400 shadow-lg">
                       No patients found.
                     </li>
 
