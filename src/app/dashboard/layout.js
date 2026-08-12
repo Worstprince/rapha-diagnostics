@@ -62,12 +62,17 @@ const receptionSections = [
 const doctorSections = [
   { label: "General", links: [overviewLink(ROLE_HOMES.doctor)] },
   {
-    label: "Patient",
+    label: "Patient List",
     links: [
       {
         href: "/dashboard/doctor/visitation",
         label: "View Visitations",
         Icon: CalendarCheckIcon,
+      },
+      {
+        href: "/dashboard/doctor/patients",
+        label: "Patients List",
+        Icon: UsersIcon,
       },
     ],
   },

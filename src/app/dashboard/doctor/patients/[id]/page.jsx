@@ -5,6 +5,23 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import PatientTestChart from "@/components/patient/patientTestChart";
 
+import {
+    ArrowLeftIcon,
+    Avatar,
+    CalendarIcon,
+    ChevronRightIcon,
+    ClockIcon,
+    EmptyState,
+    FileTextIcon,
+    FlaskIcon,
+    HeaderGlow,
+    TableSkeleton,
+    backLink,
+    rowAction,
+    td,
+    th,
+} from "../../_ui";
+
 export default function DoctorPatientPage() {
 
     const tests = [
@@ -206,10 +223,12 @@ export default function DoctorPatientPage() {
 
     const [chartData, setChartData] = useState([]);
     const [chartLoading, setChartLoading] = useState(false);
+    const [chartError, setChartError] = useState(false);
 
     async function fetchChartData() {
 
     setChartLoading(true);
+    setChartError(false);
 
     try {
 
@@ -238,6 +257,7 @@ export default function DoctorPatientPage() {
 
         console.error(error);
         setChartData([]);
+        setChartError(true);
 
     } finally {
 
@@ -343,6 +363,7 @@ function handleTestChange(e) {
     setSelectedField(null);
     setHistory([]);
     setChartData([]);
+    setChartError(false);
 
 }
 
@@ -353,6 +374,7 @@ function handleFieldChange(e) {
     setSelectedField(field);
     setHistory([]);
     setChartData([]);
+    setChartError(false);
 
     if (selectedTest) {
         fetchHistory(selectedTest.id, field);
@@ -374,16 +396,35 @@ function handleFieldChange(e) {
             value => !Number.isNaN(Number(value))
         );
 
+    const backToPatients = (
+        <Link href="/dashboard/doctor/patients" className={backLink}>
+            <ArrowLeftIcon size={16} />
+            Back to patients
+        </Link>
+    );
+
     if (loading) {
 
         return (
             <div className="mx-auto max-w-6xl space-y-5">
 
-                <div className="rd-panel h-32 animate-pulse motion-reduce:animate-none" />
+                {backToPatients}
+
+                <div className="rd-panel h-28 animate-pulse motion-reduce:animate-none" />
 
                 <div className="rd-panel h-72 animate-pulse motion-reduce:animate-none" />
 
-                <div className="rd-panel h-96 animate-pulse motion-reduce:animate-none" />
+                <div className="grid gap-4 sm:grid-cols-3">
+                    <div className="rd-panel h-36 animate-pulse motion-reduce:animate-none" />
+                    <div className="rd-panel h-36 animate-pulse motion-reduce:animate-none" />
+                    <div className="rd-panel h-36 animate-pulse motion-reduce:animate-none" />
+                </div>
+
+                <div className="rd-panel overflow-hidden">
+                    <TableSkeleton rows={4} />
+                </div>
+
+                <div className="rd-panel h-44 animate-pulse motion-reduce:animate-none" />
 
             </div>
         );
@@ -393,25 +434,16 @@ function handleFieldChange(e) {
     if (!patient) {
 
         return (
-            <div className="mx-auto max-w-6xl">
+            <div className="mx-auto max-w-6xl space-y-5">
 
-                <div className="rd-panel p-10 text-center">
+                {backToPatients}
 
-                    <p className="font-medium text-rd-title">
-                        Patient not found
-                    </p>
-
-                    <p className="mt-1 text-sm text-rd-muted">
-                        The requested patient could not be loaded.
-                    </p>
-
-                    <Link
-                        href="/dashboard/doctor/patients"
-                        className="rd-btn rd-press rd-focus mt-5 inline-flex"
-                    >
-                        Back to Patients
-                    </Link>
-
+                <div className="rd-panel overflow-hidden">
+                    <EmptyState
+                        title="Patient not found"
+                        hint="The requested patient could not be loaded."
+                        Icon={FileTextIcon}
+                    />
                 </div>
 
             </div>
@@ -425,32 +457,37 @@ function handleFieldChange(e) {
 
             {/* HEADER */}
 
-            <header className="rd-panel p-6">
+            {backToPatients}
 
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <header className="rd-panel relative overflow-hidden p-6">
 
-                    <div>
+                <HeaderGlow />
+
+                <div className="relative flex flex-wrap items-center gap-4">
+
+                    <Avatar name={patient.name} className="size-14 text-base" />
+
+                    <div className="min-w-0">
 
                         <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
-                            Doctor
+                            Patient record
                         </p>
 
-                        <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">
+                        <h1 className="mt-1.5 truncate text-2xl font-bold tracking-tight text-rd-title">
                             {patient.name}
                         </h1>
 
                         <p className="mt-1 text-sm text-rd-muted">
-                            Patient ID #{patient.patientid}
+                            {[
+                                `ID #${patient.patientid}`,
+                                patient.age ? `${patient.age} yrs` : null,
+                                patient.sex,
+                            ]
+                                .filter(Boolean)
+                                .join(" · ")}
                         </p>
 
                     </div>
-
-                    <Link
-                        href="/dashboard/doctor/patients"
-                        className="rd-press rd-focus inline-flex min-h-10 items-center justify-center rounded-xl border border-rd-hair-strong bg-rd-sunken px-4 text-sm font-medium text-rd-label hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan"
-                    >
-                        Back to Patients
-                    </Link>
 
                 </div>
 
@@ -461,100 +498,55 @@ function handleFieldChange(e) {
 
             <section className="rd-panel overflow-hidden">
 
-                <div className="border-b border-rd-hair bg-rd-sunken px-6 py-4">
+                <div className="border-b border-rd-hair p-4">
 
-                    <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-rd-cyan">
-                        Patient Information
+                    <h2 className="text-lg font-semibold text-rd-title">
+                        Patient information
                     </h2>
 
+                    <p className="mt-0.5 text-sm text-rd-muted">
+                        Demographics and contact details on file.
+                    </p>
+
                 </div>
 
-                <div className="grid gap-x-10 gap-y-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
+                <dl className="grid gap-x-10 gap-y-6 p-4 sm:grid-cols-2 lg:grid-cols-3">
 
-                    <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
-                            Full Name
-                        </p>
-
-                        <p className="mt-1 text-sm font-medium text-rd-title">
-                            {patient.name}
-                        </p>
-                    </div>
-
-                    <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
-                            Birthdate
-                        </p>
-
-                        <p className="mt-1 text-sm text-rd-label">
-                            {patient.birthdate
+                    {[
+                        { label: "Full name", value: patient.name, strong: true },
+                        {
+                            label: "Birthdate",
+                            value: patient.birthdate
                                 ? new Date(patient.birthdate).toLocaleDateString()
-                                : "—"
-                            }
-                        </p>
-                    </div>
+                                : null,
+                        },
+                        { label: "Age", value: patient.age ? `${patient.age} years old` : null },
+                        { label: "Sex", value: patient.sex },
+                        { label: "Civil status", value: patient.civilStatus },
+                        { label: "Mobile number", value: patient.mobilenum },
+                        { label: "Email", value: patient.email, wrap: true },
+                        { label: "Address", value: patient.address, span: true },
+                    ].map(({ label, value, strong, wrap, span }) => (
 
-                    <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
-                            Age
-                        </p>
+                        <div key={label} className={span ? "sm:col-span-2" : undefined}>
 
-                        <p className="mt-1 text-sm text-rd-label">
-                            {patient.age} years old
-                        </p>
-                    </div>
+                            <dt className="text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
+                                {label}
+                            </dt>
 
-                    <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
-                            Sex
-                        </p>
+                            <dd
+                                className={`mt-1 text-sm ${
+                                    strong ? "font-medium text-rd-title" : "text-rd-label"
+                                } ${wrap ? "break-words" : ""}`}
+                            >
+                                {value || <span className="text-rd-muted">—</span>}
+                            </dd>
 
-                        <p className="mt-1 text-sm text-rd-label">
-                            {patient.sex || "—"}
-                        </p>
-                    </div>
+                        </div>
 
-                    <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
-                            Civil Status
-                        </p>
+                    ))}
 
-                        <p className="mt-1 text-sm text-rd-label">
-                            {patient.civilStatus || "—"}
-                        </p>
-                    </div>
-
-                    <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
-                            Mobile Number
-                        </p>
-
-                        <p className="mt-1 text-sm text-rd-label">
-                            {patient.mobilenum || "—"}
-                        </p>
-                    </div>
-
-                    <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
-                            Email
-                        </p>
-
-                        <p className="mt-1 break-words text-sm text-rd-label">
-                            {patient.email || "—"}
-                        </p>
-                    </div>
-
-                    <div className="sm:col-span-2">
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
-                            Address
-                        </p>
-
-                        <p className="mt-1 text-sm text-rd-label">
-                            {patient.address || "—"}
-                        </p>
-                    </div>
-
-                </div>
+                </dl>
 
             </section>
 
@@ -562,46 +554,56 @@ function handleFieldChange(e) {
 
             {/* VISIT SUMMARY */}
 
-            <section className="grid gap-5 sm:grid-cols-3">
+            <section className="grid gap-4 sm:grid-cols-3">
 
-                <div className="rd-panel p-5">
+                {[
+                    {
+                        label: "Total visits",
+                        value: visits.length,
+                        hint: "Recorded encounters",
+                        Icon: CalendarIcon,
+                        chip: "bg-cyan-500/12 text-cyan-600",
+                    },
+                    {
+                        label: "Last visit",
+                        value:
+                            visits.length > 0
+                                ? new Date(visits[0].visited_at).toLocaleDateString()
+                                : "—",
+                        hint: visits.length > 0 ? "Most recent encounter" : "No visits yet",
+                        Icon: ClockIcon,
+                        chip: "bg-amber-500/12 text-amber-600",
+                    },
+                    {
+                        label: "Patient ID",
+                        value: `#${patient.patientid}`,
+                        hint: "Internal record number",
+                        Icon: FlaskIcon,
+                        chip: "bg-emerald-500/12 text-emerald-600",
+                    },
+                ].map(({ label, value, hint, Icon, chip }) => (
 
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
-                        Total Visits
-                    </p>
+                    <article key={label} className="rd-panel p-5">
 
-                    <p className="mt-2 text-2xl font-bold tabular-nums text-rd-title">
-                        {visits.length}
-                    </p>
+                        <div className="flex items-start justify-between gap-3">
 
-                </div>
+                            <p className="text-sm font-medium text-rd-label">{label}</p>
 
-                <div className="rd-panel p-5">
+                            <span className={`grid size-10 flex-none place-items-center rounded-xl ${chip}`}>
+                                <Icon size={20} />
+                            </span>
 
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
-                        Last Visit
-                    </p>
+                        </div>
 
-                    <p className="mt-2 text-sm font-medium text-rd-title">
-                        {visits.length > 0
-                            ? new Date(visits[0].visited_at).toLocaleDateString()
-                            : "No visits"
-                        }
-                    </p>
+                        <p className="mt-4 truncate text-2xl font-bold tabular-nums tracking-tight text-rd-title">
+                            {value}
+                        </p>
 
-                </div>
+                        <p className="mt-1 text-sm text-rd-muted">{hint}</p>
 
-                <div className="rd-panel p-5">
+                    </article>
 
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
-                        Patient ID
-                    </p>
-
-                    <p className="mt-2 text-2xl font-bold tabular-nums text-rd-title">
-                        #{patient.patientid}
-                    </p>
-
-                </div>
+                ))}
 
             </section>
 
@@ -610,15 +612,15 @@ function handleFieldChange(e) {
 
             <section className="rd-panel overflow-hidden">
 
-                <div className="flex flex-col gap-2 border-b border-rd-hair bg-rd-sunken px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-rd-hair p-4">
 
                     <div>
 
-                        <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-rd-cyan">
-                            Visit History
+                        <h2 className="text-lg font-semibold text-rd-title">
+                            Visit history
                         </h2>
 
-                        <p className="mt-1 text-xs text-rd-muted">
+                        <p className="mt-0.5 text-sm text-rd-muted">
                             Previous visits and laboratory requests.
                         </p>
 
@@ -633,43 +635,29 @@ function handleFieldChange(e) {
 
                 {visits.length === 0 ? (
 
-                    <div className="p-10 text-center">
-
-                        <p className="text-sm font-medium text-rd-title">
-                            No visit history
-                        </p>
-
-                        <p className="mt-1 text-sm text-rd-muted">
-                            This patient has no recorded visits.
-                        </p>
-
-                    </div>
+                    <EmptyState
+                        title="No visit history"
+                        hint="This patient has no recorded visits."
+                        Icon={CalendarIcon}
+                    />
 
                 ) : (
 
-                    <div className="overflow-x-auto">
+                    <div className="rd-scroll-thin overflow-x-auto">
 
-                        <table className="w-full">
+                        <table className="w-full min-w-[560px]">
 
                             <thead>
 
                                 <tr className="border-b border-rd-hair">
 
-                                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                        Visit
-                                    </th>
+                                    <th className={th}>Visit</th>
 
-                                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                        Date
-                                    </th>
+                                    <th className={th}>Date</th>
 
-                                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                        Time
-                                    </th>
+                                    <th className={th}>Time</th>
 
-                                    <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                        Action
-                                    </th>
+                                    <th className={`${th} text-right`}>Action</th>
 
                                 </tr>
 
@@ -690,28 +678,30 @@ function handleFieldChange(e) {
                                             className="border-b border-rd-hair last:border-0 transition-colors hover:bg-rd-raised"
                                         >
 
-                                            <td className="px-6 py-4 text-sm font-medium text-rd-title">
+                                            <td className={`${td} font-medium text-rd-title`}>
                                                 Visit #{visits.length - index}
                                             </td>
 
-                                            <td className="px-6 py-4 text-sm text-rd-label">
+                                            <td className={`${td} tabular-nums`}>
                                                 {date.toLocaleDateString()}
                                             </td>
 
-                                            <td className="px-6 py-4 text-sm tabular-nums text-rd-label">
+                                            <td className={`${td} tabular-nums`}>
                                                 {date.toLocaleTimeString([], {
                                                     hour: "2-digit",
                                                     minute: "2-digit"
                                                 })}
                                             </td>
 
-                                            <td className="px-6 py-4 text-right">
+                                            <td className={`${td} text-right`}>
 
                                                 <Link
                                                     href={`/dashboard/doctor/visitation/${visit.visitid}`}
-                                                    className="rd-press rd-focus inline-flex min-h-10 items-center rounded-xl border border-rd-hair-strong bg-rd-sunken px-3.5 text-sm font-medium text-rd-label hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan"
+                                                    aria-label={`View visit on ${date.toLocaleDateString()}`}
+                                                    className={rowAction}
                                                 >
-                                                    View Visit
+                                                    View visit
+                                                    <ChevronRightIcon size={16} />
                                                 </Link>
 
                                             </td>
@@ -734,27 +724,36 @@ function handleFieldChange(e) {
 
             {/* TEST HISTORY */}
 
-            <section className="rd-panel p-5">
+            <section className="rd-panel overflow-hidden">
 
-                <h2 className="text-lg font-semibold text-rd-title">
-                    Test History
-                </h2>
+                <div className="border-b border-rd-hair p-4">
 
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                    <h2 className="text-lg font-semibold text-rd-title">
+                        Test history
+                    </h2>
 
-                    <div>
+                    <p className="mt-0.5 text-sm text-rd-muted">
+                        Pick a test and a value to trace it across every visit.
+                    </p>
 
-                        <label className="text-sm font-medium text-rd-label">
+                </div>
+
+                <div className="grid gap-4 p-4 sm:grid-cols-2">
+
+                    <label className="block">
+
+                        <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
                             Test
-                        </label>
+                        </span>
 
                         <select
                             value={selectedTest?.id ?? ""}
                             onChange={handleTestChange}
-                            className="mt-1 w-full rounded-xl border border-rd-hair-strong bg-rd-field px-4 py-3"
+                            data-empty={!selectedTest}
+                            className="rd-input"
                         >
 
-                            <option value="">
+                            <option value="" disabled hidden>
                                 Select a test
                             </option>
 
@@ -771,24 +770,24 @@ function handleFieldChange(e) {
 
                         </select>
 
-                    </div>
+                    </label>
 
+                    <label className="block">
 
-                    <div>
-
-                        <label className="text-sm font-medium text-rd-label">
+                        <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
                             Value
-                        </label>
+                        </span>
 
                         <select
                             value={selectedField ?? ""}
                             onChange={handleFieldChange}
                             disabled={!selectedTest}
-                            className="mt-1 w-full rounded-xl border border-rd-hair-strong bg-rd-field px-4 py-3 disabled:opacity-50"
+                            data-empty={!selectedField}
+                            className="rd-input"
                         >
 
-                            <option value="">
-                                Select a value
+                            <option value="" disabled hidden>
+                                {selectedTest ? "Select a value" : "Choose a test first"}
                             </option>
 
                             {selectedTest?.fields.map(field => (
@@ -804,86 +803,127 @@ function handleFieldChange(e) {
 
                         </select>
 
-                    </div>
+                    </label>
 
                 </div>
 
+            </section>
 
-                {selectedField && (
 
-                    <div className="mt-5">
+            {!selectedField ? (
 
-                        {loadingHistory ? (
+                <section className="rd-panel">
+                    <EmptyState
+                        title="No value selected"
+                        hint="Choose a test and a value above to plot its history."
+                        Icon={FlaskIcon}
+                    />
+                </section>
 
-                            <p className="text-sm text-rd-muted">
-                                Loading history...
-                            </p>
+            ) : loadingHistory || chartLoading ? (
 
-                        ) : history.length === 0 ? (
+                <section className="rd-panel overflow-hidden">
+                    <div className="h-16 animate-pulse bg-rd-raised motion-reduce:animate-none" />
+                    <div className="p-4">
+                        <div className="h-64 animate-pulse rounded-xl bg-rd-raised motion-reduce:animate-none" />
+                    </div>
+                </section>
 
-                            <p className="text-sm text-rd-muted">
-                                No historical data available.
-                            </p>
+            ) : isNumeric && chartData.length > 0 ? (
 
-) : isNumeric ? (
+                <PatientTestChart
+                    data={chartData}
+                    title={
+                        selectedTest?.fields.find(
+                            field => field.value === selectedField
+                        )?.label
+                    }
+                />
 
-    chartLoading ? (
+            ) : (
 
-        <p className="text-sm text-rd-muted">
-            Loading chart...
-        </p>
+                <section className="rd-panel overflow-hidden">
 
-    ) : chartData.length === 0 ? (
+                    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-rd-hair p-4">
 
-        <p className="text-sm text-rd-muted">
-            No chart data available.
-        </p>
+                        <h2 className="text-lg font-semibold text-rd-title">
+                            {selectedTest?.fields.find(
+                                field => field.value === selectedField
+                            )?.label}
+                        </h2>
 
-    ) : (
-
-        <PatientTestChart
-            data={chartData}
-            title={
-                selectedTest?.fields.find(
-                    field => field.value === selectedField
-                )?.label
-            }
-        />
-
-    )
-
-) : (
-
-                            <div className="space-y-2">
-
-                                {history.map((item, index) => (
-
-                                    <div
-                                        key={index}
-                                        className="flex items-center justify-between rounded-xl border border-rd-hair bg-rd-sunken p-4"
-                                    >
-
-                                        <span className="text-sm text-rd-muted">
-                                            {new Date(item.date).toLocaleDateString()}
-                                        </span>
-
-                                        <span className="font-medium text-rd-title">
-                                            {item.value}
-                                        </span>
-
-                                    </div>
-
-                                ))}
-
-                            </div>
-
-                        )}
+                        <span className="text-sm text-rd-muted">
+                            {history.length} {history.length === 1 ? "reading" : "readings"}
+                        </span>
 
                     </div>
 
-                )}
+                    {chartError && (
+                        <p className="rd-status rd-status--error m-4">
+                            The trend chart could not be loaded. Showing the recorded readings instead.
+                        </p>
+                    )}
 
-            </section>
+                    {history.length === 0 ? (
+
+                        <EmptyState
+                            title="No historical data"
+                            hint="Results for this value appear here once they are recorded."
+                            Icon={FlaskIcon}
+                        />
+
+                    ) : (
+
+                        <div className="rd-scroll-thin overflow-x-auto">
+
+                            <table className="w-full">
+
+                                <thead>
+
+                                    <tr className="border-b border-rd-hair">
+
+                                        <th className={th}>Date</th>
+
+                                        <th className={th}>Result</th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                    {history.map((item, index) => (
+
+                                        <tr
+                                            key={index}
+                                            className="border-b border-rd-hair transition-colors last:border-0 hover:bg-rd-raised"
+                                        >
+
+                                            <td className={`${td} tabular-nums`}>
+                                                {new Date(item.date).toLocaleDateString()}
+                                            </td>
+
+                                            <td className={`${td} font-medium text-rd-title`}>
+                                                {item.value || (
+                                                    <span className="text-rd-muted">—</span>
+                                                )}
+                                            </td>
+
+                                        </tr>
+
+                                    ))}
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    )}
+
+                </section>
+
+            )}
 
 
 

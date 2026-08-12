@@ -3,6 +3,31 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+import {
+    Avatar,
+    ChevronRightIcon,
+    EmptyState,
+    HeaderGlow,
+    SearchIcon,
+    TableSkeleton,
+    rowAction,
+    td,
+    th,
+} from "../_ui";
+
+function lastVisitLabel(value) {
+    if (!value) return null;
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return null;
+
+    return date.toLocaleDateString([], {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+    });
+}
+
 export default function DoctorPatientsPage() {
 
     const [patients, setPatients] = useState([]);
@@ -39,250 +64,218 @@ export default function DoctorPatientsPage() {
 
     }
 
-    const filteredPatients = patients.filter(patient => {
+    const rows = Array.isArray(patients) ? patients : [];
 
-        const searchValue = search.toLowerCase();
+    const searchValue = search.trim().toLowerCase();
 
-        return (
-            patient.name?.toLowerCase().includes(searchValue) ||
-            String(patient.patientid).includes(searchValue)
-        );
-
-    });
+    const filteredPatients = !searchValue
+        ? rows
+        : rows.filter((patient) =>
+              String(patient.name ?? "").toLowerCase().includes(searchValue) ||
+              String(patient.patientid).includes(searchValue)
+          );
 
     return (
 
-        <div className="mx-auto max-w-6xl space-y-5">
+        <div className="mx-auto flex max-w-6xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
 
-            {/* HEADER */}
+            <header className="rd-panel relative flex-none overflow-hidden p-6">
 
-            <header className="rd-panel p-6">
+                <HeaderGlow />
 
-                <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
-                    Doctor
-                </p>
+                <div className="relative">
 
-                <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">
-                    Patients
-                </h1>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
+                        Doctor
+                    </p>
 
-                <p className="mt-2 text-sm text-rd-muted">
-                    View patient information, laboratory results, and visit history.
-                </p>
+                    <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">
+                        Patients
+                    </h1>
 
-            </header>
-
-
-            {/* SEARCH */}
-
-            <div className="rd-panel p-5">
-
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-
-                    <div className="relative w-full sm:max-w-md">
-
-                        <input
-                            type="text"
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
-                            placeholder="Search patient name or ID..."
-                            className="w-full rounded-xl border border-rd-hair-strong bg-rd-field px-4 py-3 text-sm text-rd-title outline-none transition focus:border-rd-cyan"
-                        />
-
-                    </div>
-
-                    <p className="text-sm text-rd-muted">
-                        {filteredPatients.length} patient
-                        {filteredPatients.length !== 1 ? "s" : ""}
+                    <p className="mt-2 text-sm text-rd-muted">
+                        View patient information, laboratory results, and visit history.
                     </p>
 
                 </div>
 
-            </div>
+            </header>
 
+            <section className="rd-panel flex min-h-0 flex-1 flex-col overflow-hidden">
 
-            {/* PATIENT LIST */}
+                <div className="flex flex-none flex-wrap items-center justify-between gap-4 border-b border-rd-hair p-4">
 
-            <div className="rd-panel overflow-hidden">
+                    <div>
 
-                {loading ? (
+                        <h2 className="text-lg font-semibold text-rd-title">
+                            Patient records
+                        </h2>
 
-                    <div className="space-y-3 p-5">
-
-                        <div className="h-16 animate-pulse rounded-xl bg-rd-sunken" />
-                        <div className="h-16 animate-pulse rounded-xl bg-rd-sunken" />
-                        <div className="h-16 animate-pulse rounded-xl bg-rd-sunken" />
-
-                    </div>
-
-                ) : filteredPatients.length === 0 ? (
-
-                    <div className="p-10 text-center">
-
-                        <p className="text-sm font-medium text-rd-title">
-                            No patients found
-                        </p>
-
-                        <p className="mt-1 text-sm text-rd-muted">
-                            Try a different search term.
+                        <p className="mt-0.5 text-sm text-rd-muted">
+                            {loading
+                                ? "Loading records…"
+                                : `${filteredPatients.length} of ${rows.length} ${
+                                      rows.length === 1 ? "patient" : "patients"
+                                  }`}
                         </p>
 
                     </div>
 
-                ) : (
+                    <div className="relative w-full sm:w-72">
 
-                    <div className="overflow-x-auto">
+                        <span
+                            aria-hidden="true"
+                            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-rd-placeholder"
+                        >
+                            <SearchIcon />
+                        </span>
 
-                        <table className="w-full">
+                        <input
+                            type="search"
+                            aria-label="Search patients"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder="Search name or ID…"
+                            className="rd-input pl-11"
+                        />
+
+                    </div>
+
+                </div>
+
+                <div className="rd-scroll-thin min-h-0 flex-1 overflow-auto">
+
+                    {loading ? (
+
+                        <TableSkeleton rows={5} />
+
+                    ) : filteredPatients.length === 0 ? (
+
+                        <EmptyState
+                            title="No patients found"
+                            hint={
+                                searchValue
+                                    ? "No name or ID matches that search."
+                                    : "Registered patients appear here."
+                            }
+                        />
+
+                    ) : (
+
+                        <table className="w-full min-w-[860px] border-collapse">
 
                             <thead>
 
-                                <tr className="border-b border-rd-hair bg-rd-sunken">
+                                <tr className="border-b border-rd-hair">
 
-                                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                        Patient
-                                    </th>
+                                    <th className={th}>Patient</th>
 
-                                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                        Patient ID
-                                    </th>
+                                    <th className={th}>ID</th>
 
-                                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                        Age / Sex
-                                    </th>
+                                    <th className={th}>Age / Sex</th>
 
-                                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                        Last Visit
-                                    </th>
+                                    <th className={th}>Last visit</th>
 
-                                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                        Visits
-                                    </th>
+                                    <th className={th}>Visits</th>
 
-                                    <th className="px-5 py-4 text-right text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                        Actions
+                                    <th className={`${th} text-right`}>
+                                        <span className="sr-only">Actions</span>
                                     </th>
 
                                 </tr>
 
                             </thead>
 
-
                             <tbody>
 
-                                {filteredPatients.map(patient => (
+                                {filteredPatients.map((patient) => {
 
-                                    <tr
-                                        key={patient.patientid}
-                                        className="border-b border-rd-hair last:border-0 transition-colors hover:bg-rd-raised"
-                                    >
+                                    const lastVisit = lastVisitLabel(patient.lastvisited);
 
-                                        {/* NAME */}
+                                    return (
 
-                                        <td className="px-5 py-4">
+                                        <tr
+                                            key={patient.patientid}
+                                            className="border-b border-rd-hair transition-colors last:border-0 hover:bg-rd-raised"
+                                        >
 
-                                            <div>
+                                            <td className={td}>
 
-                                                <p className="font-medium text-rd-title">
-                                                    {patient.name}
-                                                </p>
+                                                <div className="flex items-center gap-3">
 
-                                                {patient.address && (
+                                                    <Avatar name={patient.name} />
 
-                                                    <p className="mt-1 max-w-xs truncate text-xs text-rd-muted">
-                                                        {patient.address}
-                                                    </p>
+                                                    <div className="min-w-0">
 
+                                                        <p className="truncate font-medium text-rd-title">
+                                                            {patient.name}
+                                                        </p>
+
+                                                        {patient.address && (
+                                                            <p className="mt-0.5 max-w-[22ch] truncate text-xs text-rd-muted">
+                                                                {patient.address}
+                                                            </p>
+                                                        )}
+
+                                                    </div>
+
+                                                </div>
+
+                                            </td>
+
+                                            <td className={`${td} tabular-nums text-rd-muted`}>
+                                                #{patient.patientid}
+                                            </td>
+
+                                            <td className={td}>
+                                                {[
+                                                    patient.age ? `${patient.age} yrs` : null,
+                                                    patient.sex,
+                                                ]
+                                                    .filter(Boolean)
+                                                    .join(" · ") || "—"}
+                                            </td>
+
+                                            <td className={`${td} tabular-nums`}>
+                                                {lastVisit ?? (
+                                                    <span className="text-rd-muted">No visits</span>
                                                 )}
+                                            </td>
 
-                                            </div>
-
-                                        </td>
-
-
-                                        {/* ID */}
-
-                                        <td className="px-5 py-4 text-sm tabular-nums text-rd-label">
-
-                                            #{patient.patientid}
-
-                                        </td>
-
-
-                                        {/* AGE / SEX */}
-
-                                        <td className="px-5 py-4 text-sm text-rd-label">
-
-                                            <div className="flex flex-col">
-
-                                                <span>
-                                                    {patient.age} years old
+                                            <td className={td}>
+                                                <span className="inline-flex min-w-8 items-center justify-center rounded-full border border-rd-hair-strong bg-rd-raised px-2.5 py-1 text-xs font-medium tabular-nums text-rd-label">
+                                                    {patient.visitcount ?? 0}
                                                 </span>
+                                            </td>
 
-                                                <span className="text-xs text-rd-muted">
-                                                    {patient.sex}
-                                                </span>
-
-                                            </div>
-
-                                        </td>
-
-
-                                        {/* LAST VISIT */}
-
-                                        <td className="px-5 py-4 text-sm text-rd-label">
-
-                                            {patient.lastvisited
-                                                ? new Date(patient.lastvisited).toLocaleDateString()
-                                                : "No visits"
-                                            }
-
-                                        </td>
-
-
-                                        {/* VISITS */}
-
-                                        <td className="px-5 py-4">
-
-                                            <span className="inline-flex items-center rounded-full border border-rd-hair-strong bg-rd-raised px-2.5 py-1 text-xs font-medium text-rd-label">
-
-                                                {patient.visitcount ?? 0}
-
-                                            </span>
-
-                                        </td>
-
-
-                                        {/* ACTIONS */}
-
-                                        <td className="px-5 py-4">
-
-                                            <div className="flex justify-end gap-2">
+                                            <td className={`${td} text-right`}>
 
                                                 <Link
                                                     href={`/dashboard/doctor/patients/${patient.patientid}`}
-                                                    className="rd-press rd-focus inline-flex min-h-10 items-center rounded-xl border border-rd-hair-strong bg-rd-sunken px-3.5 text-sm font-medium text-rd-label transition hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan"
+                                                    aria-label={`Open the record for ${patient.name}`}
+                                                    className={rowAction}
                                                 >
-                                                    Details & History
+                                                    Open record
+                                                    <ChevronRightIcon size={16} />
                                                 </Link>
 
-                                            </div>
+                                            </td>
 
-                                        </td>
+                                        </tr>
 
-                                    </tr>
+                                    );
 
-                                ))}
+                                })}
 
                             </tbody>
 
                         </table>
 
-                    </div>
+                    )}
 
-                )}
+                </div>
 
-            </div>
+            </section>
 
         </div>
 

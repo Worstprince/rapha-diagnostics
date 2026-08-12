@@ -130,11 +130,11 @@ export const toneDot = {
 };
 
 export const toneBar = {
-    cyan: "bg-cyan-500/60",
-    emerald: "bg-emerald-500/60",
-    amber: "bg-amber-500/60",
-    violet: "bg-violet-500/60",
-    rose: "bg-rose-500/60",
+    cyan: "bg-cyan-500/70",
+    emerald: "bg-emerald-500/70",
+    amber: "bg-amber-500/70",
+    violet: "bg-violet-500/70",
+    rose: "bg-rose-500/70",
     neutral: "bg-rd-hair-strong",
 };
 
@@ -191,10 +191,10 @@ export const th =
 export const td = "px-5 py-4 text-sm text-rd-label";
 
 export const rowAction =
-    "rd-press rd-focus inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-rd-hair-strong bg-rd-sunken px-3.5 text-sm font-medium text-rd-label hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan-strong hover:shadow-[0_0_18px_-6px_rgba(34,211,238,0.5)]";
+    "rd-press rd-focus inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-xl border border-rd-hair-strong bg-rd-sunken px-3.5 text-sm font-medium text-rd-label hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan hover:shadow-[0_0_18px_-6px_rgba(34,211,238,0.5)]";
 
 export const quietAction =
-    "rd-press rd-focus inline-flex w-fit min-h-11 flex-none cursor-pointer items-center gap-1.5 rounded-xl border border-transparent px-3 text-sm font-medium text-rd-muted hover:border-rd-hair-strong hover:bg-rd-raised hover:text-rd-cyan-strong";
+    "rd-press rd-focus inline-flex w-fit min-h-11 flex-none cursor-pointer items-center gap-1.5 rounded-xl border border-transparent px-3 text-sm font-medium text-rd-muted hover:border-rd-hair-strong hover:bg-rd-raised hover:text-rd-cyan";
 
 export function ClearFilters({ count, onClear }) {
     if (count === 0) return null;
@@ -217,7 +217,7 @@ export function ClearFilters({ count, onClear }) {
 export function PageHeader({ title, description }) {
     return (
         <header className="rd-panel flex-none p-6">
-            <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan-strong">
+            <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
                 Admin
             </p>
             <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">{title}</h1>
@@ -258,8 +258,8 @@ export function FilterToggle({ open, count, controls, onClick }) {
             aria-controls={controls}
             className={`rd-press rd-focus inline-flex min-h-11 flex-none cursor-pointer items-center justify-center gap-2 rounded-xl border px-4 text-sm font-medium ${
                 lit
-                    ? "border-rd-cyan/50 bg-rd-cyan/10 text-rd-cyan-strong shadow-[0_0_18px_-6px_rgba(34,211,238,0.5)]"
-                    : "border-rd-hair-strong bg-rd-sunken text-rd-label hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan-strong hover:shadow-[0_0_18px_-6px_rgba(34,211,238,0.5)]"
+                    ? "border-rd-cyan/50 bg-rd-cyan/10 text-rd-cyan shadow-[0_0_18px_-6px_rgba(34,211,238,0.5)]"
+                    : "border-rd-hair-strong bg-rd-sunken text-rd-label hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan hover:shadow-[0_0_18px_-6px_rgba(34,211,238,0.5)]"
             }`}
         >
             <FilterIcon size={16} />
@@ -267,7 +267,7 @@ export function FilterToggle({ open, count, controls, onClick }) {
             Filters
 
             {count > 0 && (
-                <span className="grid size-5 flex-none place-items-center rounded-full border border-rd-cyan/40 bg-rd-cyan/15 text-[11px] font-bold tabular-nums text-rd-cyan-strong">
+                <span className="grid size-5 flex-none place-items-center rounded-full border border-rd-cyan/40 bg-rd-cyan/15 text-[11px] font-bold tabular-nums text-rd-cyan">
                     {count}
                 </span>
             )}

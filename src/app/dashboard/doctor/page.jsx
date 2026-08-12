@@ -183,7 +183,7 @@ export default function DoctorDashboardPage() {
                         <h2 className="text-lg font-semibold text-rd-title">Priority patients</h2>
 
                         {!loading && urgent.length > 0 && (
-                            <span className="grid min-w-6 place-items-center rounded-full border border-red-500/45 bg-red-500/12 px-1.5 py-0.5 text-xs font-bold tabular-nums text-rd-title">
+                            <span className="grid min-w-6 place-items-center rounded-full border border-red-500/50 bg-red-500/14 px-1.5 py-0.5 text-xs font-bold tabular-nums text-rd-title">
                                 {urgent.length}
                             </span>
                         )}
