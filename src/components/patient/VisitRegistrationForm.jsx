@@ -42,6 +42,13 @@ export default function VisitRegistrationForm() {
     return `${selectedTests.length} selected`;
   }, [selectedTests]);
 
+  const totalCost = useMemo(() => {
+  return selectedTests.reduce(
+    (total, test) => total + Number(test.price || 0),
+    0
+  );
+}, [selectedTests]);
+
   const filteredDoctors = useMemo(() => {
     if (doctorSearch.trim() === "") return doctors;
     const term = doctorSearch.toLowerCase();
@@ -478,66 +485,132 @@ export default function VisitRegistrationForm() {
           </label>
         </div>
 
-        <div className="rounded-[1.75rem] border border-rd-hair bg-rd-sunken p-6">
-          <div className="flex items-center justify-between gap-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-rd-muted">Tests requested</p>
-            <span className="text-sm text-rd-muted">{selectedCountLabel}</span>
+<div className="rounded-[1.75rem] border border-rd-hair bg-rd-sunken p-6">
+
+  <div className="flex items-center justify-between gap-4">
+
+    <p className="text-xs font-semibold uppercase tracking-[0.35em] text-rd-muted">
+      Tests requested
+    </p>
+
+    <span className="text-sm text-rd-muted">
+      {selectedCountLabel}
+    </span>
+
+  </div>
+
+
+  <div className="relative mt-4">
+
+    <input
+      type="text"
+      value={testSearch}
+      onChange={(e) => setTestSearch(e.target.value)}
+      placeholder="Search tests to add..."
+      className="w-full rounded-3xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+    />
+
+    {testSearch.trim() !== "" && (
+
+      <ul className="absolute z-10 mt-1 max-h-64 w-full overflow-y-auto rounded-2xl border border-slate-800 bg-slate-900 shadow-lg">
+
+        {filteredTests.map((test) => (
+
+          <li
+            key={test.id}
+            onClick={() => {
+              handleAddTest(test);
+              setTestSearch("");
+            }}
+            className="flex cursor-pointer items-center justify-between px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
+          >
+
+            <span className="uppercase">
+              {test.name}
+            </span>
+
+            <span className="text-rd-muted">
+              ₱{Number(test.price || 0).toFixed(2)}
+            </span>
+
+          </li>
+
+        ))}
+
+        {filteredTests.length === 0 && (
+          <li className="px-4 py-2 text-sm text-slate-500">
+            No tests found.
+          </li>
+        )}
+
+      </ul>
+
+    )}
+
+  </div>
+
+
+  <div className="mt-6 rounded-3xl border border-dashed border-rd-hair-strong bg-rd-sunken p-6 text-sm text-rd-muted">
+
+    {selectedTests.length === 0 ? (
+
+      "No tests selected yet. Select a test from the catalog to assign it to this visit."
+
+    ) : (
+
+      <div className="space-y-2">
+
+        {selectedTests.map((test) => (
+
+          <div
+            key={test.id}
+            className="flex items-center justify-between rounded-2xl bg-slate-900/70 px-4 py-3 text-slate-200"
+          >
+
+            <div>
+
+              <p className="font-medium uppercase">
+                {test.name}
+              </p>
+
+              <p className="mt-1 text-xs text-rd-muted">
+                ₱{Number(test.price || 0).toFixed(2)}
+              </p>
+
+            </div>
+
+            <button
+              type="button"
+              onClick={() => handleRemoveTest(test.id)}
+              className="text-slate-500 hover:text-rose-400"
+            >
+              Remove
+            </button>
+
           </div>
 
-          <div className="relative mt-4">
-            <input
-              type="text"
-              value={testSearch}
-              onChange={(e) => setTestSearch(e.target.value)}
-              placeholder="Search tests to add..."
-              className="w-full rounded-3xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
-            />
+        ))}
 
-            {testSearch.trim() !== "" && (
-              <ul className="absolute z-10 mt-1 max-h-64 w-full overflow-y-auto rounded-2xl border border-slate-800 bg-slate-900 shadow-lg">
-                {filteredTests.map((test) => (
-                  <li
-                    key={test.id}
-                    onClick={() => {
-                      handleAddTest(test);
-                      setTestSearch("");
-                    }}
-                    className="cursor-pointer px-4 py-2 text-sm text-slate-200 uppercase hover:bg-slate-800"
-                  >
-                    {test.name}
-                  </li>
-                ))}
-                {filteredTests.length === 0 && (
-                  <li className="px-4 py-2 text-sm text-slate-500">No tests found.</li>
-                )}
-              </ul>
-            )}
-          </div>
+      </div>
 
-          <div className="mt-6 rounded-3xl border border-dashed border-rd-hair-strong bg-rd-sunken p-6 text-sm text-rd-muted">
-            {selectedTests.length === 0 ? (
-              "No tests selected yet. Select a test from the catalog to assign it to this visit."
-            ) : (
-              <ul className="space-y-2">
-                {selectedTests.map((test) => (
-                  <li
-                    key={test.id}
-                    className="flex items-center justify-between rounded-2xl bg-slate-900/70 px-4 py-2 text-slate-200 uppercase"
-                  >
-                    {test.name}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTest(test.id)}
-                      className="text-slate-500 hover:text-rose-400"
-                    >
-                      Remove
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
+    )}
+
+  </div>
+
+
+  <div className="mt-4 flex items-center justify-between rounded-3xl border border-rd-hair bg-rd-raised px-6 py-4">
+
+    <span className="text-sm font-medium text-rd-label">
+      Total Cost
+    </span>
+
+    <span className="text-2xl font-semibold tabular-nums text-rd-title">
+      ₱{totalCost.toFixed(2)}
+    </span>
+
+  </div>
+
+</div>
           {submitError && (
           <p className="mb-3 text-right text-sm text-rose-400">{submitError}</p>
           )}
