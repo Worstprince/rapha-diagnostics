@@ -19,7 +19,7 @@ export async function GET(request) {
                 v.priority 
             FROM tblpatients
             INNER JOIN tblpatientvisitation as v ON v.patientid = tblpatients.id
-            WHERE CONCAT(fname, ' ', lname) LIKE ?;
+            WHERE CONCAT(fname, ' ', lname) LIKE ? AND v.status != 'Approved';
             `, [`%${search}%`]
         );
         return NextResponse.json(rows);
