@@ -19,7 +19,7 @@ const alerts = [
 ];
 
 const alertTone = {
-  warn: "border-amber-500/45 bg-amber-500/12",
+  warn: "border-amber-500/45 bg-amber-500/14",
   info: "border-rd-hair bg-rd-sunken",
 };
 

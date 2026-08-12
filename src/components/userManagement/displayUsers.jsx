@@ -25,24 +25,9 @@ function StatusPill({ archived }) {
 
     return (
 
-        <span
-            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${
-                archived
-                    ? "border-rd-hair-strong bg-rd-raised text-rd-label"
-                    : "border-emerald-500/40 bg-emerald-500/12 text-rd-title"
-            }`}
-        >
-
-            <span
-                aria-hidden="true"
-                className={`size-1.5 rounded-full ${
-                    archived ? "bg-rd-muted" : "bg-emerald-500"
-                }`}
-            />
-
+        <Badge tone={archived ? "neutral" : "emerald"}>
             {archived ? "Archived" : "Active"}
-
-        </span>
+        </Badge>
 
     );
 
