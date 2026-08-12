@@ -36,7 +36,9 @@ function StatusPill({ archived }) {
             <span
                 aria-hidden="true"
                 className={`size-1.5 rounded-full ${
-                    archived ? "bg-rd-muted" : "bg-emerald-500"
+                    archived
+                        ? "bg-rd-muted"
+                        : "bg-emerald-500"
                 }`}
             />
 
@@ -67,30 +69,102 @@ export default function DisplayUsers() {
 
     const [sort, setSort] = useState("");
 
+    const [page, setPage] = useState(1);
+
+    const [limit] = useState(10);
+
+    const [total, setTotal] = useState(0);
+
+    const [totalPages, setTotalPages] = useState(0);
+
+
+    const roles = [
+        "Administrator",
+        "Receptionist",
+        "Medical Technologist",
+        "Pathologist",
+    ];
+
 
     useEffect(() => {
 
         let cancelled = false;
 
-        (async () => {
+        async function fetchUsers() {
+
+            setLoading(true);
 
             try {
 
-                const response = await fetch("/api/users/display");
+                const params = new URLSearchParams();
+
+                params.set("page", page);
+                params.set("limit", limit);
+
+                if (search.trim()) {
+                    params.set(
+                        "search",
+                        search.trim()
+                    );
+                }
+
+                if (roleFilter) {
+                    params.set(
+                        "role",
+                        roleFilter
+                    );
+                }
+
+                if (statusFilter) {
+                    params.set(
+                        "status",
+                        statusFilter
+                    );
+                }
+
+                if (sort) {
+                    params.set(
+                        "sort",
+                        sort
+                    );
+                }
+
+                const response = await fetch(
+                    `/api/users/display?${params.toString()}`
+                );
 
                 const data = await response.json();
 
                 if (cancelled) return;
 
-                setUsers(
-                    Array.isArray(data)
-                        ? data
-                        : (data?.rows ?? [])
+                if (!response.ok) {
+                    throw new Error(
+                        data.message ||
+                        "Failed to fetch users."
+                    );
+                }
+
+                setUsers(data.rows ?? []);
+
+                setTotal(
+                    Number(data.total) || 0
+                );
+
+                setTotalPages(
+                    Number(data.totalPages) || 0
                 );
 
             } catch (error) {
 
                 console.error(error);
+
+                if (!cancelled) {
+
+                    setUsers([]);
+                    setTotal(0);
+                    setTotalPages(0);
+
+                }
 
             } finally {
 
@@ -100,97 +174,17 @@ export default function DisplayUsers() {
 
             }
 
-        })();
+        }
+
+        fetchUsers();
 
         return () => {
             cancelled = true;
         };
 
-    }, []);
-
-
-    const roles = useMemo(() => {
-
-        return [
-            ...new Set(
-                users
-                    .map(user => user.role)
-                    .filter(Boolean)
-            )
-        ];
-
-    }, [users]);
-
-
-    const filteredUsers = useMemo(() => {
-
-        const searchValue = search.trim().toLowerCase();
-
-        const filtered = users.filter(user => {
-
-            const matchesSearch =
-                !searchValue ||
-                String(user.id).toLowerCase().includes(searchValue) ||
-                String(user.username ?? "").toLowerCase().includes(searchValue) ||
-                String(user.role ?? "").toLowerCase().includes(searchValue) ||
-                roleLabel(user.role).toLowerCase().includes(searchValue);
-
-            const matchesRole =
-                !roleFilter ||
-                user.role === roleFilter;
-
-            const isArchived =
-                Boolean(user.archivestatus);
-
-            const matchesStatus =
-                !statusFilter ||
-                (statusFilter === "active" && !isArchived) ||
-                (statusFilter === "archived" && isArchived);
-
-            return (
-                matchesSearch &&
-                matchesRole &&
-                matchesStatus
-            );
-
-        });
-
-        if (sort === "newest") {
-
-            filtered.sort(
-                (a, b) =>
-                    new Date(b.created_at) - new Date(a.created_at)
-            );
-
-        } else if (sort === "oldest") {
-
-            filtered.sort(
-                (a, b) =>
-                    new Date(a.created_at) - new Date(b.created_at)
-            );
-
-        } else if (sort === "username-asc") {
-
-            filtered.sort((a, b) =>
-                String(a.username ?? "").localeCompare(
-                    String(b.username ?? "")
-                )
-            );
-
-        } else if (sort === "username-desc") {
-
-            filtered.sort((a, b) =>
-                String(b.username ?? "").localeCompare(
-                    String(a.username ?? "")
-                )
-            );
-
-        }
-
-        return filtered;
-
     }, [
-        users,
+        page,
+        limit,
         search,
         roleFilter,
         statusFilter,
@@ -198,11 +192,59 @@ export default function DisplayUsers() {
     ]);
 
 
+    function handleSearchChange(e) {
+
+        setSearch(e.target.value);
+        setPage(1);
+
+    }
+
+
+    function handleRoleChange(e) {
+
+        setRoleFilter(e.target.value);
+        setPage(1);
+
+    }
+
+
+    function handleStatusChange(e) {
+
+        setStatusFilter(e.target.value);
+        setPage(1);
+
+    }
+
+
+    function handleSortChange(e) {
+
+        setSort(e.target.value);
+        setPage(1);
+
+    }
+
+
     function clearFilters() {
 
         setRoleFilter("");
         setStatusFilter("");
         setSort("");
+        setPage(1);
+
+    }
+
+
+    function goToPage(newPage) {
+
+        if (
+            newPage < 1 ||
+            newPage > totalPages ||
+            newPage === page
+        ) {
+            return;
+        }
+
+        setPage(newPage);
 
     }
 
@@ -214,86 +256,196 @@ export default function DisplayUsers() {
     ].filter(Boolean).length;
 
 
+    const pageStart =
+        total === 0
+            ? 0
+            : (page - 1) * limit + 1;
+
+
+    const pageEnd =
+        Math.min(
+            page * limit,
+            total
+        );
+
+
+    const paginationPages = useMemo(() => {
+
+        if (totalPages <= 1) {
+            return [];
+        }
+
+        const pages = [];
+
+        const start = Math.max(
+            1,
+            page - 2
+        );
+
+        const end = Math.min(
+            totalPages,
+            page + 2
+        );
+
+        for (
+            let i = start;
+            i <= end;
+            i++
+        ) {
+
+            pages.push(i);
+
+        }
+
+        return pages;
+
+    }, [
+        page,
+        totalPages
+    ]);
+
+
     return (
 
         <section className="flex min-h-0 flex-1 flex-col gap-5">
 
+
             <div className="rd-panel flex-none overflow-hidden">
 
+
                 <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
+
 
                     <SearchField
                         label="Search users"
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        onChange={handleSearchChange}
                         placeholder="Search by name, role, or ID…"
                     />
+
 
                     <div className="flex items-center justify-between gap-3">
 
                         {!loading && (
+
                             <ResultCount
-                                shown={filteredUsers.length}
-                                total={users.length}
+                                shown={users.length}
+                                total={total}
                                 noun="users"
                             />
+
                         )}
+
 
                         <FilterToggle
                             open={showFilters}
                             count={activeCount}
                             controls="user-filters"
-                            onClick={() => setShowFilters(prev => !prev)}
+                            onClick={() =>
+                                setShowFilters(
+                                    prev => !prev
+                                )
+                            }
                         />
 
                     </div>
 
+
                 </div>
+
 
                 {showFilters && (
 
-                    <div id="user-filters" className="border-t border-rd-hair p-4">
+                    <div
+                        id="user-filters"
+                        className="border-t border-rd-hair p-4"
+                    >
 
                         <div className="grid gap-3 sm:grid-cols-3">
+
 
                             <FilterField
                                 label="Role"
                                 value={roleFilter}
-                                onChange={(e) => setRoleFilter(e.target.value)}
+                                onChange={handleRoleChange}
                             >
-                                <option value="">All roles</option>
+
+                                <option value="">
+                                    All roles
+                                </option>
+
                                 {roles.map(role => (
-                                    <option key={role} value={role}>
+
+                                    <option
+                                        key={role}
+                                        value={role}
+                                    >
                                         {roleLabel(role)}
                                     </option>
+
                                 ))}
+
                             </FilterField>
+
 
                             <FilterField
                                 label="Status"
                                 value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
+                                onChange={handleStatusChange}
                             >
-                                <option value="">All statuses</option>
-                                <option value="active">Active</option>
-                                <option value="archived">Archived</option>
+
+                                <option value="">
+                                    All statuses
+                                </option>
+
+                                <option value="active">
+                                    Active
+                                </option>
+
+                                <option value="archived">
+                                    Archived
+                                </option>
+
                             </FilterField>
+
 
                             <FilterField
                                 label="Sort by"
                                 value={sort}
-                                onChange={(e) => setSort(e.target.value)}
+                                onChange={handleSortChange}
                             >
-                                <option value="">Default order</option>
-                                <option value="newest">Newest first</option>
-                                <option value="oldest">Oldest first</option>
-                                <option value="username-asc">Username A → Z</option>
-                                <option value="username-desc">Username Z → A</option>
+
+                                <option value="">
+                                    Default order
+                                </option>
+
+                                <option value="newest">
+                                    Newest first
+                                </option>
+
+                                <option value="oldest">
+                                    Oldest first
+                                </option>
+
+                                <option value="username-asc">
+                                    Username A → Z
+                                </option>
+
+                                <option value="username-desc">
+                                    Username Z → A
+                                </option>
+
                             </FilterField>
+
 
                         </div>
 
-                        <ClearFilters count={activeCount} onClear={clearFilters} />
+
+                        <ClearFilters
+                            count={activeCount}
+                            onClear={clearFilters}
+                        />
+
 
                     </div>
 
@@ -304,112 +456,275 @@ export default function DisplayUsers() {
 
             <div className="rd-panel flex min-h-0 flex-1 flex-col overflow-hidden max-lg:max-h-[70vh]">
 
+
                 {loading && <RowSkeleton />}
 
-                {!loading && filteredUsers.length === 0 && (
+
+                {!loading && users.length === 0 && (
+
                     <StateMessage
                         title="No users found"
                         hint={
-                            search || activeCount > 0
+                            search ||
+                            activeCount > 0
                                 ? "Nothing matches the current search and filters."
                                 : "Accounts you add will be listed here."
                         }
                     />
+
                 )}
 
-                {!loading && filteredUsers.length > 0 && (
 
-                    <div className="rd-scroll-thin min-h-0 flex-1 overflow-auto">
+                {!loading && users.length > 0 && (
 
-                        <table className="w-full min-w-[720px] border-collapse">
+                    <>
 
-                            <thead>
 
-                                <tr className="border-b border-rd-hair">
+                        <div className="rd-scroll-thin min-h-0 flex-1 overflow-auto">
 
-                                    <th className={th}>ID</th>
 
-                                    <th className={th}>Username</th>
+                            <table className="w-full min-w-[900px] border-collapse">
 
-                                    <th className={th}>Role</th>
 
-                                    <th className={th}>Created</th>
+                                <thead>
 
-                                    <th className={th}>Status</th>
+                                    <tr className="border-b border-rd-hair">
 
-                                    <th className={`${th} text-right`}>Actions</th>
+                                        <th className={th}>
+                                            ID
+                                        </th>
 
-                                </tr>
+                                        <th className={th}>
+                                            Name
+                                        </th>
 
-                            </thead>
+                                        <th className={th}>
+                                            Username
+                                        </th>
 
-                            <tbody>
+                                        <th className={th}>
+                                            Role
+                                        </th>
 
-                                {filteredUsers.map((user) => (
+                                        <th className={th}>
+                                            Created
+                                        </th>
 
-                                    <tr
-                                        key={user.id}
-                                        className="border-b border-rd-hair transition-colors last:border-0 hover:bg-rd-raised"
-                                    >
+                                        <th className={th}>
+                                            Status
+                                        </th>
 
-                                        <td className={`${td} tabular-nums text-rd-muted`}>
-                                            {user.id}
-                                        </td>
-
-                                        <td className={`${td} font-medium text-rd-title`}>
-                                            {user.username}
-                                        </td>
-
-                                        <td className={td}>
-                                            <Badge tone={roleTone(user.role)}>
-                                                {roleLabel(user.role)}
-                                            </Badge>
-                                        </td>
-
-                                        <td className={`${td} tabular-nums`}>
-                                            {user.created_at}
-                                        </td>
-
-                                        <td className={td}>
-                                            <StatusPill
-                                                archived={Boolean(user.archivestatus)}
-                                            />
-                                        </td>
-
-                                        <td className={`${td} text-right`}>
-
-                                            <button
-                                                type="button"
-                                                aria-label={`Edit ${user.username}`}
-                                                className={rowAction}
-                                                onClick={() =>
-                                                    router.push(
-                                                        `/dashboard/admin/editUsers?id=${user.id}`
-                                                    )
-                                                }
-                                            >
-
-                                                <PencilIcon size={16} />
-
-                                                Edit
-
-                                            </button>
-
-                                        </td>
+                                        <th className={`${th} text-right`}>
+                                            Actions
+                                        </th>
 
                                     </tr>
 
+                                </thead>
+
+
+                                <tbody>
+
+                                    {users.map(user => (
+
+                                        <tr
+                                            key={user.id}
+                                            className="border-b border-rd-hair transition-colors last:border-0 hover:bg-rd-raised"
+                                        >
+
+
+                                            <td
+                                                className={`${td} tabular-nums text-rd-muted`}
+                                            >
+                                                {user.id}
+                                            </td>
+
+
+                                            <td
+                                                className={`${td} font-medium text-rd-title`}
+                                            >
+
+                                                {user.fname}
+
+                                                {user.mname && (
+                                                    ` ${user.mname}`
+                                                )}
+
+                                                {user.lname && (
+                                                    ` ${user.lname}`
+                                                )}
+
+                                            </td>
+
+
+                                            <td
+                                                className={`${td} text-rd-label`}
+                                            >
+                                                {user.username}
+                                            </td>
+
+
+                                            <td className={td}>
+
+                                                <Badge
+                                                    tone={roleTone(user.role)}
+                                                >
+                                                    {roleLabel(user.role)}
+                                                </Badge>
+
+                                            </td>
+
+
+                                            <td
+                                                className={`${td} tabular-nums`}
+                                            >
+                                                {user.created_at}
+                                            </td>
+
+
+                                            <td className={td}>
+
+                                                <StatusPill
+                                                    archived={
+                                                        Boolean(
+                                                            user.archivestatus
+                                                        )
+                                                    }
+                                                />
+
+                                            </td>
+
+
+                                            <td
+                                                className={`${td} text-right`}
+                                            >
+
+                                                <button
+                                                    type="button"
+                                                    aria-label={`Edit ${user.username}`}
+                                                    className={rowAction}
+                                                    onClick={() =>
+                                                        router.push(
+                                                            `/dashboard/admin/editUsers?id=${user.id}`
+                                                        )
+                                                    }
+                                                >
+
+                                                    <PencilIcon size={16} />
+
+                                                    Edit
+
+                                                </button>
+
+                                            </td>
+
+
+                                        </tr>
+
+                                    ))}
+
+                                </tbody>
+
+
+                            </table>
+
+
+                        </div>
+
+
+                        <div className="flex flex-col gap-3 border-t border-rd-hair p-4 sm:flex-row sm:items-center sm:justify-between">
+
+
+                            <p className="text-sm text-rd-muted">
+
+                                Showing{" "}
+
+                                <span className="font-medium text-rd-title">
+                                    {pageStart}
+                                </span>
+
+                                {" "}–{" "}
+
+                                <span className="font-medium text-rd-title">
+                                    {pageEnd}
+                                </span>
+
+                                {" "}of{" "}
+
+                                <span className="font-medium text-rd-title">
+                                    {total}
+                                </span>
+
+                                {" "}users
+
+                            </p>
+
+
+                            <div className="flex items-center gap-1">
+
+
+                                <button
+                                    type="button"
+                                    disabled={page === 1}
+                                    onClick={() =>
+                                        goToPage(page - 1)
+                                    }
+                                    className="rd-btn rd-press rd-focus disabled:pointer-events-none disabled:opacity-40"
+                                >
+                                    Previous
+                                </button>
+
+
+                                {paginationPages.map(pageNumber => (
+
+                                    <button
+                                        key={pageNumber}
+                                        type="button"
+                                        onClick={() =>
+                                            goToPage(
+                                                pageNumber
+                                            )
+                                        }
+                                        className={`min-w-9 rounded-md px-3 py-2 text-sm ${
+                                            pageNumber === page
+                                                ? "bg-rd-title text-rd-bg"
+                                                : "text-rd-muted hover:bg-rd-raised"
+                                        }`}
+                                    >
+
+                                        {pageNumber}
+
+                                    </button>
+
                                 ))}
 
-                            </tbody>
 
-                        </table>
+                                <button
+                                    type="button"
+                                    disabled={
+                                        page === totalPages
+                                    }
+                                    onClick={() =>
+                                        goToPage(page + 1)
+                                    }
+                                    className="rd-btn rd-press rd-focus disabled:pointer-events-none disabled:opacity-40"
+                                >
+                                    Next
+                                </button>
 
-                    </div>
+
+                            </div>
+
+
+                        </div>
+
+
+                    </>
 
                 )}
 
             </div>
+
 
         </section>
 
