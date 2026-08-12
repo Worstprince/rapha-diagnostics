@@ -14,7 +14,6 @@ const ROLES = [
   "Medical Technologist",
   "Pathologist",
 ];
-const currentUser = useCurrentUser();
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD = 8;
 const MIN_USERNAME = 3;
@@ -67,6 +66,8 @@ function LiveTimestamp() {
 }
 
 export default function AddUsers() {
+  
+const currentUser = useCurrentUser();
   const [user, setUser] = useState({
     username: "",
     password: "",
