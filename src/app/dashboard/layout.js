@@ -64,6 +64,11 @@ const doctorSections = [
   {
     label: "Patient",
     links: [
+            {
+        href: "/dashboard/doctor/patients",
+        label: "View Patients",
+        Icon: UsersIcon,
+      },
       {
         href: "/dashboard/doctor/visitation",
         label: "View Visitations",
