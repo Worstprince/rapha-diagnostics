@@ -14,6 +14,7 @@ const ROLES = [
   "Medical Technologist",
   "Pathologist",
 ];
+
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD = 8;
 const MIN_USERNAME = 3;
@@ -24,19 +25,21 @@ function field(hasError) {
   return `rd-input ${hasError ? "rd-input--error" : ""}`;
 }
 
-// One shared interval for every mounted clock, so the tick doesn't multiply.
 const tickers = new Set();
 let timer = null;
 
 function subscribeSecond(onTick) {
   tickers.add(onTick);
+
   if (!timer) {
     timer = setInterval(() => {
       for (const fn of tickers) fn();
     }, 1000);
   }
+
   return () => {
     tickers.delete(onTick);
+
     if (tickers.size === 0) {
       clearInterval(timer);
       timer = null;
@@ -46,17 +49,24 @@ function subscribeSecond(onTick) {
 
 const getSecond = () => Math.floor(Date.now() / 1000);
 
-// 0 means "not on the client yet". Rendering a real clock during SSR would
-// hydrate against a different second and mismatch.
 const getServerSecond = () => 0;
 
 function LiveTimestamp() {
-  const tick = useSyncExternalStore(subscribeSecond, getSecond, getServerSecond);
+  const tick = useSyncExternalStore(
+    subscribeSecond,
+    getSecond,
+    getServerSecond
+  );
+
   return (
     <input
       id="createdAt"
       type="text"
-      value={tick === 0 ? "" : new Date(tick * 1000).toLocaleString()}
+      value={
+        tick === 0
+          ? ""
+          : new Date(tick * 1000).toLocaleString()
+      }
       readOnly
       tabIndex={-1}
       aria-describedby="createdAt-hint"
@@ -66,132 +76,401 @@ function LiveTimestamp() {
 }
 
 export default function AddUsers() {
-  
-const currentUser = useCurrentUser();
+
+  const currentUser = useCurrentUser();
+
   const [user, setUser] = useState({
+    firstName: "",
+    lastName: "",
     username: "",
     password: "",
     confirmPassword: "",
     email: "",
     role: "",
   });
+
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setUser((prev) => ({ ...prev, [name]: value }));
 
-    // Clear a field's error as soon as it's touched — leaving it up while the
-    // user fixes it reads as though the fix didn't register.
+  function handleChange(e) {
+
+    const { name, value } = e.target;
+
+    setUser((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
     setErrors((prev) => {
+
       if (!prev[name]) return prev;
+
       const next = { ...prev };
+
       delete next[name];
+
       return next;
+
     });
+
   }
+
 
   function validate() {
+
     const found = {};
 
-    if (!user.username.trim()) found.username = "Username is required.";
-    else if (user.username.trim().length < MIN_USERNAME)
-      found.username = `Username must be at least ${MIN_USERNAME} characters.`;
 
-    if (!user.password) found.password = "Password is required.";
-    else if (user.password.length < MIN_PASSWORD)
-      found.password = `Password must be at least ${MIN_PASSWORD} characters.`;
-    else if (!/[a-z]/.test(user.password))
-      found.password = "Password must include at least one lowercase letter.";
-    else if (!/[A-Z]/.test(user.password))
-      found.password = "Password must include at least one uppercase letter.";
-    else if (!/\d/.test(user.password))
-      found.password = "Password must include at least one number.";
-    else if (!/[^A-Za-z0-9]/.test(user.password))
-      found.password = "Password must include at least one symbol.";
-    
+    if (!user.firstName.trim()) {
+
+      found.firstName = "First name is required.";
+
+    }
+
+
+    if (!user.lastName.trim()) {
+
+      found.lastName = "Last name is required.";
+
+    }
+
+
+    if (!user.username.trim()) {
+
+      found.username = "Username is required.";
+
+    }
+
+    else if (
+      user.username.trim().length < MIN_USERNAME
+    ) {
+
+      found.username =
+        `Username must be at least ${MIN_USERNAME} characters.`;
+
+    }
+
+
+    if (!user.password) {
+
+      found.password = "Password is required.";
+
+    }
+
+    else if (
+      user.password.length < MIN_PASSWORD
+    ) {
+
+      found.password =
+        `Password must be at least ${MIN_PASSWORD} characters.`;
+
+    }
+
+    else if (!/[a-z]/.test(user.password)) {
+
+      found.password =
+        "Password must include at least one lowercase letter.";
+
+    }
+
+    else if (!/[A-Z]/.test(user.password)) {
+
+      found.password =
+        "Password must include at least one uppercase letter.";
+
+    }
+
+    else if (!/\d/.test(user.password)) {
+
+      found.password =
+        "Password must include at least one number.";
+
+    }
+
+    else if (!/[^A-Za-z0-9]/.test(user.password)) {
+
+      found.password =
+        "Password must include at least one symbol.";
+
+    }
+
+
     if (!user.confirmPassword) {
-    found.confirmPassword = "Please confirm the password.";
-    }
-    else if (user.password !== user.confirmPassword) {
-        found.confirmPassword = "Passwords do not match.";
+
+      found.confirmPassword =
+        "Please confirm the password.";
+
     }
 
-    if (!user.email.trim()) found.email = "Email is required.";
-    else if (!EMAIL.test(user.email)) found.email = "Enter a valid email address.";
+    else if (
+      user.password !== user.confirmPassword
+    ) {
 
-    if (!user.role) found.role = "Please select a role.";
+      found.confirmPassword =
+        "Passwords do not match.";
+
+    }
+
+
+    if (!user.email.trim()) {
+
+      found.email =
+        "Email is required.";
+
+    }
+
+    else if (!EMAIL.test(user.email)) {
+
+      found.email =
+        "Enter a valid email address.";
+
+    }
+
+
+    if (!user.role) {
+
+      found.role =
+        "Please select a role.";
+
+    }
+
 
     setErrors(found);
+
     return Object.keys(found).length === 0;
+
   }
 
-  /* Validation runs before the dialog, not after: asking "are you sure?" about a
-     form that's about to fail its own checks wastes a click. */
+
   function handleSubmit(e) {
+
     e.preventDefault();
+
     if (submitting) return;
 
     setStatus(null);
+
     if (!validate()) return;
 
     setConfirmOpen(true);
+
   }
 
+
   async function addUser() {
+
     setConfirmOpen(false);
+
     setSubmitting(true);
 
-    try {
-      
-      const { confirmPassword, ...userData } = user;
 
-      const response = await fetch("/api/users/add", {
+    try {
+
+      const {
+        confirmPassword,
+        ...userData
+      } = user;
+
+
+      const response = await fetch(
+        "/api/users/add",
+        {
           method: "POST",
+
           headers: {
-              "Content-Type": "application/json",
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(userData),
-          userId: currentUser?.id,
-      });
+
+          body: JSON.stringify({
+            ...userData,
+            userId: currentUser?.id,
+          }),
+        }
+      );
+
 
       const result = await response.json();
 
+
       if (!response.ok) {
-        setStatus({ tone: "error", text: result.message || result.error || "Could not add user." });
+
+        setStatus({
+          tone: "error",
+          text:
+            result.message ||
+            result.error ||
+            "Could not add user.",
+        });
+
         return;
+
       }
 
-      setStatus({ tone: "success", text: `User “${user.username}” added successfully.` });
-      setUser({ username: "", password: "", confirmPassword: "", email: "", role: "" });
+
+      setStatus({
+        tone: "success",
+        text:
+          `User “${user.username}” added successfully.`,
+      });
+
+
+      setUser({
+        firstName: "",
+        lastName: "",
+        username: "",
+        password: "",
+        confirmPassword: "",
+        email: "",
+        role: "",
+      });
+
+
       setErrors({});
+
+
     } catch {
-      setStatus({ tone: "error", text: "Unable to reach the server. Please try again." });
+
+      setStatus({
+        tone: "error",
+        text:
+          "Unable to reach the server. Please try again.",
+      });
+
     } finally {
+
       setSubmitting(false);
+
     }
+
   }
 
-  const selectedRoleLabel = roleLabel(user.role);
+
+  const selectedRoleLabel =
+    roleLabel(user.role);
+
 
   return (
+
     <div className="mx-auto max-w-2xl space-y-5">
+
       <PageHeader
         title="Add User"
         description="Create an account and assign the role that matches their department."
       />
 
+
       <section className="rd-panel p-6">
-        {/* noValidate because the checks below replace the browser's — without
-            them the required attributes would do nothing at all. */}
-        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-5"
+          noValidate
+        >
+
+          {/* First Name */}
+
           <div>
-            <label htmlFor="username" className="rd-label">
+
+            <label
+              htmlFor="firstName"
+              className="rd-label"
+            >
+              First Name
+            </label>
+
+            <input
+              id="firstName"
+              type="text"
+              name="firstName"
+              autoComplete="given-name"
+              value={user.firstName}
+              onChange={handleChange}
+              aria-invalid={
+                errors.firstName
+                  ? true
+                  : undefined
+              }
+              aria-describedby={
+                errors.firstName
+                  ? "firstName-error"
+                  : undefined
+              }
+              className={field(errors.firstName)}
+            />
+
+            {errors.firstName && (
+
+              <p
+                id="firstName-error"
+                className={errText}
+              >
+                {errors.firstName}
+              </p>
+
+            )}
+
+          </div>
+
+
+          {/* Last Name */}
+
+          <div>
+
+            <label
+              htmlFor="lastName"
+              className="rd-label"
+            >
+              Last Name
+            </label>
+
+            <input
+              id="lastName"
+              type="text"
+              name="lastName"
+              autoComplete="family-name"
+              value={user.lastName}
+              onChange={handleChange}
+              aria-invalid={
+                errors.lastName
+                  ? true
+                  : undefined
+              }
+              aria-describedby={
+                errors.lastName
+                  ? "lastName-error"
+                  : undefined
+              }
+              className={field(errors.lastName)}
+            />
+
+            {errors.lastName && (
+
+              <p
+                id="lastName-error"
+                className={errText}
+              >
+                {errors.lastName}
+              </p>
+
+            )}
+
+          </div>
+
+
+          {/* Username */}
+
+          <div>
+
+            <label
+              htmlFor="username"
+              className="rd-label"
+            >
               Username
             </label>
+
             <input
               id="username"
               type="text"
@@ -199,21 +478,44 @@ const currentUser = useCurrentUser();
               autoComplete="off"
               value={user.username}
               onChange={handleChange}
-              aria-invalid={errors.username ? true : undefined}
-              aria-describedby={errors.username ? "username-error" : undefined}
+              aria-invalid={
+                errors.username
+                  ? true
+                  : undefined
+              }
+              aria-describedby={
+                errors.username
+                  ? "username-error"
+                  : undefined
+              }
               className={field(errors.username)}
             />
+
             {errors.username && (
-              <p id="username-error" className={errText}>
+
+              <p
+                id="username-error"
+                className={errText}
+              >
                 {errors.username}
               </p>
+
             )}
+
           </div>
 
+
+          {/* Password */}
+
           <div>
-            <label htmlFor="password" className="rd-label">
+
+            <label
+              htmlFor="password"
+              className="rd-label"
+            >
               Password
             </label>
+
             <input
               id="password"
               type="password"
@@ -221,49 +523,91 @@ const currentUser = useCurrentUser();
               autoComplete="new-password"
               value={user.password}
               onChange={handleChange}
-              aria-invalid={errors.password ? true : undefined}
-              aria-describedby={errors.password ? "password-error" : undefined}
+              aria-invalid={
+                errors.password
+                  ? true
+                  : undefined
+              }
+              aria-describedby={
+                errors.password
+                  ? "password-error"
+                  : undefined
+              }
               className={field(errors.password)}
             />
+
             {errors.password && (
-              <p id="password-error" className={errText}>
+
+              <p
+                id="password-error"
+                className={errText}
+              >
                 {errors.password}
               </p>
+
             )}
+
           </div>
 
+
+          {/* Confirm Password */}
+
           <div>
-            <label htmlFor="confirmPassword" className="rd-label">
-                Confirm Password
+
+            <label
+              htmlFor="confirmPassword"
+              className="rd-label"
+            >
+              Confirm Password
             </label>
 
             <input
-                id="confirmPassword"
-                type="password"
-                name="confirmPassword"
-                autoComplete="new-password"
-                value={user.confirmPassword}
-                onChange={handleChange}
-                aria-invalid={errors.confirmPassword ? true : undefined}
-                aria-describedby={
-                    errors.confirmPassword
-                        ? "confirmPassword-error"
-                        : undefined
-                }
-                className={field(errors.confirmPassword)}
+              id="confirmPassword"
+              type="password"
+              name="confirmPassword"
+              autoComplete="new-password"
+              value={user.confirmPassword}
+              onChange={handleChange}
+              aria-invalid={
+                errors.confirmPassword
+                  ? true
+                  : undefined
+              }
+              aria-describedby={
+                errors.confirmPassword
+                  ? "confirmPassword-error"
+                  : undefined
+              }
+              className={field(
+                errors.confirmPassword
+              )}
             />
 
             {errors.confirmPassword && (
-                <p id="confirmPassword-error" className={errText}>
-                    {errors.confirmPassword}
-                </p>
+
+              <p
+                id="confirmPassword-error"
+                className={errText}
+              >
+                {errors.confirmPassword}
+              </p>
+
             )}
-        </div>
+
+          </div>
+
+
+          {/* Email */}
 
           <div>
-            <label htmlFor="email" className="rd-label">
+
+            <label
+              htmlFor="email"
+              className="rd-label"
+            >
               Email
             </label>
+
             <input
               id="email"
               type="email"
@@ -271,75 +615,159 @@ const currentUser = useCurrentUser();
               autoComplete="off"
               value={user.email}
               onChange={handleChange}
-              aria-invalid={errors.email ? true : undefined}
-              aria-describedby={errors.email ? "email-error" : undefined}
+              aria-invalid={
+                errors.email
+                  ? true
+                  : undefined
+              }
+              aria-describedby={
+                errors.email
+                  ? "email-error"
+                  : undefined
+              }
               className={field(errors.email)}
             />
+
             {errors.email && (
-              <p id="email-error" className={errText}>
+
+              <p
+                id="email-error"
+                className={errText}
+              >
                 {errors.email}
               </p>
+
             )}
+
           </div>
 
+
+          {/* Role */}
+
           <div>
-            <label htmlFor="role" className="rd-label">
+
+            <label
+              htmlFor="role"
+              className="rd-label"
+            >
               Role
             </label>
+
             <select
               id="role"
               name="role"
               value={user.role}
               onChange={handleChange}
               data-empty={user.role === ""}
-              aria-invalid={errors.role ? true : undefined}
-              aria-describedby={errors.role ? "role-error" : undefined}
+              aria-invalid={
+                errors.role
+                  ? true
+                  : undefined
+              }
+              aria-describedby={
+                errors.role
+                  ? "role-error"
+                  : undefined
+              }
               className={field(errors.role)}
             >
-              <option value="" disabled hidden>
+
+              <option
+                value=""
+                disabled
+                hidden
+              >
                 Select Role
               </option>
+
               {ROLES.map((role) => (
-                <option key={role} value={role}>
+
+                <option
+                  key={role}
+                  value={role}
+                >
                   {roleLabel(role)}
                 </option>
+
               ))}
+
             </select>
+
             {errors.role && (
-              <p id="role-error" className={errText}>
+
+              <p
+                id="role-error"
+                className={errText}
+              >
                 {errors.role}
               </p>
+
             )}
+
           </div>
+
+
+          {/* Created At */}
 
           <div>
-            <label htmlFor="createdAt" className="rd-label">
+
+            <label
+              htmlFor="createdAt"
+              className="rd-label"
+            >
               Created At
             </label>
+
             <LiveTimestamp />
-            <p id="createdAt-hint" className="mt-1.5 text-sm text-rd-muted">
+
+            <p
+              id="createdAt-hint"
+              className="mt-1.5 text-sm text-rd-muted"
+            >
               Recorded automatically when the account is saved.
             </p>
+
           </div>
+
 
           <div className="flex justify-end">
-            <button type="submit" disabled={submitting} className="rd-btn rd-press rd-focus">
-              {submitting ? "Adding…" : "Add User"}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="rd-btn rd-press rd-focus"
+            >
+              {submitting
+                ? "Adding…"
+                : "Add User"}
             </button>
+
           </div>
+
         </form>
+
       </section>
 
-      <Toast status={status} onDismiss={() => setStatus(null)} />
+
+      <Toast
+        status={status}
+        onDismiss={() => setStatus(null)}
+      />
+
 
       <ConfirmDialog
         open={confirmOpen}
         title="Add this user?"
-        description={`“${user.username}” will be created with the ${selectedRoleLabel} role and can sign in immediately.`}
+        description={
+          `“${user.username}” will be created with the ${selectedRoleLabel} role and can sign in immediately.`
+        }
         confirmLabel="Add user"
         onConfirm={addUser}
         onCancel={() => setConfirmOpen(false)}
       />
+
     </div>
+
   );
+
 }
