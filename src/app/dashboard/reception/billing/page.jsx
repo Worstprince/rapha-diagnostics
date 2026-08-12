@@ -118,7 +118,7 @@ export default function ViewBillingHistory() {
 
 
             const response = await fetch(
-                `/api/billing/history?${params.toString()}`
+                `/api/billing/?${params.toString()}`
             );
 
             const data = await response.json();

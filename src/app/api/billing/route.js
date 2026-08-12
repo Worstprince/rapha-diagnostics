@@ -2,46 +2,51 @@ import db from "@/lib/db";
 import { NextResponse } from "next/server";
 
 export async function GET(request) {
+
     try {
+
         const { searchParams } = new URL(request.url);
 
         const page = Math.max(
-            parseInt(searchParams.get("page") || "1", 10),
+            Number(searchParams.get("page")) || 1,
             1
         );
 
-        const limit = Math.min(
-            Math.max(
-                parseInt(searchParams.get("limit") || "10", 10),
-                1
-            ),
-            100
+        const limit = Math.max(
+            Number(searchParams.get("limit")) || 10,
+            1
         );
+
+        const search =
+            searchParams.get("search")?.trim() || "";
+
+        const status =
+            searchParams.get("status") || "";
+
+        const priority =
+            searchParams.get("priority") || "";
+
+        const dateFrom =
+            searchParams.get("dateFrom") || "";
+
+        const dateTo =
+            searchParams.get("dateTo") || "";
+
+        const sort =
+            searchParams.get("sort") || "newest";
 
         const offset = (page - 1) * limit;
 
-        const search = searchParams.get("search")?.trim() || "";
-        const status = searchParams.get("status") || "";
-        const priority = searchParams.get("priority") || "";
-        const dateFrom = searchParams.get("dateFrom") || "";
-        const dateTo = searchParams.get("dateTo") || "";
-        const sort = searchParams.get("sort") || "newest";
-
         const conditions = [];
-        const params = [];
+        const values = [];
+
 
         if (search) {
+
             conditions.push(`
                 (
                     CAST(v.id AS CHAR) LIKE ?
-
                     OR CAST(v.patientId AS CHAR) LIKE ?
-
-                    OR COALESCE(p.fname, '') LIKE ?
-
-                    OR COALESCE(p.mname, '') LIKE ?
-
-                    OR COALESCE(p.lname, '') LIKE ?
 
                     OR CONCAT_WS(
                         ' ',
@@ -51,83 +56,123 @@ export async function GET(request) {
                         p.suffix
                     ) LIKE ?
 
-                    OR EXISTS (
-                        SELECT 1
-                        FROM tblpatienttests ptSearch
-                        INNER JOIN tbltests tSearch
-                            ON tSearch.id = ptSearch.testid
-                        WHERE ptSearch.visitid = v.id
-                        AND tSearch.name LIKE ?
-                    )
+                    OR t.name LIKE ?
                 )
             `);
 
             const searchValue = `%${search}%`;
 
-            params.push(
-                searchValue,
-                searchValue,
-                searchValue,
+            values.push(
                 searchValue,
                 searchValue,
                 searchValue,
                 searchValue
             );
+
         }
+
 
         if (status) {
-            conditions.push("v.status = ?");
-            params.push(status);
+
+            conditions.push(`
+                v.status = ?
+            `);
+
+            values.push(status);
+
         }
+
 
         if (priority) {
-            conditions.push("v.priority = ?");
-            params.push(priority);
+
+            conditions.push(`
+                v.priority = ?
+            `);
+
+            values.push(priority);
+
         }
+
 
         if (dateFrom) {
-            conditions.push("DATE(v.visited_at) >= ?");
-            params.push(dateFrom);
+
+            conditions.push(`
+                DATE(v.visited_at) >= ?
+            `);
+
+            values.push(dateFrom);
+
         }
 
+
         if (dateTo) {
-            conditions.push("DATE(v.visited_at) <= ?");
-            params.push(dateTo);
+
+            conditions.push(`
+                DATE(v.visited_at) <= ?
+            `);
+
+            values.push(dateTo);
+
         }
+
 
         const whereClause =
             conditions.length > 0
                 ? `WHERE ${conditions.join(" AND ")}`
                 : "";
 
+
         const orderBy =
             sort === "oldest"
-                ? "v.visited_at ASC, v.id ASC"
-                : "v.visited_at DESC, v.id DESC";
+                ? "v.visited_at ASC"
+                : "v.visited_at DESC";
 
 
         const [countRows] = await db.query(
             `
-            SELECT COUNT(DISTINCT v.id) AS total
+            SELECT
+                COUNT(DISTINCT v.id) AS total
 
             FROM tblpatientvisitation v
 
             LEFT JOIN tblpatients p
                 ON p.id = v.patientId
 
+            LEFT JOIN tblpatienttests pt
+                ON pt.visitid = v.id
+
+            LEFT JOIN tbltests t
+                ON t.id = pt.testid
+
             ${whereClause}
             `,
-            params
+            values
         );
 
-        const total = Number(countRows[0]?.total || 0);
+
+        const total = Number(
+            countRows[0]?.total || 0
+        );
+
+        const totalPages =
+            total === 0
+                ? 0
+                : Math.ceil(total / limit);
+
 
         const [rows] = await db.query(
             `
             SELECT
+
                 v.id AS visitId,
 
-                v.patientId,
+                v.patientId AS patientId,
+
+                v.visited_at AS visitDate,
+
+                v.priority,
+
+                v.status,
 
                 CONCAT_WS(
                     ' ',
@@ -137,19 +182,15 @@ export async function GET(request) {
                     p.suffix
                 ) AS patientName,
 
-                v.visited_at AS visitDate,
-
-                v.status,
-
-                v.priority,
-
                 GROUP_CONCAT(
                     DISTINCT t.name
                     ORDER BY t.name
                     SEPARATOR ', '
                 ) AS tests,
 
-                COUNT(DISTINCT pt.id) AS testCount,
+                COUNT(
+                    DISTINCT t.id
+                ) AS testCount,
 
                 COALESCE(
                     SUM(t.price),
@@ -172,31 +213,29 @@ export async function GET(request) {
             GROUP BY
                 v.id,
                 v.patientId,
+                v.visited_at,
+                v.priority,
+                v.status,
                 p.fname,
                 p.mname,
                 p.lname,
-                p.suffix,
-                v.visited_at,
-                v.status,
-                v.priority
+                p.suffix
 
             ORDER BY ${orderBy}
 
-            LIMIT ? OFFSET ?
+            LIMIT ?
+            OFFSET ?
             `,
             [
-                ...params,
+                ...values,
                 limit,
                 offset
             ]
         );
 
-        const totalPages =
-            total === 0
-                ? 0
-                : Math.ceil(total / limit);
 
         return NextResponse.json({
+
             success: true,
 
             rows,
@@ -205,24 +244,28 @@ export async function GET(request) {
                 page,
                 limit,
                 total,
-                totalPages,
-                hasNextPage: page < totalPages,
-                hasPreviousPage: page > 1
+                totalPages
             }
+
         });
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "BILLING API ERROR:",
+            error
+        );
 
         return NextResponse.json(
             {
                 success: false,
-                message: "Failed to load billing history."
+                message: error.message
             },
             {
                 status: 500
             }
         );
+
     }
+
 }
