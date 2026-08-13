@@ -719,9 +719,10 @@ export default function ViewBillingHistory() {
                                             pageNumber
                                         )
                                     }
-                                    className={`min-w-9 rounded-xl px-3 py-2 text-sm font-medium ${
+                                    aria-current={pageNumber === page ? "page" : undefined}
+                                    className={`rd-press rd-focus inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-xl px-3 text-sm font-medium tabular-nums ${
                                         pageNumber === page
-                                            ? "bg-rd-cyan text-slate-950"
+                                            ? "bg-rd-cyan text-rd-on-cyan"
                                             : "text-rd-muted hover:bg-rd-raised hover:text-rd-title"
                                     }`}
                                 >

@@ -81,7 +81,7 @@ function handleSubmit(e) {
 
                         <thead>
 
-                            <tr className="bg-rd-field">
+                            <tr className="bg-rd-sunken">
 
                                 <th className="p-3 text-left text-rd-title">
                                     Test
@@ -157,7 +157,7 @@ function handleSubmit(e) {
 
                         <thead>
 
-                            <tr className="bg-rd-field">
+                            <tr className="bg-rd-sunken">
 
                                 <th className="p-3 text-left text-rd-title">
                                     Leukocytes
