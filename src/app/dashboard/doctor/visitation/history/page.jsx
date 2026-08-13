@@ -25,6 +25,11 @@ export default function DoctorVisitationHistoryPage() {
 
     const [search, setSearch] = useState("");
 
+    /* Debounced so typing a name is one query instead of one per keystroke. */
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const [hasError, setHasError] = useState(false);
+
     const [priorityFilter, setPriorityFilter] = useState("");
 
     const [sortDate, setSortDate] = useState("newest");
@@ -42,6 +47,15 @@ export default function DoctorVisitationHistoryPage() {
 
     useEffect(() => {
 
+        const timer = setTimeout(() => setDebouncedSearch(search), 300);
+
+        return () => clearTimeout(timer);
+
+    }, [search]);
+
+
+    useEffect(() => {
+
         let cancelled = false;
 
         async function fetchHistory() {
@@ -55,8 +69,8 @@ export default function DoctorVisitationHistoryPage() {
                 params.set("page", page);
                 params.set("limit", PAGE_SIZE);
 
-                if (search.trim()) {
-                    params.set("search", search.trim());
+                if (debouncedSearch.trim()) {
+                    params.set("search", debouncedSearch.trim());
                 }
 
                 if (priorityFilter) {
@@ -85,6 +99,7 @@ export default function DoctorVisitationHistoryPage() {
 
                     console.error(data.message);
 
+                    setHasError(true);
                     setVisitations([]);
                     setTotal(0);
                     setTotalPages(1);
@@ -93,6 +108,8 @@ export default function DoctorVisitationHistoryPage() {
 
                 }
 
+
+                setHasError(false);
 
                 setVisitations(
                     Array.isArray(data.rows)
@@ -117,6 +134,7 @@ export default function DoctorVisitationHistoryPage() {
 
                 if (!cancelled) {
 
+                    setHasError(true);
                     setVisitations([]);
                     setTotal(0);
                     setTotalPages(1);
@@ -143,7 +161,7 @@ export default function DoctorVisitationHistoryPage() {
 
     }, [
         page,
-        search,
+        debouncedSearch,
         priorityFilter,
         sortDate
     ]);
@@ -382,6 +400,13 @@ export default function DoctorVisitationHistoryPage() {
                 {loading ? (
 
                     <TableSkeleton />
+
+                ) : hasError ? (
+
+                    <EmptyState
+                        title="Could not load visitation history"
+                        hint="Something went wrong reaching the server. Adjust the filters or refresh to try again."
+                    />
 
                 ) : visitations.length === 0 ? (
 

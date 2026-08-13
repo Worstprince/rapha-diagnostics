@@ -56,6 +56,8 @@ function detailsOf(visit) {
 export default function DoctorDashboardPage() {
 
     const [visitations, setVisitations] = useState([]);
+    const [queueTotal, setQueueTotal] = useState(0);
+    const [hasError, setHasError] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -67,23 +69,39 @@ export default function DoctorDashboardPage() {
     async function fetchVisitations() {
 
         try {
-            const response = await fetch("/api/doctor/visitationDisplay?search=");
+            /* The endpoint paginates, so the shortlist and the urgent/today
+               counts are drawn from a wide first page while "In the queue"
+               uses the server's own total. */
+            const response = await fetch(
+                "/api/doctor/visitationDisplay?search=&page=1&limit=100"
+            );
+
             const data = await response.json();
-            setVisitations(data);
+
+            if (!response.ok) {
+                throw new Error(data.message || "Failed to load the queue.");
+            }
+
+            setVisitations(Array.isArray(data.rows) ? data.rows : []);
+            setQueueTotal(Number(data.total ?? 0));
+            setHasError(false);
         } catch (error) {
             console.error(error);
+            setVisitations([]);
+            setQueueTotal(0);
+            setHasError(true);
         } finally {
             setLoading(false);
         }
 
     }
 
-    const rows = Array.isArray(visitations) ? visitations : [];
+    const rows = visitations;
 
     const stats = [
         {
             label: "In the queue",
-            value: rows.length,
+            value: queueTotal,
             hint: "Patients waiting to be seen",
             Icon: ClockIcon,
             chip: "bg-cyan-500/12 text-cyan-600",
@@ -204,6 +222,13 @@ export default function DoctorDashboardPage() {
                 {loading ? (
 
                     <TableSkeleton rows={3} />
+
+                ) : hasError ? (
+
+                    <EmptyState
+                        title="Could not load the queue"
+                        hint="Something went wrong reaching the server. Refresh the page to try again."
+                    />
 
                 ) : shortlist.length === 0 ? (
 

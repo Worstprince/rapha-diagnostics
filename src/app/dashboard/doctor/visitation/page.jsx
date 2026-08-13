@@ -31,11 +31,26 @@ export default function DoctorVisitationPage() {
 
     const [search, setSearch] = useState("");
 
+    /* The queue is server-paginated, so the search term is debounced rather
+       than filtered locally — otherwise every keystroke is its own query. */
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const [hasError, setHasError] = useState(false);
+
     const [showFilters, setShowFilters] = useState(false);
 
     const [statusFilter, setStatusFilter] = useState("");
     const [priorityFilter, setPriorityFilter] = useState("");
     const [sortDate, setSortDate] = useState("");
+
+
+    useEffect(() => {
+
+        const timer = setTimeout(() => setDebouncedSearch(search), 300);
+
+        return () => clearTimeout(timer);
+
+    }, [search]);
 
 
     useEffect(() => {
@@ -53,8 +68,8 @@ export default function DoctorVisitationPage() {
                 params.set("page", page);
                 params.set("limit", limit);
 
-                if (search.trim()) {
-                    params.set("search", search.trim());
+                if (debouncedSearch.trim()) {
+                    params.set("search", debouncedSearch.trim());
                 }
 
                 if (statusFilter) {
@@ -85,6 +100,7 @@ export default function DoctorVisitationPage() {
 
                     console.error(data.message);
 
+                    setHasError(true);
                     setVisitations([]);
                     setTotal(0);
                     setTotalPages(0);
@@ -93,6 +109,8 @@ export default function DoctorVisitationPage() {
 
                 }
 
+
+                setHasError(false);
 
                 setVisitations(
                     Array.isArray(data.rows)
@@ -112,6 +130,7 @@ export default function DoctorVisitationPage() {
 
                 if (!cancelled) {
 
+                    setHasError(true);
                     setVisitations([]);
                     setTotal(0);
                     setTotalPages(0);
@@ -139,7 +158,7 @@ export default function DoctorVisitationPage() {
     }, [
         page,
         limit,
-        search,
+        debouncedSearch,
         statusFilter,
         priorityFilter,
         sortDate
@@ -444,6 +463,13 @@ export default function DoctorVisitationPage() {
                 {loading ? (
 
                     <TableSkeleton />
+
+                ) : hasError ? (
+
+                    <EmptyState
+                        title="Could not load the queue"
+                        hint="Something went wrong reaching the server. Adjust the filters or refresh to try again."
+                    />
 
                 ) : visitations.length === 0 ? (
 

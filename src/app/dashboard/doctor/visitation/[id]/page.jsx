@@ -47,6 +47,27 @@ export default function VisitationDetailsPage() {
 
     const [isSaving, setIsSaving] = useState(false);
 
+    const [isDirty, setIsDirty] = useState(false);
+
+    /* Assignments only live in local state until Assign Tests is pressed, so
+       leaving the page mid-edit would discard them without a word. */
+    useEffect(() => {
+
+        if (!isDirty) return;
+
+        function handleBeforeUnload(event) {
+            event.preventDefault();
+            event.returnValue = "";
+        }
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
+
+    }, [isDirty]);
+
     useEffect(() => {
 
         if (!id) return;
@@ -112,6 +133,8 @@ export default function VisitationDetailsPage() {
             )
         );
 
+        setIsDirty(true);
+
     }
 
 async function handleSave() {
@@ -145,6 +168,10 @@ async function handleSave() {
                     ? "Medical technologists assigned."
                     : "Failed to assign medical technologists.")
         });
+
+        if (response.ok) {
+            setIsDirty(false);
+        }
 
     } catch (error) {
 
@@ -413,12 +440,14 @@ async function handleSave() {
                             <div className="flex flex-none flex-wrap items-center justify-between gap-3 border-t border-rd-hair p-4">
 
                                 <p className="text-sm text-rd-muted">
-                                    Assignments are saved together.
+                                    {isDirty
+                                        ? "You have unsaved assignments."
+                                        : "Assignments are saved together."}
                                 </p>
 
                                 <button
                                     onClick={handleSave}
-                                    disabled={isSaving}
+                                    disabled={isSaving || !isDirty}
                                     className="rd-btn rd-press rd-focus"
                                 >
                                     {isSaving ? "Assigning…" : "Assign Tests"}
