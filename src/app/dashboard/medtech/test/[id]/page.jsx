@@ -15,6 +15,8 @@ import {
     formSkin,
 } from "../../_ui";
 
+import Toast from "@/components/Toast";
+
 import bloodtypeform from "@/components/labforms/bloodtypeform";
 import chemistryform from "@/components/labforms/chemistryform";
 import hematology from "@/components/labforms/hematology";
@@ -66,10 +68,15 @@ export default function TestPage() {
     const [test, setTest] = useState(null);
     const [result, setResult] = useState(null);
 
+    const [toast, setToast] = useState(null);
+
 async function handleSubmit(result, hasExistingResult) {
 
     if (!currentUser?.id) {
-        alert("User session not found.");
+        setToast({
+            tone: "error",
+            text: "User session not found."
+        });
         console.log("CURRENT USER:", currentUser);
         return;
     }
@@ -97,16 +104,26 @@ async function handleSubmit(result, hasExistingResult) {
         const data = await response.json();
 
         if (!response.ok) {
-            alert(data.message);
+            setToast({
+                tone: "error",
+                text: data.message || "Failed to save test result."
+            });
             return;
         }
 
-        alert("Test result saved successfully!");
+        setToast({
+            tone: "success",
+            text: "Test result saved successfully."
+        });
 
     } catch (error) {
 
         console.error(error);
-        alert("Failed to save test result.");
+
+        setToast({
+            tone: "error",
+            text: "Unable to reach the server. Please try again."
+        });
 
     }
 }
@@ -219,6 +236,11 @@ async function fetchTest() {
                 />
 
             </div>
+
+            <Toast
+                status={toast}
+                onDismiss={() => setToast(null)}
+            />
 
         </div>
     );

@@ -19,6 +19,7 @@ import {
     td,
     th,
 } from "../../_ui";
+import Toast from "@/components/Toast";
 
 function Detail({ label, children }) {
     return (
@@ -42,6 +43,10 @@ export default function VisitationDetailsPage() {
 
     const [medtechs, setMedtechs] = useState([]);
 
+    const [toast, setToast] = useState(null);
+
+    const [isSaving, setIsSaving] = useState(false);
+
     useEffect(() => {
 
         if (!id) return;
@@ -60,7 +65,10 @@ export default function VisitationDetailsPage() {
             const result = await response.json();
 
             if (!response.ok) {
-                alert(result.message);
+                setToast({
+                    tone: "error",
+                    text: result.message || "Could not load this visitation."
+                });
                 return;
             }
 
@@ -107,24 +115,51 @@ export default function VisitationDetailsPage() {
     }
 
 async function handleSave() {
-    const response = await fetch("/api/doctor/assignMedTech", {
 
-        method: "POST",
+    setIsSaving(true);
 
-        headers: {
-            "Content-Type": "application/json"
-        },
+    try {
 
-body: JSON.stringify({
-    tests,
-    userId: currentUser?.id
-})
+        const response = await fetch("/api/doctor/assignMedTech", {
 
-    });
+            method: "POST",
 
-    const result = await response.json();
+            headers: {
+                "Content-Type": "application/json"
+            },
 
-    alert(result.message);
+            body: JSON.stringify({
+                tests,
+                userId: currentUser?.id
+            })
+
+        });
+
+        const result = await response.json();
+
+        setToast({
+            tone: response.ok ? "success" : "error",
+            text:
+                result.message ||
+                (response.ok
+                    ? "Medical technologists assigned."
+                    : "Failed to assign medical technologists.")
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        setToast({
+            tone: "error",
+            text: "Unable to reach the server. Please try again."
+        });
+
+    } finally {
+
+        setIsSaving(false);
+
+    }
 
 }
 
@@ -148,6 +183,11 @@ body: JSON.stringify({
                     <div className="rd-panel h-80 animate-pulse motion-reduce:animate-none" />
                     <div className="rd-panel h-80 animate-pulse motion-reduce:animate-none lg:col-span-2" />
                 </div>
+
+                <Toast
+                    status={toast}
+                    onDismiss={() => setToast(null)}
+                />
 
             </div>
         );
@@ -378,9 +418,10 @@ body: JSON.stringify({
 
                                 <button
                                     onClick={handleSave}
+                                    disabled={isSaving}
                                     className="rd-btn rd-press rd-focus"
                                 >
-                                    Assign Tests
+                                    {isSaving ? "Assigning…" : "Assign Tests"}
                                 </button>
 
                             </div>
@@ -392,6 +433,11 @@ body: JSON.stringify({
                 </section>
 
             </div>
+
+            <Toast
+                status={toast}
+                onDismiss={() => setToast(null)}
+            />
 
         </div>
 
