@@ -26,6 +26,42 @@ export function SearchIcon(props) {
     );
 }
 
+export function UserIcon(props) {
+    return (
+        <Icon {...props}>
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 21a8 8 0 0 1 16 0" />
+        </Icon>
+    );
+}
+
+export function CakeIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="M4 21h16v-6a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3Z" />
+            <path d="M12 8V5" />
+            <circle cx="12" cy="3.5" r="1" />
+        </Icon>
+    );
+}
+
+export function PhoneIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="M6 3h3l2 5-2.5 1.5a12 12 0 0 0 5 5L15 12l5 2v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4 5.2 2 2 0 0 1 6 3Z" />
+        </Icon>
+    );
+}
+
+export function MapPinIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="M20 10.5c0 5-8 11-8 11s-8-6-8-11a8 8 0 0 1 16 0Z" />
+            <circle cx="12" cy="10.5" r="2.75" />
+        </Icon>
+    );
+}
+
 export function ChevronRightIcon(props) {
     return (
         <Icon {...props}>
