@@ -91,7 +91,7 @@ function TrendBadge({ delta }) {
             >
                 {flat ? <path d="M5 12h14" /> : <path d="M12 19V5m0 0-6 6m6-6 6 6" />}
             </svg>
-            {flat ? "No change" : `${up ? "+" : ""}${delta} vs previous`}
+            {flat ? "No change" : `${up ? "+" : ""}${delta}`}
         </span>
     );
 }

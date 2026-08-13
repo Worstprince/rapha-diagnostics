@@ -6,8 +6,10 @@ import { useParams } from "next/navigation";
 import PatientTestChart from "@/components/patient/patientTestChart";
 
 import {
+    ActivityIcon,
     ArrowLeftIcon,
     Avatar,
+    CakeIcon,
     CalendarIcon,
     ChevronRightIcon,
     ClockIcon,
@@ -15,12 +17,141 @@ import {
     FileTextIcon,
     FlaskIcon,
     HeaderGlow,
+    HeartIcon,
+    MailIcon,
+    MapPinIcon,
+    MinusIcon,
+    PhoneIcon,
     TableSkeleton,
+    TrendDownIcon,
+    TrendUpIcon,
+    UserIcon,
     backLink,
-    rowAction,
     td,
     th,
 } from "../../_ui";
+
+const DAY = 24 * 60 * 60 * 1000;
+
+/* "4 days ago" is the question a doctor is asking of a visit list; the exact
+   timestamp stays in its own column for the record. */
+function relativeLabel(date) {
+    const days = Math.floor((Date.now() - date.getTime()) / DAY);
+
+    if (days < 0) return "Scheduled";
+    if (days === 0) return "Today";
+    if (days === 1) return "Yesterday";
+    if (days < 7) return `${days} days ago`;
+    if (days < 30) {
+        const weeks = Math.floor(days / 7);
+        return `${weeks} ${weeks === 1 ? "week" : "weeks"} ago`;
+    }
+    if (days < 365) {
+        const months = Math.floor(days / 30);
+        return `${months} ${months === 1 ? "month" : "months"} ago`;
+    }
+
+    const years = Math.floor(days / 365);
+    return `${years} ${years === 1 ? "year" : "years"} ago`;
+}
+
+function recencyTone(date) {
+    const days = Math.floor((Date.now() - date.getTime()) / DAY);
+
+    if (days <= 7) return "text-rd-fresh";
+    if (days <= 30) return "text-rd-text";
+
+    return "text-rd-muted";
+}
+
+/* Values arrive however they were typed at registration — "FEMALE", "single" —
+   so they are normalised rather than shown raw next to formatted fields. */
+function titleCase(value) {
+    if (!value) return value;
+
+    return String(value)
+        .toLowerCase()
+        .replace(/\b[a-z]/g, (character) => character.toUpperCase());
+}
+
+function InfoCard({ title, caption, Icon: Glyph, tint, items }) {
+    return (
+        <div className="rd-panel flex flex-col overflow-hidden">
+
+            <div className="flex flex-none items-center gap-3 border-b border-rd-hair p-4">
+
+                <span className={`${tint} grid size-10 flex-none place-items-center rounded-xl`}>
+                    <Glyph size={18} />
+                </span>
+
+                <div className="min-w-0">
+                    <h2 className="text-base font-semibold text-rd-title">{title}</h2>
+                    <p className="mt-0.5 truncate text-xs text-rd-muted">{caption}</p>
+                </div>
+
+            </div>
+
+            <dl className="grid h-full gap-px bg-rd-hair sm:grid-cols-2">
+
+                {items.map(({ label, icon: FieldGlyph, value, href, span }) => {
+
+                    const missing = !value;
+
+                    return (
+                        <div
+                            key={label}
+                            className={`group/cell relative min-w-0 bg-rd-sunken px-5 py-4 transition-colors duration-200 ${
+                                href ? "hover:bg-rd-raised" : ""
+                            } ${span ? "sm:col-span-2" : ""}`}
+                        >
+
+                            <dt className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
+
+                                <FieldGlyph size={13} />
+
+                                {label}
+
+                                {href && !missing && (
+                                    <ChevronRightIcon
+                                        size={13}
+                                        className="ml-auto text-rd-cyan opacity-0 transition-opacity duration-200 group-hover/cell:opacity-100"
+                                    />
+                                )}
+
+                            </dt>
+
+                            <dd
+                                title={value || undefined}
+                                className="mt-1.5 truncate text-base font-semibold"
+                            >
+                                {missing ? (
+                                    <span className="font-normal italic text-rd-placeholder">
+                                        Not recorded
+                                    </span>
+                                ) : href ? (
+                                    /* The anchor stretches over the whole cell so
+                                       the target is the card, not a line of text. */
+                                    <a
+                                        href={href}
+                                        className="rd-focus text-rd-cyan after:absolute after:inset-0 after:rounded-none"
+                                    >
+                                        {value}
+                                    </a>
+                                ) : (
+                                    <span className="text-rd-title">{value}</span>
+                                )}
+                            </dd>
+
+                        </div>
+                    );
+
+                })}
+
+            </dl>
+
+        </div>
+    );
+}
 
 export default function DoctorPatientPage() {
 
@@ -209,11 +340,20 @@ export default function DoctorPatientPage() {
         }
     ];
 
+    const TABS = [
+        { id: "overview", label: "Overview", Icon: FileTextIcon },
+        { id: "visits", label: "Visits", Icon: CalendarIcon },
+        { id: "trends", label: "Trends", Icon: ActivityIcon },
+    ];
+
     const { id } = useParams();
 
     const [patient, setPatient] = useState(null);
     const [visits, setVisits] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState("");
+
+    const [activeTab, setActiveTab] = useState("overview");
 
     const [selectedTest, setSelectedTest] = useState(null);
     const [selectedField, setSelectedField] = useState(null);
@@ -303,10 +443,20 @@ export default function DoctorPatientPage() {
 
             setPatient(data.patient);
             setVisits(data.visits || []);
+            setLoadError("");
 
         } catch (error) {
 
             console.error(error);
+
+            /* Without this the page falls through to "patient not found", which
+               tells the doctor the record does not exist when the server simply
+               failed to answer. */
+            setLoadError(
+                error.message === "Patient not found."
+                    ? "notfound"
+                    : "failed"
+            );
 
         } finally {
 
@@ -371,12 +521,13 @@ function handleFieldChange(e) {
 
     const field = e.target.value;
 
-    setSelectedField(field);
+    setSelectedField(field || null);
     setHistory([]);
     setChartData([]);
     setChartError(false);
 
-    if (selectedTest) {
+    /* Clearing the value should not fire a lookup for an empty field. */
+    if (selectedTest && field) {
         fetchHistory(selectedTest.id, field);
     }
 
@@ -396,6 +547,20 @@ function handleFieldChange(e) {
             value => !Number.isNaN(Number(value))
         );
 
+    const latestReading = chartData.at(-1) ?? null;
+
+    const readingDelta =
+        chartData.length >= 2
+            ? chartData.at(-1).value - chartData.at(-2).value
+            : null;
+
+    const lastVisitLabel =
+        visits.length > 0
+            ? `last seen ${relativeLabel(
+                  new Date(visits[0].visited_at)
+              ).toLowerCase()}`
+            : "no visits yet";
+
     const backToPatients = (
         <Link href="/dashboard/doctor/patients" className={backLink}>
             <ArrowLeftIcon size={16} />
@@ -406,25 +571,17 @@ function handleFieldChange(e) {
     if (loading) {
 
         return (
-            <div className="mx-auto max-w-6xl space-y-5">
+            <div className="mx-auto max-w-7xl space-y-5">
 
                 {backToPatients}
 
-                <div className="rd-panel h-28 animate-pulse motion-reduce:animate-none" />
-
-                <div className="rd-panel h-72 animate-pulse motion-reduce:animate-none" />
-
-                <div className="grid gap-4 sm:grid-cols-3">
-                    <div className="rd-panel h-36 animate-pulse motion-reduce:animate-none" />
-                    <div className="rd-panel h-36 animate-pulse motion-reduce:animate-none" />
-                    <div className="rd-panel h-36 animate-pulse motion-reduce:animate-none" />
-                </div>
+                {/* Mirrors the loaded shape — header with tab strip, then one
+                    panel — so nothing jumps when the record arrives. */}
+                <div className="rd-panel h-[8.5rem] animate-pulse motion-reduce:animate-none" />
 
                 <div className="rd-panel overflow-hidden">
-                    <TableSkeleton rows={4} />
+                    <TableSkeleton rows={5} />
                 </div>
-
-                <div className="rd-panel h-44 animate-pulse motion-reduce:animate-none" />
 
             </div>
         );
@@ -434,14 +591,22 @@ function handleFieldChange(e) {
     if (!patient) {
 
         return (
-            <div className="mx-auto max-w-6xl space-y-5">
+            <div className="mx-auto max-w-7xl space-y-5">
 
                 {backToPatients}
 
                 <div className="rd-panel overflow-hidden">
                     <EmptyState
-                        title="Patient not found"
-                        hint="The requested patient could not be loaded."
+                        title={
+                            loadError === "failed"
+                                ? "Could not load this record"
+                                : "Patient not found"
+                        }
+                        hint={
+                            loadError === "failed"
+                                ? "Something went wrong reaching the server. Refresh the page to try again."
+                                : "No patient exists with this record number."
+                        }
                         Icon={FileTextIcon}
                     />
                 </div>
@@ -453,164 +618,210 @@ function handleFieldChange(e) {
 
     return (
 
-        <div className="mx-auto max-w-6xl space-y-5">
+        <div className="mx-auto max-w-7xl space-y-5">
 
             {/* HEADER */}
 
             {backToPatients}
 
-            <header className="rd-panel relative overflow-hidden p-6">
+            <header className="rd-panel relative overflow-hidden">
 
                 <HeaderGlow />
 
-                <div className="relative flex flex-wrap items-center gap-4">
+                <div className="relative flex flex-wrap items-center justify-between gap-5 p-6">
 
-                    <Avatar name={patient.name} className="size-14 text-base" />
+                    <div className="flex min-w-0 items-center gap-4">
 
-                    <div className="min-w-0">
+                        <Avatar name={patient.name} className="size-14 text-base" />
 
-                        <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
-                            Patient record
-                        </p>
+                        <div className="min-w-0">
 
-                        <h1 className="mt-1.5 truncate text-2xl font-bold tracking-tight text-rd-title">
-                            {patient.name}
-                        </h1>
+                            <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
+                                Patient record
+                            </p>
 
-                        <p className="mt-1 text-sm text-rd-muted">
-                            {[
-                                `ID #${patient.patientid}`,
-                                patient.age ? `${patient.age} yrs` : null,
-                                patient.sex,
-                            ]
-                                .filter(Boolean)
-                                .join(" · ")}
-                        </p>
+                            <h1 className="mt-1.5 truncate text-2xl font-bold tracking-tight text-rd-title">
+                                {patient.name}
+                            </h1>
+
+                            <p className="mt-1.5 text-sm text-rd-muted">
+                                {[
+                                    `ID #${patient.patientid}`,
+                                    patient.age ? `${patient.age} yrs` : null,
+                                    patient.sex,
+                                    `${visits.length} ${
+                                        visits.length === 1 ? "visit" : "visits"
+                                    }`,
+                                    lastVisitLabel,
+                                ]
+                                    .filter(Boolean)
+                                    .join("  ·  ")}
+                            </p>
+
+                        </div>
 
                     </div>
 
                 </div>
 
+                {/* Three views of one record rather than three panels stacked
+                    down a single scroll. */}
             </header>
 
 
             {/* PATIENT INFORMATION */}
 
-            <section className="rd-panel overflow-hidden">
+            {/* The switcher sits on the page between the header and the content
+                it controls, not inside the identity card — it belongs to the
+                views below it, not to the patient's name above. */}
+            <div
+                role="tablist"
+                aria-label="Patient record sections"
+                className="flex w-full gap-1 rounded-2xl border border-rd-hair bg-rd-sunken p-1"
+            >
 
-                <div className="border-b border-rd-hair p-4">
+                {TABS.map(({ id: tabId, label, Icon }) => {
 
-                    <h2 className="text-lg font-semibold text-rd-title">
-                        Patient information
-                    </h2>
+                    const active = activeTab === tabId;
 
-                    <p className="mt-0.5 text-sm text-rd-muted">
-                        Demographics and contact details on file.
-                    </p>
+                    return (
+                        <button
+                            key={tabId}
+                            type="button"
+                            role="tab"
+                            id={`tab-${tabId}`}
+                            aria-selected={active}
+                            aria-controls={`panel-${tabId}`}
+                            onClick={() => setActiveTab(tabId)}
+                            className={`rd-press rd-focus inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition duration-200 ${
+                                active
+                                    ? "bg-rd-card text-rd-title shadow-[var(--rd-lift)]"
+                                    : "text-rd-muted hover:text-rd-title"
+                            }`}
+                        >
+                            <Icon
+                                size={16}
+                                className={active ? "text-rd-cyan" : undefined}
+                            />
 
-                </div>
+                            {label}
 
-                <dl className="grid gap-x-10 gap-y-6 p-4 sm:grid-cols-2 lg:grid-cols-3">
+                            {tabId === "visits" && visits.length > 0 && (
+                                <span
+                                    className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${
+                                        active
+                                            ? "rd-tint-cyan"
+                                            : "bg-rd-raised text-rd-muted"
+                                    }`}
+                                >
+                                    {visits.length}
+                                </span>
+                            )}
+                        </button>
+                    );
 
-                    {[
-                        { label: "Full name", value: patient.name, strong: true },
+                })}
+
+            </div>
+
+            {activeTab === "overview" && (
+
+            <section
+                id="panel-overview"
+                role="tabpanel"
+                aria-labelledby="tab-overview"
+                className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
+            >
+
+                {/* Demographics and contact are different kinds of fact — one
+                    describes the patient, the other reaches them — so they get
+                    their own cards instead of one undifferentiated grid. */}
+                <InfoCard
+                    title="Demographics"
+                    caption="Identity as recorded at registration"
+                    Icon={UserIcon}
+                    tint="rd-tint-cyan"
+                    items={[
+                        /* The header repeats these, but a section called
+                           Demographics has to stand on its own as the record. */
+                        {
+                            label: "Full name",
+                            icon: UserIcon,
+                            value: patient.name,
+                        },
+                        {
+                            label: "Record number",
+                            icon: FileTextIcon,
+                            value: `#${patient.patientid}`,
+                        },
                         {
                             label: "Birthdate",
+                            icon: CakeIcon,
                             value: patient.birthdate
-                                ? new Date(patient.birthdate).toLocaleDateString()
+                                ? new Date(patient.birthdate).toLocaleDateString(
+                                      undefined,
+                                      { day: "numeric", month: "long", year: "numeric" }
+                                  )
                                 : null,
                         },
-                        { label: "Age", value: patient.age ? `${patient.age} years old` : null },
-                        { label: "Sex", value: patient.sex },
-                        { label: "Civil status", value: patient.civilStatus },
-                        { label: "Mobile number", value: patient.mobilenum },
-                        { label: "Email", value: patient.email, wrap: true },
-                        { label: "Address", value: patient.address, span: true },
-                    ].map(({ label, value, strong, wrap, span }) => (
+                        {
+                            label: "Age",
+                            icon: ClockIcon,
+                            value: patient.age ? `${patient.age} years old` : null,
+                        },
+                        { label: "Sex", icon: UserIcon, value: titleCase(patient.sex) },
+                        {
+                            label: "Civil status",
+                            icon: HeartIcon,
+                            value: titleCase(patient.civilStatus),
+                        },
+                    ]}
+                />
 
-                        <div key={label} className={span ? "sm:col-span-2" : undefined}>
-
-                            <dt className="text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
-                                {label}
-                            </dt>
-
-                            <dd
-                                className={`mt-1 text-sm ${
-                                    strong ? "font-medium text-rd-title" : "text-rd-label"
-                                } ${wrap ? "break-words" : ""}`}
-                            >
-                                {value || <span className="text-rd-muted">—</span>}
-                            </dd>
-
-                        </div>
-
-                    ))}
-
-                </dl>
-
-            </section>
-
-
-
-            {/* VISIT SUMMARY */}
-
-            <section className="grid gap-4 sm:grid-cols-3">
-
-                {[
-                    {
-                        label: "Total visits",
-                        value: visits.length,
-                        hint: "Recorded encounters",
-                        Icon: CalendarIcon,
-                        chip: "bg-cyan-500/12 text-cyan-600",
-                    },
-                    {
-                        label: "Last visit",
-                        value:
-                            visits.length > 0
-                                ? new Date(visits[0].visited_at).toLocaleDateString()
-                                : "—",
-                        hint: visits.length > 0 ? "Most recent encounter" : "No visits yet",
-                        Icon: ClockIcon,
-                        chip: "bg-amber-500/12 text-amber-600",
-                    },
-                    {
-                        label: "Patient ID",
-                        value: `#${patient.patientid}`,
-                        hint: "Internal record number",
-                        Icon: FlaskIcon,
-                        chip: "bg-emerald-500/12 text-emerald-600",
-                    },
-                ].map(({ label, value, hint, Icon, chip }) => (
-
-                    <article key={label} className="rd-panel p-5">
-
-                        <div className="flex items-start justify-between gap-3">
-
-                            <p className="text-sm font-medium text-rd-label">{label}</p>
-
-                            <span className={`grid size-10 flex-none place-items-center rounded-xl ${chip}`}>
-                                <Icon size={20} />
-                            </span>
-
-                        </div>
-
-                        <p className="mt-4 truncate text-2xl font-bold tabular-nums tracking-tight text-rd-title">
-                            {value}
-                        </p>
-
-                        <p className="mt-1 text-sm text-rd-muted">{hint}</p>
-
-                    </article>
-
-                ))}
+                <InfoCard
+                    title="Contact"
+                    caption="How the clinic reaches this patient"
+                    Icon={PhoneIcon}
+                    tint="rd-tint-green"
+                    items={[
+                        {
+                            label: "Mobile number",
+                            icon: PhoneIcon,
+                            value: patient.mobilenum,
+                            href: patient.mobilenum
+                                ? `tel:${String(patient.mobilenum).replace(/[^\d+]/g, "")}`
+                                : null,
+                        },
+                        {
+                            label: "Email",
+                            icon: MailIcon,
+                            value: patient.email,
+                            href: patient.email ? `mailto:${patient.email}` : null,
+                        },
+                        {
+                            label: "Address",
+                            icon: MapPinIcon,
+                            value: patient.address,
+                            span: true,
+                        },
+                    ]}
+                />
 
             </section>
+
+            )}
 
 
             {/* VISIT HISTORY */}
 
-            <section className="rd-panel overflow-hidden">
+            {activeTab === "visits" && (
+
+            <section
+                id="panel-visits"
+                role="tabpanel"
+                aria-labelledby="tab-visits"
+                className="rd-panel overflow-hidden"
+            >
 
                 <div className="flex flex-wrap items-center justify-between gap-4 border-b border-rd-hair p-4">
 
@@ -643,88 +854,147 @@ function handleFieldChange(e) {
 
                 ) : (
 
-                    <div className="rd-scroll-thin overflow-x-auto">
+                    /* A visit history is a chronology, so it reads as one: a
+                       spine with the most recent encounter at the top. */
+                    <ol className="relative p-4 sm:p-6">
 
-                        <table className="w-full min-w-[560px]">
+                        <span
+                            aria-hidden="true"
+                            className="absolute bottom-10 left-[2.4rem] top-10 w-px bg-gradient-to-b from-rd-cyan/40 via-rd-hair-strong to-transparent sm:left-[3.4rem]"
+                        />
 
-                            <thead>
+                        {visits.map((visit, index) => {
 
-                                <tr className="border-b border-rd-hair">
+                            const date = new Date(visit.visited_at);
+                            const isLatest = index === 0;
 
-                                    <th className={th}>Visit</th>
+                            return (
 
-                                    <th className={th}>Date</th>
+                                <li
+                                    key={visit.visitid}
+                                    className="group relative flex gap-4 pb-5 last:pb-0 sm:gap-5"
+                                >
 
-                                    <th className={th}>Time</th>
+                                    <span
+                                        aria-hidden="true"
+                                        className={`relative z-10 grid size-11 flex-none place-items-center rounded-2xl border text-xs font-bold tabular-nums transition duration-200 ${
+                                            isLatest
+                                                ? "border-transparent bg-rd-cyan text-rd-on-cyan shadow-[0_10px_24px_-10px_var(--rd-accent-shadow)]"
+                                                : "border-rd-hair-strong bg-rd-card text-rd-muted group-hover:border-rd-cyan/60 group-hover:text-rd-cyan"
+                                        }`}
+                                    >
+                                        {isLatest ? (
+                                            <CalendarIcon size={18} />
+                                        ) : (
+                                            visits.length - index
+                                        )}
+                                    </span>
 
-                                    <th className={`${th} text-right`}>Action</th>
+                                    {/* Laid out across the card rather than stacked
+                                        in one narrow column, so the entry uses the
+                                        width instead of leaving a gap in the middle. */}
+                                    <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-x-8 gap-y-4 rounded-2xl border border-rd-hair bg-rd-sunken p-4 transition duration-200 group-hover:border-rd-cyan/45 group-hover:shadow-[var(--rd-lift)]">
 
-                                </tr>
+                                        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-10 gap-y-4">
 
-                            </thead>
+                                            <div className="min-w-[7rem]">
 
-                            <tbody>
+                                                <p className="text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
+                                                    Visit
+                                                </p>
 
-                                {visits.map((visit, index) => {
+                                                <div className="mt-1 flex flex-wrap items-center gap-2">
 
-                                    const date = new Date(
-                                        visit.visited_at
-                                    );
+                                                    <p className="text-base font-bold text-rd-title">
+                                                        #{visits.length - index}
+                                                    </p>
 
-                                    return (
+                                                    {isLatest && (
+                                                        <span className="rd-tint-cyan rounded-full px-2 py-0.5 text-[11px] font-bold">
+                                                            Latest
+                                                        </span>
+                                                    )}
 
-                                        <tr
-                                            key={visit.visitid}
-                                            className="border-b border-rd-hair last:border-0 transition-colors hover:bg-rd-raised"
+                                                </div>
+
+                                            </div>
+
+                                            <div className="min-w-[8rem]">
+
+                                                <p className="text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
+                                                    When
+                                                </p>
+
+                                                <p className={`mt-1 text-base font-semibold ${recencyTone(date)}`}>
+                                                    {relativeLabel(date)}
+                                                </p>
+
+                                            </div>
+
+                                            <div className="min-w-0">
+
+                                                <p className="text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
+                                                    Recorded
+                                                </p>
+
+                                                <p className="mt-1 truncate text-base font-medium tabular-nums text-rd-label">
+                                                    {date.toLocaleDateString(undefined, {
+                                                        weekday: "short",
+                                                        day: "numeric",
+                                                        month: "short",
+                                                        year: "numeric",
+                                                    })}
+                                                    {" · "}
+                                                    {date.toLocaleTimeString([], {
+                                                        hour: "2-digit",
+                                                        minute: "2-digit",
+                                                    })}
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+
+                                        <Link
+                                            href={`/dashboard/doctor/visitation/${visit.visitid}`}
+                                            aria-label={`Open the visit on ${date.toLocaleDateString()}`}
+                                            className="rd-press rd-focus inline-flex min-h-11 flex-none cursor-pointer items-center gap-1.5 rounded-xl border border-rd-cyan/35 bg-rd-cyan/10 px-4 text-sm font-semibold text-rd-cyan transition duration-200 hover:border-transparent hover:bg-rd-cyan hover:text-rd-on-cyan hover:shadow-[0_10px_24px_-10px_var(--rd-accent-shadow)]"
                                         >
+                                            Open visit
+                                            <ChevronRightIcon
+                                                size={16}
+                                                className="transition-transform duration-200 group-hover:translate-x-0.5"
+                                            />
+                                        </Link>
 
-                                            <td className={`${td} font-medium text-rd-title`}>
-                                                Visit #{visits.length - index}
-                                            </td>
+                                    </div>
 
-                                            <td className={`${td} tabular-nums`}>
-                                                {date.toLocaleDateString()}
-                                            </td>
+                                </li>
 
-                                            <td className={`${td} tabular-nums`}>
-                                                {date.toLocaleTimeString([], {
-                                                    hour: "2-digit",
-                                                    minute: "2-digit"
-                                                })}
-                                            </td>
+                            );
 
-                                            <td className={`${td} text-right`}>
+                        })}
 
-                                                <Link
-                                                    href={`/dashboard/doctor/visitation/${visit.visitid}`}
-                                                    aria-label={`View visit on ${date.toLocaleDateString()}`}
-                                                    className={rowAction}
-                                                >
-                                                    View visit
-                                                    <ChevronRightIcon size={16} />
-                                                </Link>
-
-                                            </td>
-
-                                        </tr>
-
-                                    );
-
-                                })}
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
+                    </ol>
 
                 )}
 
             </section>
 
+            )}
+
             {/* TEST HISTORY */}
 
-            <section className="rd-panel overflow-hidden">
+            {activeTab === "trends" && (
+
+            <>
+
+            <section
+                id="panel-trends"
+                role="tabpanel"
+                aria-labelledby="tab-trends"
+                className="rd-panel overflow-hidden"
+            >
 
                 <div className="border-b border-rd-hair p-4">
 
@@ -753,7 +1023,7 @@ function handleFieldChange(e) {
                             className="rd-input"
                         >
 
-                            <option value="" disabled hidden>
+                            <option value="">
                                 Select a test
                             </option>
 
@@ -786,7 +1056,7 @@ function handleFieldChange(e) {
                             className="rd-input"
                         >
 
-                            <option value="" disabled hidden>
+                            <option value="">
                                 {selectedTest ? "Select a value" : "Choose a test first"}
                             </option>
 
@@ -831,6 +1101,84 @@ function handleFieldChange(e) {
 
             ) : isNumeric && chartData.length > 0 ? (
 
+                <>
+
+                <section className="grid gap-4 sm:grid-cols-3">
+
+                    {[
+                        {
+                            label: "Latest reading",
+                            value: latestReading?.value ?? "—",
+                            hint: latestReading?.date ?? "No readings",
+                            tint: "rd-tint-cyan",
+                            Icon: FlaskIcon,
+                        },
+                        {
+                            label: "Change since previous",
+                            value:
+                                readingDelta === null
+                                    ? "—"
+                                    : `${readingDelta > 0 ? "+" : ""}${readingDelta.toFixed(2)}`,
+                            hint:
+                                readingDelta === null
+                                    ? "Needs two readings"
+                                    : readingDelta === 0
+                                        ? "Holding steady"
+                                        : readingDelta > 0
+                                            ? "Higher than last time"
+                                            : "Lower than last time",
+                            tint:
+                                readingDelta === null || readingDelta === 0
+                                    ? "rd-tint-cyan"
+                                    : "rd-tint-amber",
+                            Icon:
+                                readingDelta === null || readingDelta === 0
+                                    ? MinusIcon
+                                    : readingDelta > 0
+                                        ? TrendUpIcon
+                                        : TrendDownIcon,
+                        },
+                        {
+                            label: "Readings on file",
+                            value: chartData.length,
+                            hint: "Across all visits",
+                            tint: "rd-tint-green",
+                            Icon: CalendarIcon,
+                        },
+                    ].map(({ label, value, hint, tint, Icon }) => (
+
+                        <article
+                            key={label}
+                            className="rd-panel relative overflow-hidden p-5"
+                        >
+
+                            <span
+                                aria-hidden="true"
+                                className={`${tint} absolute inset-x-0 top-0 h-1`}
+                            />
+
+                            <div className="flex items-start justify-between gap-3">
+
+                                <p className="text-sm font-medium text-rd-label">{label}</p>
+
+                                <span className={`${tint} grid size-10 flex-none place-items-center rounded-xl`}>
+                                    <Icon size={20} />
+                                </span>
+
+                            </div>
+
+                            <p className="mt-4 truncate text-3xl font-bold tabular-nums tracking-tight text-rd-title">
+                                {value}
+                            </p>
+
+                            <p className="mt-1 text-sm text-rd-muted">{hint}</p>
+
+                        </article>
+
+                    ))}
+
+                </section>
+
                 <PatientTestChart
                     data={chartData}
                     title={
@@ -839,6 +1187,8 @@ function handleFieldChange(e) {
                         )?.label
                     }
                 />
+
+                </>
 
             ) : (
 
@@ -880,7 +1230,7 @@ function handleFieldChange(e) {
 
                                 <thead>
 
-                                    <tr className="border-b border-rd-hair">
+                                    <tr className="border-b border-rd-hair-strong bg-rd-sunken">
 
                                         <th className={th}>Date</th>
 
@@ -925,7 +1275,9 @@ function handleFieldChange(e) {
 
             )}
 
+            </>
 
+            )}
 
         </div>
 

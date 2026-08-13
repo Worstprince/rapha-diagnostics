@@ -26,6 +26,57 @@ export function SearchIcon(props) {
     );
 }
 
+export function HeartIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="M12 20s-7-4.6-7-9.4A3.9 3.9 0 0 1 12 8a3.9 3.9 0 0 1 7 2.6c0 4.8-7 9.4-7 9.4Z" />
+        </Icon>
+    );
+}
+
+export function MailIcon(props) {
+    return (
+        <Icon {...props}>
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="m3.5 7 8.5 6 8.5-6" />
+        </Icon>
+    );
+}
+
+export function ActivityIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="M3 12h3.5l2.5-7 4 14 2.5-7H21" />
+        </Icon>
+    );
+}
+
+export function TrendUpIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="m4 16 5.5-5.5 3.5 3.5L20 7" />
+            <path d="M15 7h5v5" />
+        </Icon>
+    );
+}
+
+export function TrendDownIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="m4 8 5.5 5.5L13 10l7 7" />
+            <path d="M15 17h5v-5" />
+        </Icon>
+    );
+}
+
+export function MinusIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="M5 12h14" />
+        </Icon>
+    );
+}
+
 export function UserIcon(props) {
     return (
         <Icon {...props}>
@@ -144,11 +195,14 @@ export const th =
 
 export const td = "px-5 py-4 text-sm text-rd-label";
 
+/* The glow reads from --rd-accent-shadow rather than a baked cyan: the literal
+   was dark-mode's bright #22d3ee, which fires a neon halo in light mode where
+   the accent is a dark teal. */
 export const rowAction =
-    "rd-press rd-focus inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-xl border border-rd-hair-strong bg-rd-sunken px-3.5 text-sm font-medium text-rd-label hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan hover:shadow-[0_0_18px_-6px_rgba(34,211,238,0.5)]";
+    "rd-press rd-focus inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-xl border border-rd-hair-strong bg-rd-sunken px-3.5 text-sm font-medium text-rd-label transition duration-150 hover:border-rd-cyan/60 hover:bg-rd-cyan/10 hover:text-rd-cyan hover:shadow-[0_0_18px_-6px_var(--rd-accent-shadow)]";
 
 export const backLink =
-    "rd-press rd-focus inline-flex w-fit min-h-11 items-center gap-2 rounded-xl border border-transparent px-3 text-sm font-medium text-rd-muted hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan hover:shadow-[0_0_18px_-6px_rgba(34,211,238,0.5)]";
+    "rd-press rd-focus inline-flex w-fit min-h-11 items-center gap-2 rounded-xl border border-transparent px-3 text-sm font-medium text-rd-muted transition duration-150 hover:border-rd-cyan/60 hover:bg-rd-cyan/10 hover:text-rd-cyan hover:shadow-[0_0_18px_-6px_var(--rd-accent-shadow)]";
 
 export function initialsOf(name) {
     if (!name) return "";
