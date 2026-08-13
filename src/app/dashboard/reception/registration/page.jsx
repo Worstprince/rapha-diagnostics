@@ -1,18 +1,25 @@
+import Link from "next/link";
+
 import PatientRegistration from "@/components/patient/patientRegistration";
+
+import { ArrowLeftIcon, PageHeader, backLink } from "../_ui";
 
 export default function PatientRegistrationPage() {
   return (
-    <div className="space-y-6">
-      <header className="rd-panel p-6">
-        <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">Reception</p>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">Patient registration</h1>
-        <p className="mt-2 text-sm text-rd-muted">Capture new patient details and prepare them for their visit.</p>
-      </header>
+    <div className="mx-auto max-w-6xl space-y-5">
 
-      <section className="rd-panel p-6">
-        <PatientRegistration />
+      <Link href="/dashboard/reception" className={backLink}>
+        <ArrowLeftIcon size={16} />
+        Back to intake
+      </Link>
 
-      </section>
+      <PageHeader
+        title="Patient registration"
+        description="Capture new patient details and prepare them for their visit."
+      />
+
+      <PatientRegistration />
+
     </div>
   );
 }

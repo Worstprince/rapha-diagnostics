@@ -12,7 +12,8 @@
   --rd-raised: rgba(30, 41, 59, 0.5);
   --rd-field: rgba(30, 41, 59, 0.55);
   --rd-field-focus: rgba(30, 41, 59, 0.78);
- 
+  --rd-field-edge: rgba(148, 163, 184, 0.14);
+
   --rd-popover: #101a2c;
   --rd-hair: rgba(148, 163, 184, 0.14);
   --rd-hair-strong: rgba(148, 163, 184, 0.24);
@@ -50,15 +51,16 @@
   --rd-cyan-strong: #075c6d;
   --rd-on-cyan: #ffffff;
 
-  --rd-canvas: #dde5ef;
+  --rd-canvas: #ccd8e8;
   --rd-card: #ffffff;
-  --rd-sunken: #f1f5fa;
-  --rd-raised: #e8eef6;
-  --rd-field: #f4f7fb;
+  --rd-sunken: #e9eff7;
+  --rd-raised: #dae4f1;
+  --rd-field: #ffffff;
   --rd-field-focus: #ffffff;
+  --rd-field-edge: rgba(15, 39, 71, 0.28);
   --rd-popover: #ffffff;
   --rd-hair: rgba(15, 39, 71, 0.16);
-  --rd-hair-strong: rgba(15, 39, 71, 0.28);
+  --rd-hair-strong: rgba(15, 39, 71, 0.3);
 
   --rd-text: #1b2b3f;
   --rd-title: #0a1a2b;
@@ -74,8 +76,10 @@
   --rd-ok-edge: rgba(10, 115, 135, 0.3);
   --rd-ok-bg: rgba(10, 115, 135, 0.1);
 
-  --rd-card-shadow: 0 1px 2px rgba(15, 39, 71, 0.1), 0 18px 34px -20px rgba(15, 39, 71, 0.32);
-  --rd-lift: 0 1px 2px rgba(15, 39, 71, 0.08), 0 10px 22px -16px rgba(15, 39, 71, 0.26);
+  --rd-card-shadow: 0 1px 1px rgba(15, 39, 71, 0.06), 0 8px 16px -10px rgba(15, 39, 71, 0.28),
+    0 28px 48px -28px rgba(15, 39, 71, 0.4);
+  --rd-lift: 0 1px 1px rgba(15, 39, 71, 0.05), 0 6px 12px -8px rgba(15, 39, 71, 0.22),
+    0 18px 32px -22px rgba(15, 39, 71, 0.32);
   --rd-toggle-bg: #ffffff;
   --rd-toggle-border: rgba(15, 39, 71, 0.16);
 
@@ -233,6 +237,7 @@
   --color-rd-sunken: var(--rd-sunken);
   --color-rd-raised: var(--rd-raised);
   --color-rd-field: var(--rd-field);
+  --color-rd-popover: var(--rd-popover);
   --color-rd-hair: var(--rd-hair);
   --color-rd-hair-strong: var(--rd-hair-strong);
   --color-rd-text: var(--rd-text);
@@ -268,6 +273,12 @@
     background-color: var(--rd-field);
     color: var(--rd-text);
     font-weight: 600;
+    border: 1px solid var(--rd-field-edge);
+  }
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    border: none;
   }
 
   input::placeholder,
@@ -396,7 +407,7 @@
     width: 100%;
     padding: 14px 16px;
     border-radius: 12px;
-    border: 1px solid var(--rd-hair);
+    border: 1px solid var(--rd-field-edge);
     background-color: var(--rd-field);
     color: var(--rd-text);
     font-size: 15px;
@@ -410,6 +421,10 @@
     color: var(--rd-placeholder);
   }
 
+  .rd-input:hover:not(:disabled):not(:focus) {
+    border-color: var(--rd-hair-strong);
+  }
+
   .rd-input:focus {
     border-color: var(--rd-cyan);
     background-color: var(--rd-field-focus);
@@ -417,7 +432,9 @@
   }
 
   .rd-input:disabled {
-    opacity: 0.55;
+    background-color: var(--rd-sunken);
+    border-color: var(--rd-hair);
+    color: var(--rd-muted);
     cursor: not-allowed;
   }
 
@@ -514,6 +531,7 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
+    min-height: 44px;
     padding: 12px 22px;
     border: 1px solid var(--rd-hair-strong);
     border-radius: 12px;
@@ -523,6 +541,18 @@
     font-weight: 600;
     font-family: inherit;
     cursor: pointer;
+    transition: border-color 160ms ease-out, background-color 160ms ease-out,
+      color 160ms ease-out;
+  }
+
+  .rd-btn-ghost:hover:not(:disabled) {
+    border-color: var(--rd-cyan);
+    color: var(--rd-title);
+  }
+
+  .rd-btn-ghost:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   /* Same shape as .rd-btn, but never the accent gradient — a destructive
