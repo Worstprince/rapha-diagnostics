@@ -6,8 +6,11 @@ import Link from "next/link";
 import {
     Avatar,
     ChevronRightIcon,
+    ClockIcon,
     EmptyState,
     HeaderGlow,
+    priorityTone,
+    toneBar,
     Pill,
     PriorityPill,
     SearchIcon,
@@ -16,6 +19,39 @@ import {
     td,
     th,
 } from "../_ui";
+
+const DAY = 24 * 60 * 60 * 1000;
+
+/* Same wording and colour rules as the patients list, so a date means the
+   same thing whichever queue you are reading. */
+function relativeLabel(date) {
+    const days = Math.floor((Date.now() - date.getTime()) / DAY);
+
+    if (days < 0) return "Scheduled";
+    if (days === 0) return "Today";
+    if (days === 1) return "Yesterday";
+    if (days < 7) return `${days} days ago`;
+    if (days < 30) {
+        const weeks = Math.floor(days / 7);
+        return `${weeks} ${weeks === 1 ? "week" : "weeks"} ago`;
+    }
+    if (days < 365) {
+        const months = Math.floor(days / 30);
+        return `${months} ${months === 1 ? "month" : "months"} ago`;
+    }
+
+    const years = Math.floor(days / 365);
+    return `${years} ${years === 1 ? "year" : "years"} ago`;
+}
+
+function recencyTone(date) {
+    const days = Math.floor((Date.now() - date.getTime()) / DAY);
+
+    if (days <= 7) return "text-rd-fresh";
+    if (days <= 30) return "text-rd-text";
+
+    return "text-rd-muted";
+}
 
 export default function DoctorVisitationPage() {
 
@@ -197,23 +233,46 @@ export default function DoctorVisitationPage() {
         <div className="mx-auto flex max-w-6xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
 
 
-            <header className="rd-panel relative flex-none overflow-hidden p-6">
+            <header className="rd-panel relative flex-none overflow-hidden">
 
                 <HeaderGlow />
 
-                <div className="relative">
+                <div className="relative flex flex-wrap items-end justify-between gap-x-8 gap-y-5 px-6 py-5">
 
-                    <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
-                        Doctor
-                    </p>
+                    <div>
 
-                    <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">
-                        Patient Visitations
-                    </h1>
+                        <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
+                            Doctor
+                        </p>
 
-                    <p className="mt-2 text-sm text-rd-muted">
-                        Review visitations that still require test approval.
-                    </p>
+                        <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-rd-title">
+                            Patient Visitations
+                        </h1>
+
+                        <p className="mt-1.5 text-sm text-rd-muted">
+                            Review visitations that still require test approval.
+                        </p>
+
+                    </div>
+
+                    {/* The queue is paginated server-side, so the server's own
+                        total is the only count this page can state truthfully. */}
+                    <div className="flex items-center gap-3">
+
+                        <span className="rd-tint-cyan grid size-9 flex-none place-items-center rounded-xl">
+                            <ClockIcon size={18} />
+                        </span>
+
+                        <div>
+                            <p className="text-xl font-bold tabular-nums leading-none tracking-tight text-rd-title">
+                                {loading ? "—" : total}
+                            </p>
+                            <p className="mt-1 text-xs text-rd-muted">
+                                {activeFilterCount > 0 ? "Matching visits" : "In the queue"}
+                            </p>
+                        </div>
+
+                    </div>
 
                 </div>
 
@@ -225,55 +284,51 @@ export default function DoctorVisitationPage() {
 
                 {/* SEARCH + FILTER BUTTON */}
 
-                <div className="flex flex-col gap-3 border-b border-rd-hair p-4 sm:flex-row sm:items-center">
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-rd-hair p-4">
 
 
-                    <div className="relative flex-1">
+                    <div className="min-w-0">
 
-                        <span
-                            aria-hidden="true"
-                            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-rd-placeholder"
-                        >
-                            <SearchIcon />
-                        </span>
+                        <h2 className="text-lg font-semibold text-rd-title">
+                            Visitation queue
+                        </h2>
 
-
-                        <input
-                            type="search"
-                            aria-label="Search patients"
-                            placeholder="Search patient…"
-                            value={search}
-                            onChange={handleSearchChange}
-                            className="rd-input pl-11"
-                        />
+                        <p className="mt-0.5 text-sm text-rd-muted">
+                            {loading
+                                ? "Loading visitations…"
+                                : visitations.length === 0
+                                    ? "No matching visitations"
+                                    : `Showing ${(page - 1) * limit + 1}–${
+                                          (page - 1) * limit + visitations.length
+                                      } of ${total}`}
+                        </p>
 
                     </div>
 
 
-                    <div className="flex items-center justify-between gap-3">
+                    <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
 
 
-                        {!loading && (
+                        <div className="relative w-full sm:w-64">
 
-                            <p className="text-sm text-rd-muted">
+                            <span
+                                aria-hidden="true"
+                                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-rd-placeholder"
+                            >
+                                <SearchIcon />
+                            </span>
 
-                                Showing{" "}
 
-                                <span className="font-medium text-rd-label">
-                                    {visitations.length}
-                                </span>
+                            <input
+                                type="search"
+                                aria-label="Search patients"
+                                placeholder="Search patient…"
+                                value={search}
+                                onChange={handleSearchChange}
+                                className="rd-input pl-11"
+                            />
 
-                                {" "}of{" "}
-
-                                <span className="font-medium text-rd-label">
-                                    {total}
-                                </span>
-
-                                {" "}visitations
-
-                            </p>
-
-                        )}
+                        </div>
 
 
                         <button
@@ -290,7 +345,7 @@ export default function DoctorVisitationPage() {
 
                             {activeFilterCount > 0 && (
 
-                                <span className="ml-2 rounded-full bg-rd-cyan px-2 py-0.5 text-xs font-semibold text-slate-950">
+                                <span className="rd-tint-cyan rounded-full px-2 py-0.5 text-xs font-bold tabular-nums">
                                     {activeFilterCount}
                                 </span>
 
@@ -489,26 +544,22 @@ export default function DoctorVisitationPage() {
 
                     <div className="rd-scroll-thin min-h-0 flex-1 overflow-auto">
 
-                        <table className="w-full min-w-[860px] border-collapse">
+                        <table className="w-full min-w-[780px] border-collapse">
 
                             <thead>
 
-                                <tr className="border-b border-rd-hair">
+                                <tr className="border-b border-rd-hair-strong bg-rd-sunken">
 
                                     <th className={th}>
                                         Patient
                                     </th>
 
                                     <th className={th}>
-                                        Age
+                                        Age / Sex
                                     </th>
 
                                     <th className={th}>
-                                        Sex
-                                    </th>
-
-                                    <th className={th}>
-                                        Visit Date
+                                        Visit date
                                     </th>
 
                                     <th className={th}>
@@ -540,7 +591,17 @@ export default function DoctorVisitationPage() {
                                     >
 
 
-                                        <td className={td}>
+                                        <td className={`${td} relative`}>
+
+                                            {/* A triage queue should show urgency
+                                                down its edge — you find the
+                                                emergencies without reading a cell. */}
+                                            <span
+                                                aria-hidden="true"
+                                                className={`absolute inset-y-0 left-0 w-1 ${
+                                                    toneBar[priorityTone(visit.priority)]
+                                                }`}
+                                            />
 
                                             <div className="flex items-center gap-3">
 
@@ -548,13 +609,13 @@ export default function DoctorVisitationPage() {
                                                     name={visit.name}
                                                 />
 
-                                                <div>
+                                                <div className="min-w-0">
 
-                                                    <p className="font-medium text-rd-title">
+                                                    <p className="truncate font-medium text-rd-title">
                                                         {visit.name}
                                                     </p>
 
-                                                    <p className="mt-1 text-xs text-rd-muted">
+                                                    <p className="mt-0.5 text-xs tabular-nums text-rd-muted">
                                                         Visit #{visit.visitid}
                                                     </p>
 
@@ -565,20 +626,46 @@ export default function DoctorVisitationPage() {
                                         </td>
 
 
-                                        <td className={`${td} tabular-nums`}>
-                                            {visit.age}
+                                        <td className={td}>
+                                            {[
+                                                visit.age ? `${visit.age} yrs` : null,
+                                                visit.sex,
+                                            ]
+                                                .filter(Boolean)
+                                                .join(" · ") || "—"}
                                         </td>
 
 
                                         <td className={td}>
-                                            {visit.sex}
-                                        </td>
 
+                                            {(() => {
 
-                                        <td className={`${td} tabular-nums`}>
-                                            {new Date(
-                                                visit.visited_at
-                                            ).toLocaleString()}
+                                                const date = new Date(visit.visited_at);
+
+                                                if (Number.isNaN(date.getTime())) {
+                                                    return (
+                                                        <span className="text-rd-muted">—</span>
+                                                    );
+                                                }
+
+                                                return (
+                                                    <>
+                                                        <p className={`font-medium ${recencyTone(date)}`}>
+                                                            {relativeLabel(date)}
+                                                        </p>
+                                                        <p className="mt-0.5 text-xs tabular-nums text-rd-muted">
+                                                            {date.toLocaleDateString()}
+                                                            {" · "}
+                                                            {date.toLocaleTimeString([], {
+                                                                hour: "2-digit",
+                                                                minute: "2-digit",
+                                                            })}
+                                                        </p>
+                                                    </>
+                                                );
+
+                                            })()}
+
                                         </td>
 
 

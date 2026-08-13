@@ -560,6 +560,38 @@
     cursor: not-allowed;
   }
 
+  /* Referenced by the queue, history and billing pages but never defined, so
+     those Filters buttons were rendering as bare browser buttons. */
+  .rd-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 18px;
+    border: 1px solid var(--rd-hair-strong);
+    border-radius: 12px;
+    background: var(--rd-sunken);
+    color: var(--rd-label);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 160ms ease-out, background-color 160ms ease-out,
+      color 160ms ease-out;
+  }
+
+  .rd-btn-secondary:hover:not(:disabled) {
+    border-color: var(--rd-cyan);
+    background: var(--rd-raised);
+    color: var(--rd-title);
+  }
+
+  .rd-btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
   /* Same shape as .rd-btn, but never the accent gradient — a destructive
      confirm must not look like the primary action it's guarding. */
   .rd-btn-danger {
