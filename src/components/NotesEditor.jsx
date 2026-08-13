@@ -162,6 +162,7 @@ export default function NotesEditor({ visit }) {
   );
   const [savedJustNow, setSavedJustNow] = useState(true);
   const [showPhraseMenu, setShowPhraseMenu] = useState(false);
+  const [aiGenerating, setAiGenerating] = useState(false);
 
   const canFinalize = acknowledged && status !== "Finalized";
 
@@ -215,11 +216,30 @@ export default function NotesEditor({ visit }) {
     }
   }, [canFinalize, getSections, id, router]);
 
-  // AI narrative builder isn't wired yet — separate piece from save/finalize.
-  const handleAIAssist = useCallback(() => {
-    const sections = getSections();
-    console.log("TODO: send to AI narrative builder", sections, tests);
-  }, [getSections, tests]);
+  // Calls the AI narrative builder and fills the editable sections with its draft.
+  // The doctor is expected to review/edit before saving or finalizing.
+  const handleAIAssist = useCallback(async () => {
+    setAiGenerating(true);
+    try {
+      const res = await fetch(`/api/doctor/notes/${id}/ai-assist`, {
+        method: "POST",
+      });
+      if (!res.ok) throw new Error("AI assist failed");
+      const { draft } = await res.json();
+
+      SECTION_KEYS.forEach((key) => {
+        const el = editableRefs.current[key];
+        if (el && draft[key]) {
+          el.innerText = draft[key];
+        }
+      });
+      setSavedJustNow(false); // drafted text isn't saved to the DB yet
+    } catch (err) {
+      console.error("Failed to generate AI draft:", err);
+    } finally {
+      setAiGenerating(false);
+    }
+  }, [id]);
 
   return (
     <div className="min-h-screen w-full bg-[#0a0e1a] px-6 py-6 text-slate-100">
@@ -356,10 +376,11 @@ export default function NotesEditor({ visit }) {
               <button
                 type="button"
                 onClick={handleAIAssist}
-                className="inline-flex h-7 items-center gap-1.5 rounded-md border border-cyan-500/30 px-2.5 text-[13px] font-medium text-cyan-400 hover:bg-cyan-500/10"
+                disabled={aiGenerating}
+                className="inline-flex h-7 items-center gap-1.5 rounded-md border border-cyan-500/30 px-2.5 text-[13px] font-medium text-cyan-400 hover:bg-cyan-500/10 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Sparkles size={14} aria-hidden="true" />
-                AI assist
+                {aiGenerating ? "Generating…" : "AI assist"}
               </button>
             </div>
 
