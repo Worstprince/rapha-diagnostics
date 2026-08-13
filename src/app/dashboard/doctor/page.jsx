@@ -133,7 +133,7 @@ export default function DoctorDashboardPage() {
     const shortlist = urgent.slice(0, SHORTLIST);
 
     return (
-        <div className="mx-auto flex max-w-5xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
+        <div className="mx-auto flex max-w-6xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
 
             <header className="rd-panel relative flex-none overflow-hidden p-6">
 
