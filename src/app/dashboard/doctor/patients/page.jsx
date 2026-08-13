@@ -121,6 +121,7 @@ export default function DoctorPatientsPage() {
     const [patients, setPatients] = useState([]);
     const [search, setSearch] = useState("");
     const [sortKey, setSortKey] = useState("recent");
+    const [showFilters, setShowFilters] = useState(false);
     const [page, setPage] = useState(1);
     const [hasError, setHasError] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -178,6 +179,17 @@ export default function DoctorPatientsPage() {
     )
         .slice()
         .sort(SORTS[sortKey].compare);
+
+    const activeFilterCount = [
+        search,
+        sortKey !== "recent",
+    ].filter(Boolean).length;
+
+    function clearFilters() {
+        setSearch("");
+        setSortKey("recent");
+        setPage(1);
+    }
 
     /* The endpoint returns every patient at once, so paging happens here on the
        already-filtered list rather than as another request. */
@@ -345,27 +357,79 @@ export default function DoctorPatientsPage() {
 
                         </div>
 
-                        <label className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setShowFilters((prev) => !prev)}
+                            aria-expanded={showFilters}
+                            className="rd-btn-secondary rd-press rd-focus whitespace-nowrap"
+                        >
 
-                            <span className="sr-only">Sort patients by</span>
+                            Filters
 
-                            <select
-                                value={sortKey}
-                                onChange={(e) => setSortKey(e.target.value)}
-                                className="rd-input w-auto min-w-[10rem]"
-                            >
-                                {Object.entries(SORTS).map(([key, { label }]) => (
-                                    <option key={key} value={key}>
-                                        {label}
-                                    </option>
-                                ))}
-                            </select>
+                            {activeFilterCount > 0 && (
+                                <span className="rd-tint-cyan rounded-full px-2 py-0.5 text-xs font-bold tabular-nums">
+                                    {activeFilterCount}
+                                </span>
+                            )}
 
-                        </label>
+                        </button>
 
                     </div>
 
                 </div>
+
+
+                {/* COLLAPSIBLE FILTERS */}
+
+                {showFilters && (
+
+                    <div className="flex-none border-b border-rd-hair bg-rd-sunken p-4">
+
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+
+                            <label className="space-y-2">
+
+                                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-rd-muted">
+                                    Sort by
+                                </span>
+
+                                <select
+                                    value={sortKey}
+                                    onChange={(e) => setSortKey(e.target.value)}
+                                    className="rd-input"
+                                >
+                                    {Object.entries(SORTS).map(([key, { label }]) => (
+                                        <option key={key} value={key}>
+                                            {label}
+                                        </option>
+                                    ))}
+                                </select>
+
+                            </label>
+
+                        </div>
+
+
+                        {activeFilterCount > 0 && (
+
+                            <div className="mt-4 flex justify-end">
+
+                                <button
+                                    type="button"
+                                    onClick={clearFilters}
+                                    className="text-sm font-medium text-rd-muted hover:text-rd-title"
+                                >
+                                    Clear filters
+                                </button>
+
+                            </div>
+
+                        )}
+
+                    </div>
+
+                )}
 
                 <div className="rd-scroll-thin min-h-0 flex-1 overflow-auto">
 
