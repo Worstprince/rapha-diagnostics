@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import {
     Avatar,
+    CheckIcon,
     ChevronRightIcon,
     EmptyState,
     HeaderGlow,
@@ -12,12 +13,47 @@ import {
     PriorityPill,
     SearchIcon,
     TableSkeleton,
+    priorityTone,
     rowAction,
     td,
     th,
+    toneBar,
 } from "../../_ui";
 
 const PAGE_SIZE = 10;
+
+const DAY = 24 * 60 * 60 * 1000;
+
+/* Shared wording and colour rules with the queue and the patients list, so a
+   date reads the same way on every doctor page. */
+function relativeLabel(date) {
+    const days = Math.floor((Date.now() - date.getTime()) / DAY);
+
+    if (days < 0) return "Scheduled";
+    if (days === 0) return "Today";
+    if (days === 1) return "Yesterday";
+    if (days < 7) return `${days} days ago`;
+    if (days < 30) {
+        const weeks = Math.floor(days / 7);
+        return `${weeks} ${weeks === 1 ? "week" : "weeks"} ago`;
+    }
+    if (days < 365) {
+        const months = Math.floor(days / 30);
+        return `${months} ${months === 1 ? "month" : "months"} ago`;
+    }
+
+    const years = Math.floor(days / 365);
+    return `${years} ${years === 1 ? "year" : "years"} ago`;
+}
+
+function recencyTone(date) {
+    const days = Math.floor((Date.now() - date.getTime()) / DAY);
+
+    if (days <= 7) return "text-rd-fresh";
+    if (days <= 30) return "text-rd-text";
+
+    return "text-rd-muted";
+}
 
 export default function DoctorVisitationHistoryPage() {
 
@@ -215,19 +251,40 @@ export default function DoctorVisitationHistoryPage() {
 
                 <HeaderGlow />
 
-                <div className="relative">
+                <div className="relative flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
 
-                    <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
-                        Doctor
-                    </p>
+                    <div>
 
-                    <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">
-                        Visitation History
-                    </h1>
+                        <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
+                            Doctor
+                        </p>
 
-                    <p className="mt-2 text-sm text-rd-muted">
-                        View previously approved patient visitations.
-                    </p>
+                        <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-rd-title">
+                            Visitation History
+                        </h1>
+
+                        <p className="mt-1.5 text-sm text-rd-muted">
+                            View previously approved patient visitations.
+                        </p>
+
+                    </div>
+
+                    <div className="flex items-center gap-3">
+
+                        <span className="rd-tint-green grid size-9 flex-none place-items-center rounded-xl">
+                            <CheckIcon size={18} />
+                        </span>
+
+                        <div>
+                            <p className="text-xl font-bold tabular-nums leading-none tracking-tight text-rd-title">
+                                {loading ? "—" : total}
+                            </p>
+                            <p className="mt-1 text-xs text-rd-muted">
+                                {activeFilterCount > 0 ? "Matching visits" : "Approved"}
+                            </p>
+                        </div>
+
+                    </div>
 
                 </div>
 
@@ -251,7 +308,11 @@ export default function DoctorVisitationHistoryPage() {
 
                             {loading
                                 ? "Loading history…"
-                                : `${total} approved visitations`}
+                                : visitations.length === 0
+                                    ? "No matching visitations"
+                                    : `Showing ${(page - 1) * PAGE_SIZE + 1}–${
+                                          (page - 1) * PAGE_SIZE + visitations.length
+                                      } of ${total}`}
 
                         </p>
 
@@ -298,7 +359,7 @@ export default function DoctorVisitationHistoryPage() {
 
                             {activeFilterCount > 0 && (
 
-                                <span className="ml-2 rounded-full bg-rd-cyan px-2 py-0.5 text-xs font-bold text-black">
+                                <span className="rd-tint-cyan rounded-full px-2 py-0.5 text-xs font-bold tabular-nums">
                                     {activeFilterCount}
                                 </span>
 
@@ -315,78 +376,84 @@ export default function DoctorVisitationHistoryPage() {
 
                 {showFilters && (
 
-                    <div className="flex flex-wrap items-end gap-4 border-b border-rd-hair p-4">
+                    <div className="border-b border-rd-hair bg-rd-sunken p-4">
+
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
 
-                        {/* PRIORITY */}
+                            <label className="space-y-2">
 
-                        <div className="flex flex-col gap-1.5">
+                                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-rd-muted">
+                                    Priority
+                                </span>
 
-                            <label className="text-xs font-semibold text-rd-label">
-                                Priority
+                                <select
+                                    value={priorityFilter}
+                                    onChange={handlePriorityChange}
+                                    className="rd-input"
+                                >
+
+                                    <option value="">
+                                        All priorities
+                                    </option>
+
+                                    <option value="Routine">
+                                        Routine
+                                    </option>
+
+                                    <option value="Urgent">
+                                        Urgent
+                                    </option>
+
+                                    <option value="Emergency">
+                                        Emergency
+                                    </option>
+
+                                </select>
+
                             </label>
 
-                            <select
-                                value={priorityFilter}
-                                onChange={handlePriorityChange}
-                                className="rd-input min-w-40"
-                            >
 
-                                <option value="">
-                                    All priorities
-                                </option>
+                            <label className="space-y-2">
 
-                                <option value="Normal">
-                                    Normal
-                                </option>
+                                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-rd-muted">
+                                    Sort by date
+                                </span>
 
-                                <option value="Urgent">
-                                    Urgent
-                                </option>
+                                <select
+                                    value={sortDate}
+                                    onChange={handleSortChange}
+                                    className="rd-input"
+                                >
 
-                            </select>
+                                    <option value="newest">
+                                        Newest first
+                                    </option>
+
+                                    <option value="oldest">
+                                        Oldest first
+                                    </option>
+
+                                </select>
+
+                            </label>
 
                         </div>
 
 
-                        {/* DATE */}
+                        {activeFilterCount > 0 && (
 
-                        <div className="flex flex-col gap-1.5">
+                            <div className="mt-4 flex justify-end">
 
-                            <label className="text-xs font-semibold text-rd-label">
-                                Sort by date
-                            </label>
+                                <button
+                                    type="button"
+                                    onClick={clearFilters}
+                                    className="text-sm font-medium text-rd-muted hover:text-rd-title"
+                                >
+                                    Clear filters
+                                </button>
 
-                            <select
-                                value={sortDate}
-                                onChange={handleSortChange}
-                                className="rd-input min-w-40"
-                            >
-
-                                <option value="newest">
-                                    Newest first
-                                </option>
-
-                                <option value="oldest">
-                                    Oldest first
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        {/* CLEAR */}
-
-                        {(search || priorityFilter) && (
-
-                            <button
-                                type="button"
-                                onClick={clearFilters}
-                                className="rd-btn-ghost rd-press rd-focus"
-                            >
-                                Clear filters
-                            </button>
+                            </div>
 
                         )}
 
@@ -423,26 +490,22 @@ export default function DoctorVisitationHistoryPage() {
 
                     <div className="rd-scroll-thin min-h-0 flex-1 overflow-auto">
 
-                        <table className="w-full min-w-[860px] border-collapse">
+                        <table className="w-full min-w-[780px] border-collapse">
 
                             <thead>
 
-                                <tr className="border-b border-rd-hair">
+                                <tr className="border-b border-rd-hair-strong bg-rd-sunken">
 
                                     <th className={th}>
                                         Patient
                                     </th>
 
                                     <th className={th}>
-                                        Age
+                                        Age / Sex
                                     </th>
 
                                     <th className={th}>
-                                        Sex
-                                    </th>
-
-                                    <th className={th}>
-                                        Visit Date
+                                        Visit date
                                     </th>
 
                                     <th className={th}>
@@ -473,7 +536,14 @@ export default function DoctorVisitationHistoryPage() {
                                         className="border-b border-rd-hair transition-colors last:border-0 hover:bg-rd-raised"
                                     >
 
-                                        <td className={td}>
+                                        <td className={`${td} relative`}>
+
+                                            <span
+                                                aria-hidden="true"
+                                                className={`absolute inset-y-0 left-0 w-1 ${
+                                                    toneBar[priorityTone(visit.priority)]
+                                                }`}
+                                            />
 
                                             <div className="flex items-center gap-3">
 
@@ -481,13 +551,13 @@ export default function DoctorVisitationHistoryPage() {
                                                     name={visit.name}
                                                 />
 
-                                                <div>
+                                                <div className="min-w-0">
 
-                                                    <p className="font-medium text-rd-title">
+                                                    <p className="truncate font-medium text-rd-title">
                                                         {visit.name}
                                                     </p>
 
-                                                    <p className="mt-1 text-xs text-rd-muted">
+                                                    <p className="mt-0.5 text-xs tabular-nums text-rd-muted">
                                                         Visit #{visit.visitid}
                                                     </p>
 
@@ -498,20 +568,46 @@ export default function DoctorVisitationHistoryPage() {
                                         </td>
 
 
-                                        <td className={`${td} tabular-nums`}>
-                                            {visit.age}
+                                        <td className={td}>
+                                            {[
+                                                visit.age ? `${visit.age} yrs` : null,
+                                                visit.sex,
+                                            ]
+                                                .filter(Boolean)
+                                                .join(" · ") || "—"}
                                         </td>
 
 
                                         <td className={td}>
-                                            {visit.sex}
-                                        </td>
 
+                                            {(() => {
 
-                                        <td className={`${td} tabular-nums`}>
-                                            {new Date(
-                                                visit.visited_at
-                                            ).toLocaleString()}
+                                                const date = new Date(visit.visited_at);
+
+                                                if (Number.isNaN(date.getTime())) {
+                                                    return (
+                                                        <span className="text-rd-muted">—</span>
+                                                    );
+                                                }
+
+                                                return (
+                                                    <>
+                                                        <p className={`font-medium ${recencyTone(date)}`}>
+                                                            {relativeLabel(date)}
+                                                        </p>
+                                                        <p className="mt-0.5 text-xs tabular-nums text-rd-muted">
+                                                            {date.toLocaleDateString()}
+                                                            {" · "}
+                                                            {date.toLocaleTimeString([], {
+                                                                hour: "2-digit",
+                                                                minute: "2-digit",
+                                                            })}
+                                                        </p>
+                                                    </>
+                                                );
+
+                                            })()}
+
                                         </td>
 
 

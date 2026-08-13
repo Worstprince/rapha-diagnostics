@@ -26,6 +26,14 @@ export function SearchIcon(props) {
     );
 }
 
+export function CheckIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="m5 13 4 4L19 7" />
+        </Icon>
+    );
+}
+
 export function HeartIcon(props) {
     return (
         <Icon {...props}>
