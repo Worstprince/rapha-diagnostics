@@ -4,12 +4,12 @@
 // `const { id } = await params;` instead of destructuring directly.
 
 import { NextResponse } from "next/server";
-import { useCurrentUser } from "@/lib/session";
+import { getCurrentUser } from "@/lib/serverSession";
 import saveDraftNote from "@/lib/mutations/saveDraftNote";
 
 export async function PATCH(request, { params }) {
     try {
-        const currentUser = await useCurrentUser();
+        const currentUser = await getCurrentUser();
 
         if (!currentUser) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

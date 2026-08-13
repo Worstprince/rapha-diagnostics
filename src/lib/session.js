@@ -46,7 +46,10 @@ export function signOut() {
   try {
     localStorage.removeItem(KEY);
   } catch {
-    
+
   }
+  // Also clear the server-side session cookie — localStorage alone doesn't
+  // touch it, so without this the httpOnly cookie would outlive "logout".
+  fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
   window.dispatchEvent(new Event(SAME_TAB));
 }

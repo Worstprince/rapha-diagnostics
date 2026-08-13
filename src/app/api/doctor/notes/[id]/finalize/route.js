@@ -4,12 +4,12 @@
 // `const { id } = await params;` instead of destructuring directly.
 
 import { NextResponse } from "next/server";
-import { useCurrentUser } from "@/lib/session";
+import { getCurrentUser } from "@/lib/serverSession";
 import finalizeNote from "@/lib/mutations/finalizeNote";
 
 export async function POST(request, { params }) {
     try {
-        const currentUser = await useCurrentUser();
+        const currentUser = await getCurrentUser();
 
         if (!currentUser) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
