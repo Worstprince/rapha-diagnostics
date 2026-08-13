@@ -6,21 +6,30 @@ import Link from "next/link";
 import {
     Avatar,
     ChevronRightIcon,
+    ClockIcon,
     EmptyState,
     HeaderGlow,
+    InboxIcon,
     SearchIcon,
     TableSkeleton,
+    UserIcon,
     rowAction,
     td,
     th,
 } from "../_ui";
 
-function lastVisitLabel(value) {
+const DAY = 24 * 60 * 60 * 1000;
+
+const PAGE_SIZE = 10;
+
+function visitDate(value) {
     if (!value) return null;
 
     const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return null;
+    return Number.isNaN(date.getTime()) ? null : date;
+}
 
+function exactDate(date) {
     return date.toLocaleDateString([], {
         month: "short",
         day: "numeric",
@@ -28,15 +37,102 @@ function lastVisitLabel(value) {
     });
 }
 
+/* "4 days ago" answers the question a doctor is actually asking — the exact
+   date stays on the title attribute for when it matters. */
+function relativeLabel(date) {
+    const days = Math.floor((Date.now() - date.getTime()) / DAY);
+
+    if (days < 0) return exactDate(date);
+    if (days === 0) return "Today";
+    if (days === 1) return "Yesterday";
+    if (days < 7) return `${days} days ago`;
+    if (days < 30) {
+        const weeks = Math.floor(days / 7);
+        return `${weeks} ${weeks === 1 ? "week" : "weeks"} ago`;
+    }
+    if (days < 365) {
+        const months = Math.floor(days / 30);
+        return `${months} ${months === 1 ? "month" : "months"} ago`;
+    }
+
+    return exactDate(date);
+}
+
+function recencyTone(date) {
+    if (!date) return "text-rd-muted";
+
+    const days = Math.floor((Date.now() - date.getTime()) / DAY);
+
+    if (days <= 7) return "text-rd-fresh";
+    if (days <= 30) return "text-rd-text";
+
+    return "text-rd-muted";
+}
+
+/* Visit count is a magnitude, not a category, so it ramps in one hue rather
+   than changing colour — a red/amber/green split would read as good vs bad. */
+const VISIT_TIERS = [
+    {
+        min: 6,
+        label: "Frequent patient",
+        className: "border-transparent bg-rd-cyan text-rd-on-cyan",
+    },
+    {
+        min: 3,
+        label: "Regular patient",
+        className: "border-rd-cyan/55 bg-rd-cyan/25 text-rd-title",
+    },
+    {
+        min: 1,
+        label: "Occasional patient",
+        className: "border-rd-cyan/35 bg-rd-cyan/10 text-rd-label",
+    },
+    {
+        min: 0,
+        label: "No visits yet",
+        className: "border-rd-hair bg-rd-sunken text-rd-placeholder",
+    },
+];
+
+function visitTier(visits) {
+    return VISIT_TIERS.find((tier) => visits >= tier.min) ?? VISIT_TIERS.at(-1);
+}
+
+const SORTS = {
+    recent: {
+        label: "Recent visit",
+        compare: (a, b) =>
+            (visitDate(b.lastvisited)?.getTime() ?? -Infinity) -
+            (visitDate(a.lastvisited)?.getTime() ?? -Infinity),
+    },
+    name: {
+        label: "Name",
+        compare: (a, b) =>
+            String(a.name ?? "").localeCompare(String(b.name ?? "")),
+    },
+    visits: {
+        label: "Most visits",
+        compare: (a, b) => (b.visitcount ?? 0) - (a.visitcount ?? 0),
+    },
+};
+
 export default function DoctorPatientsPage() {
 
     const [patients, setPatients] = useState([]);
     const [search, setSearch] = useState("");
+    const [sortKey, setSortKey] = useState("recent");
+    const [page, setPage] = useState(1);
+    const [hasError, setHasError] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetchPatients();
     }, []);
+
+    /* Narrowing the list can leave you stranded past the last page. */
+    useEffect(() => {
+        setPage(1);
+    }, [search, sortKey]);
 
     async function fetchPatients() {
 
@@ -50,11 +146,15 @@ export default function DoctorPatientsPage() {
                 throw new Error(data.message || "Failed to load patients.");
             }
 
-            setPatients(data);
+            setPatients(Array.isArray(data) ? data : []);
+            setHasError(false);
 
         } catch (error) {
 
             console.error(error);
+
+            setPatients([]);
+            setHasError(true);
 
         } finally {
 
@@ -68,34 +168,126 @@ export default function DoctorPatientsPage() {
 
     const searchValue = search.trim().toLowerCase();
 
-    const filteredPatients = !searchValue
-        ? rows
-        : rows.filter((patient) =>
-              String(patient.name ?? "").toLowerCase().includes(searchValue) ||
-              String(patient.patientid).includes(searchValue)
-          );
+    const filteredPatients = (
+        !searchValue
+            ? rows
+            : rows.filter((patient) =>
+                  String(patient.name ?? "").toLowerCase().includes(searchValue) ||
+                  String(patient.patientid).includes(searchValue)
+              )
+    )
+        .slice()
+        .sort(SORTS[sortKey].compare);
+
+    /* The endpoint returns every patient at once, so paging happens here on the
+       already-filtered list rather than as another request. */
+    const totalPages = Math.max(
+        1,
+        Math.ceil(filteredPatients.length / PAGE_SIZE)
+    );
+
+    const currentPage = Math.min(page, totalPages);
+
+    const pagedPatients = filteredPatients.slice(
+        (currentPage - 1) * PAGE_SIZE,
+        currentPage * PAGE_SIZE
+    );
+
+    const rangeStart =
+        filteredPatients.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
+
+    const rangeEnd = Math.min(
+        currentPage * PAGE_SIZE,
+        filteredPatients.length
+    );
+
+    const seenThisWeek = rows.filter((patient) => {
+        const date = visitDate(patient.lastvisited);
+        return date ? Date.now() - date.getTime() <= 7 * DAY : false;
+    }).length;
+
+    const neverSeen = rows.filter(
+        (patient) => !visitDate(patient.lastvisited)
+    ).length;
+
+    const stats = [
+        {
+            label: "Total patients",
+            value: rows.length,
+            hint: "On the clinic register",
+            Icon: UserIcon,
+            chip: "rd-tint-cyan",
+        },
+        {
+            label: "Seen this week",
+            value: seenThisWeek,
+            hint: "Visited in the last 7 days",
+            Icon: ClockIcon,
+            chip: "rd-tint-green",
+        },
+        {
+            label: "Never seen",
+            value: neverSeen,
+            hint: "Registered but no visit yet",
+            Icon: InboxIcon,
+            chip: "rd-tint-amber",
+        },
+    ];
 
     return (
 
         <div className="mx-auto flex max-w-6xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
 
-            <header className="rd-panel relative flex-none overflow-hidden p-6">
+            {/* Stats live inside the header rather than as their own row of
+                cards — a second full panel above the table cost it ~150px of
+                height for three numbers. */}
+            <header className="rd-panel relative flex-none overflow-hidden">
 
                 <HeaderGlow />
 
-                <div className="relative">
+                <div className="relative flex flex-wrap items-end justify-between gap-x-8 gap-y-5 px-6 py-5">
 
-                    <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
-                        Doctor
-                    </p>
+                    <div>
 
-                    <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">
-                        Patients
-                    </h1>
+                        <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
+                            Doctor
+                        </p>
 
-                    <p className="mt-2 text-sm text-rd-muted">
-                        View patient information, laboratory results, and visit history.
-                    </p>
+                        <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-rd-title">
+                            Patients
+                        </h1>
+
+                        <p className="mt-1.5 text-sm text-rd-muted">
+                            View patient information, laboratory results, and visit history.
+                        </p>
+
+                    </div>
+
+                    <dl className="flex flex-wrap items-center gap-x-7 gap-y-4">
+
+                        {stats.map(({ label, value, hint, Icon, chip }) => (
+
+                            <div key={label} title={hint} className="flex items-center gap-3">
+
+                                <span className={`grid size-9 flex-none place-items-center rounded-xl ${chip}`}>
+                                    <Icon size={18} />
+                                </span>
+
+                                <div>
+
+                                    <dd className="text-xl font-bold tabular-nums leading-none tracking-tight text-rd-title">
+                                        {loading ? "—" : value}
+                                    </dd>
+
+                                    <dt className="mt-1 text-xs text-rd-muted">{label}</dt>
+
+                                </div>
+
+                            </div>
+
+                        ))}
+
+                    </dl>
 
                 </div>
 
@@ -114,30 +306,62 @@ export default function DoctorPatientsPage() {
                         <p className="mt-0.5 text-sm text-rd-muted">
                             {loading
                                 ? "Loading records…"
-                                : `${filteredPatients.length} of ${rows.length} ${
-                                      rows.length === 1 ? "patient" : "patients"
-                                  }`}
+                                : filteredPatients.length === 0
+                                    ? "No matching patients"
+                                    : `Showing ${rangeStart}–${rangeEnd} of ${
+                                          filteredPatients.length
+                                      }${
+                                          searchValue
+                                              ? ` (filtered from ${rows.length})`
+                                              : ` ${
+                                                    filteredPatients.length === 1
+                                                        ? "patient"
+                                                        : "patients"
+                                                }`
+                                      }`}
                         </p>
 
                     </div>
 
-                    <div className="relative w-full sm:w-72">
+                    <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
 
-                        <span
-                            aria-hidden="true"
-                            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-rd-placeholder"
-                        >
-                            <SearchIcon />
-                        </span>
+                        <div className="relative w-full sm:w-64">
 
-                        <input
-                            type="search"
-                            aria-label="Search patients"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Search name or ID…"
-                            className="rd-input pl-11"
-                        />
+                            <span
+                                aria-hidden="true"
+                                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-rd-placeholder"
+                            >
+                                <SearchIcon />
+                            </span>
+
+                            <input
+                                type="search"
+                                aria-label="Search patients"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder="Search name or ID…"
+                                className="rd-input pl-11"
+                            />
+
+                        </div>
+
+                        <label className="flex items-center gap-2">
+
+                            <span className="sr-only">Sort patients by</span>
+
+                            <select
+                                value={sortKey}
+                                onChange={(e) => setSortKey(e.target.value)}
+                                className="rd-input w-auto min-w-[10rem]"
+                            >
+                                {Object.entries(SORTS).map(([key, { label }]) => (
+                                    <option key={key} value={key}>
+                                        {label}
+                                    </option>
+                                ))}
+                            </select>
+
+                        </label>
 
                     </div>
 
@@ -148,6 +372,13 @@ export default function DoctorPatientsPage() {
                     {loading ? (
 
                         <TableSkeleton rows={5} />
+
+                    ) : hasError ? (
+
+                        <EmptyState
+                            title="Could not load patients"
+                            hint="Something went wrong reaching the server. Refresh the page to try again."
+                        />
 
                     ) : filteredPatients.length === 0 ? (
 
@@ -166,7 +397,7 @@ export default function DoctorPatientsPage() {
 
                             <thead>
 
-                                <tr className="border-b border-rd-hair">
+                                <tr className="border-b border-rd-hair-strong bg-rd-sunken">
 
                                     <th className={th}>Patient</th>
 
@@ -188,9 +419,10 @@ export default function DoctorPatientsPage() {
 
                             <tbody>
 
-                                {filteredPatients.map((patient) => {
+                                {pagedPatients.map((patient) => {
 
-                                    const lastVisit = lastVisitLabel(patient.lastvisited);
+                                    const lastVisit = visitDate(patient.lastvisited);
+                                    const visits = patient.visitcount ?? 0;
 
                                     return (
 
@@ -207,9 +439,19 @@ export default function DoctorPatientsPage() {
 
                                                     <div className="min-w-0">
 
-                                                        <p className="truncate font-medium text-rd-title">
-                                                            {patient.name}
-                                                        </p>
+                                                        <div className="flex items-center gap-2">
+
+                                                            <p className="truncate font-medium text-rd-title">
+                                                                {patient.name}
+                                                            </p>
+
+                                                            {!lastVisit && (
+                                                                <span className="rd-tint-amber flex-none rounded-full px-2 py-0.5 text-[11px] font-bold">
+                                                                    New
+                                                                </span>
+                                                            )}
+
+                                                        </div>
 
                                                         {patient.address && (
                                                             <p className="mt-0.5 max-w-[22ch] truncate text-xs text-rd-muted">
@@ -236,15 +478,29 @@ export default function DoctorPatientsPage() {
                                                     .join(" · ") || "—"}
                                             </td>
 
-                                            <td className={`${td} tabular-nums`}>
-                                                {lastVisit ?? (
-                                                    <span className="text-rd-muted">No visits</span>
+                                            <td className={td}>
+                                                {lastVisit ? (
+                                                    <span
+                                                        title={exactDate(lastVisit)}
+                                                        className={`font-medium ${recencyTone(lastVisit)}`}
+                                                    >
+                                                        {relativeLabel(lastVisit)}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-rd-muted">No visits yet</span>
                                                 )}
                                             </td>
 
                                             <td className={td}>
-                                                <span className="inline-flex min-w-8 items-center justify-center rounded-full border border-rd-hair-strong bg-rd-raised px-2.5 py-1 text-xs font-medium tabular-nums text-rd-label">
-                                                    {patient.visitcount ?? 0}
+                                                <span
+                                                    title={`${visits} ${
+                                                        visits === 1 ? "visit" : "visits"
+                                                    } · ${visitTier(visits).label}`}
+                                                    className={`inline-flex min-w-9 items-center justify-center rounded-full border px-2.5 py-1 text-xs font-bold tabular-nums ${
+                                                        visitTier(visits).className
+                                                    }`}
+                                                >
+                                                    {visits}
                                                 </span>
                                             </td>
 
@@ -274,6 +530,46 @@ export default function DoctorPatientsPage() {
                     )}
 
                 </div>
+
+                {!loading && !hasError && filteredPatients.length > 0 && (
+
+                    <div className="flex flex-none items-center justify-between border-t border-rd-hair px-5 py-4">
+
+                        <p className="text-sm text-rd-muted">
+                            Page {currentPage} of {totalPages}
+                        </p>
+
+                        <div className="flex items-center gap-2">
+
+                            <button
+                                type="button"
+                                disabled={currentPage <= 1}
+                                onClick={() =>
+                                    setPage((prev) => Math.max(1, prev - 1))
+                                }
+                                className="rd-btn-ghost rd-press rd-focus min-h-10 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Previous
+                            </button>
+
+                            <button
+                                type="button"
+                                disabled={currentPage >= totalPages}
+                                onClick={() =>
+                                    setPage((prev) =>
+                                        Math.min(totalPages, prev + 1)
+                                    )
+                                }
+                                className="rd-btn rd-press rd-focus min-h-10 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Next
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                )}
 
             </section>
 
