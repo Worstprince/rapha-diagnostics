@@ -141,17 +141,34 @@ const rowActive =
 
 const roleHomes = Object.values(ROLE_HOMES);
 
-function isLinkActive(href, pathname) {
+function isLinkActive(href, pathname, siblingHrefs = []) {
   if (roleHomes.includes(href)) {
     return pathname === href || (href === ROLE_HOMES.admin && pathname === "/dashboard");
   }
   if (href === "/dashboard/admin/viewUsers" && pathname.startsWith("/dashboard/admin/editUsers")) {
     return true;
   }
-  return pathname === href || pathname.startsWith(`${href}/`);
+  if (pathname === href) {
+    return true;
+  }
+  if (!pathname.startsWith(`${href}/`)) {
+    return false;
+  }
+  /* A nested route like /visitation/history matches its parent's prefix too, so
+     the parent only claims a child path when no longer link owns it — otherwise
+     both rows light up at once. */
+  return !siblingHrefs.some(
+    (other) =>
+      other.length > href.length &&
+      (pathname === other || pathname.startsWith(`${other}/`)),
+  );
 }
 
 function SectionNav({ sections, pathname, onNavigate }) {
+  const siblingHrefs = sections.flatMap((section) =>
+    section.links.map((link) => link.href),
+  );
+
   return (
     <nav aria-label="Dashboard navigation" className="space-y-6">
       {sections.map((section) => (
@@ -161,7 +178,7 @@ function SectionNav({ sections, pathname, onNavigate }) {
           </p>
           <ul className="mt-2 space-y-1">
             {section.links.map(({ href, label, Icon }) => {
-              const active = isLinkActive(href, pathname);
+              const active = isLinkActive(href, pathname, siblingHrefs);
               return (
                 <li key={href}>
                   <Link
