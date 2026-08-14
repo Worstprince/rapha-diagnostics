@@ -593,6 +593,22 @@ export default function VisitRegistrationForm() {
       return;
     }
 
+    if (!assignedDoctor) {
+      setToast({
+        tone: "error",
+        text: "Please assign a doctor to this visit.",
+      });
+      return;
+    }
+
+    if (isReferred && !referringDoctor.trim()) {
+      setToast({
+        tone: "error",
+        text: "Please enter the referring doctor.",
+      });
+      return;
+    }
+
     const visitPatientName = [
       selectedPatient.fname,
       selectedPatient.lname,
@@ -796,7 +812,11 @@ export default function VisitRegistrationForm() {
     ? "Select a patient to continue."
     : selectedTests.length === 0
       ? "Add at least one test."
-      : null;
+      : !assignedDoctor
+        ? "Assign a doctor to continue."
+        : isReferred && !referringDoctor.trim()
+          ? "Enter the referring doctor's name."
+          : null;
 
   const hasUnsavedWork =
     hasSelectedPatient ||
