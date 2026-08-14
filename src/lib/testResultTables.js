@@ -36,6 +36,14 @@ function isPositiveResult(value) {
   return v.includes("positive") || v.includes("reactive");
 }
 
+// Test types with no critical-value concept at all — a visit made up
+// entirely of these never needs a diagnostic narrative, so it's excluded
+// from the notes queue rather than requiring a doctor to manually dismiss
+// it. Anything with an isCritical flag (even a "simple" positive/negative
+// test like HBsAg or VDRL) stays in the queue, since a flagged result on
+// those genuinely deserves documentation.
+export const NARRATIVE_OPTIONAL_TESTS = new Set(["bloodtype", "pregnancy"]);
+
 export const TEST_RESULT_TABLES = {
   bloodtype: {
     table: "test_bloodtyperesult",
@@ -199,7 +207,7 @@ export const TEST_RESULT_TABLES = {
     ],
   },
   pregnancy: {
-    table: "test_pregnancyresult",
+    table: "test_pregnancytestresult",
     fields: [
       { column: "ptHCGSerum", label: "Pregnancy Result" },
     ],

@@ -1,7 +1,11 @@
 // lib/queries/getVisitDetails.js
 
 import db from "@/lib/db";
-import { TEST_RESULT_TABLES, normalizeTestName } from "@/lib/testResultTables";
+import {
+    TEST_RESULT_TABLES,
+    NARRATIVE_OPTIONAL_TESTS,
+    normalizeTestName,
+} from "@/lib/testResultTables";
 
 const NOTE_STATUS_LABEL = {
     draft: "Draft",
@@ -44,6 +48,17 @@ export default async function getVisitDetails(visitId) {
             [visitId]
         );
 
+        // A visit made up entirely of tests with no critical-value concept
+        // (currently just Blood Type and Pregnancy) never needed a note in
+        // the queue — and for the same reason it's blocked here too, even
+        // for someone hitting the URL directly. This runs unconditionally,
+        // regardless of whether a note already happens to exist for the
+        // visit.
+        const allOptional = testRows.every(({ testName }) =>
+            NARRATIVE_OPTIONAL_TESTS.has(normalizeTestName(testName))
+        );
+        if (allOptional) return null;
+
         // 3. Pull each test's result values from its dedicated table
         const tests = [];
         for (const { testName } of testRows) {
@@ -51,7 +66,6 @@ export default async function getVisitDetails(visitId) {
             const config = TEST_RESULT_TABLES[key];
 
             if (!config) {
-                // No results table wired up in the config yet for this test type
                 tests.push({ id: key, testType: testName, values: [] });
                 continue;
             }
@@ -71,9 +85,6 @@ export default async function getVisitDetails(visitId) {
                 return {
                     label: f.label,
                     value: String(displayValue),
-                    // Never evaluate criticality on a missing/blank result —
-                    // Number("") is 0 in JS, which could otherwise clear a
-                    // lower-bound threshold and falsely flag an empty field.
                     critical: hasValue && f.isCritical ? f.isCritical(dbValue) : false,
                 };
             });
@@ -101,8 +112,7 @@ export default async function getVisitDetails(visitId) {
         );
         const noteRow = noteRows[0];
 
-        // 5. Comment and attachment counts — cheap to fetch eagerly; the
-        // actual content is loaded lazily client-side when expanded.
+        // 5. Comment and attachment counts
         const [commentCountRows] = await db.query(
             `SELECT COUNT(*) AS count FROM tblvisitnotecomments WHERE visitid = ?`,
             [visitId]
