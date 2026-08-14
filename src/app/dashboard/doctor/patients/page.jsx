@@ -3,15 +3,137 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+import {
+    Avatar,
+    ChevronRightIcon,
+    ClockIcon,
+    EmptyState,
+    HeaderGlow,
+    InboxIcon,
+    SearchIcon,
+    TableSkeleton,
+    UserIcon,
+    rowAction,
+    td,
+    th,
+} from "../_ui";
+
+const DAY = 24 * 60 * 60 * 1000;
+
+const PAGE_SIZE = 10;
+
+function visitDate(value) {
+    if (!value) return null;
+
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function exactDate(date) {
+    return date.toLocaleDateString([], {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+    });
+}
+
+/* "4 days ago" answers the question a doctor is actually asking — the exact
+   date stays on the title attribute for when it matters. */
+function relativeLabel(date) {
+    const days = Math.floor((Date.now() - date.getTime()) / DAY);
+
+    if (days < 0) return exactDate(date);
+    if (days === 0) return "Today";
+    if (days === 1) return "Yesterday";
+    if (days < 7) return `${days} days ago`;
+    if (days < 30) {
+        const weeks = Math.floor(days / 7);
+        return `${weeks} ${weeks === 1 ? "week" : "weeks"} ago`;
+    }
+    if (days < 365) {
+        const months = Math.floor(days / 30);
+        return `${months} ${months === 1 ? "month" : "months"} ago`;
+    }
+
+    return exactDate(date);
+}
+
+function recencyTone(date) {
+    if (!date) return "text-rd-muted";
+
+    const days = Math.floor((Date.now() - date.getTime()) / DAY);
+
+    if (days <= 7) return "text-rd-fresh";
+    if (days <= 30) return "text-rd-text";
+
+    return "text-rd-muted";
+}
+
+/* Visit count is a magnitude, not a category, so it ramps in one hue rather
+   than changing colour — a red/amber/green split would read as good vs bad. */
+const VISIT_TIERS = [
+    {
+        min: 6,
+        label: "Frequent patient",
+        className: "border-transparent bg-rd-cyan text-rd-on-cyan",
+    },
+    {
+        min: 3,
+        label: "Regular patient",
+        className: "border-rd-cyan/55 bg-rd-cyan/25 text-rd-title",
+    },
+    {
+        min: 1,
+        label: "Occasional patient",
+        className: "border-rd-cyan/35 bg-rd-cyan/10 text-rd-label",
+    },
+    {
+        min: 0,
+        label: "No visits yet",
+        className: "border-rd-hair bg-rd-sunken text-rd-placeholder",
+    },
+];
+
+function visitTier(visits) {
+    return VISIT_TIERS.find((tier) => visits >= tier.min) ?? VISIT_TIERS.at(-1);
+}
+
+const SORTS = {
+    recent: {
+        label: "Recent visit",
+        compare: (a, b) =>
+            (visitDate(b.lastvisited)?.getTime() ?? -Infinity) -
+            (visitDate(a.lastvisited)?.getTime() ?? -Infinity),
+    },
+    name: {
+        label: "Name",
+        compare: (a, b) =>
+            String(a.name ?? "").localeCompare(String(b.name ?? "")),
+    },
+    visits: {
+        label: "Most visits",
+        compare: (a, b) => (b.visitcount ?? 0) - (a.visitcount ?? 0),
+    },
+};
+
 export default function DoctorPatientsPage() {
 
     const [patients, setPatients] = useState([]);
     const [search, setSearch] = useState("");
+    const [sortKey, setSortKey] = useState("recent");
+    const [showFilters, setShowFilters] = useState(false);
+    const [page, setPage] = useState(1);
+    const [hasError, setHasError] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetchPatients();
     }, []);
+
+    /* Narrowing the list can leave you stranded past the last page. */
+    useEffect(() => {
+        setPage(1);
+    }, [search, sortKey]);
 
     async function fetchPatients() {
 
@@ -25,11 +147,15 @@ export default function DoctorPatientsPage() {
                 throw new Error(data.message || "Failed to load patients.");
             }
 
-            setPatients(data);
+            setPatients(Array.isArray(data) ? data : []);
+            setHasError(false);
 
         } catch (error) {
 
             console.error(error);
+
+            setPatients([]);
+            setHasError(true);
 
         } finally {
 
@@ -39,250 +165,477 @@ export default function DoctorPatientsPage() {
 
     }
 
-    const filteredPatients = patients.filter(patient => {
+    const rows = Array.isArray(patients) ? patients : [];
 
-        const searchValue = search.toLowerCase();
+    const searchValue = search.trim().toLowerCase();
 
-        return (
-            patient.name?.toLowerCase().includes(searchValue) ||
-            String(patient.patientid).includes(searchValue)
-        );
+    const filteredPatients = (
+        !searchValue
+            ? rows
+            : rows.filter((patient) =>
+                  String(patient.name ?? "").toLowerCase().includes(searchValue) ||
+                  String(patient.patientid).includes(searchValue)
+              )
+    )
+        .slice()
+        .sort(SORTS[sortKey].compare);
 
-    });
+    const activeFilterCount = [
+        search,
+        sortKey !== "recent",
+    ].filter(Boolean).length;
+
+    function clearFilters() {
+        setSearch("");
+        setSortKey("recent");
+        setPage(1);
+    }
+
+    /* The endpoint returns every patient at once, so paging happens here on the
+       already-filtered list rather than as another request. */
+    const totalPages = Math.max(
+        1,
+        Math.ceil(filteredPatients.length / PAGE_SIZE)
+    );
+
+    const currentPage = Math.min(page, totalPages);
+
+    const pagedPatients = filteredPatients.slice(
+        (currentPage - 1) * PAGE_SIZE,
+        currentPage * PAGE_SIZE
+    );
+
+    const rangeStart =
+        filteredPatients.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
+
+    const rangeEnd = Math.min(
+        currentPage * PAGE_SIZE,
+        filteredPatients.length
+    );
+
+    const seenThisWeek = rows.filter((patient) => {
+        const date = visitDate(patient.lastvisited);
+        return date ? Date.now() - date.getTime() <= 7 * DAY : false;
+    }).length;
+
+    const neverSeen = rows.filter(
+        (patient) => !visitDate(patient.lastvisited)
+    ).length;
+
+    const stats = [
+        {
+            label: "Total patients",
+            value: rows.length,
+            hint: "On the clinic register",
+            Icon: UserIcon,
+            chip: "rd-tint-cyan",
+        },
+        {
+            label: "Seen this week",
+            value: seenThisWeek,
+            hint: "Visited in the last 7 days",
+            Icon: ClockIcon,
+            chip: "rd-tint-green",
+        },
+        {
+            label: "Never seen",
+            value: neverSeen,
+            hint: "Registered but no visit yet",
+            Icon: InboxIcon,
+            chip: "rd-tint-amber",
+        },
+    ];
 
     return (
 
-        <div className="mx-auto max-w-6xl space-y-5">
+        <div className="mx-auto flex max-w-6xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
 
-            {/* HEADER */}
+            {/* Stats live inside the header rather than as their own row of
+                cards — a second full panel above the table cost it ~150px of
+                height for three numbers. */}
+            <header className="rd-panel relative flex-none overflow-hidden">
 
-            <header className="rd-panel p-6">
+                <HeaderGlow />
 
-                <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
-                    Doctor
-                </p>
+                <div className="relative flex flex-wrap items-end justify-between gap-x-8 gap-y-5 px-6 py-5">
 
-                <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">
-                    Patients
-                </h1>
+                    <div>
 
-                <p className="mt-2 text-sm text-rd-muted">
-                    View patient information, laboratory results, and visit history.
-                </p>
+                        <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
+                            Doctor
+                        </p>
 
-            </header>
+                        <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-rd-title">
+                            Patients
+                        </h1>
 
-
-            {/* SEARCH */}
-
-            <div className="rd-panel p-5">
-
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-
-                    <div className="relative w-full sm:max-w-md">
-
-                        <input
-                            type="text"
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
-                            placeholder="Search patient name or ID..."
-                            className="w-full rounded-xl border border-rd-hair-strong bg-rd-field px-4 py-3 text-sm text-rd-title outline-none transition focus:border-rd-cyan"
-                        />
+                        <p className="mt-1.5 text-sm text-rd-muted">
+                            View patient information, laboratory results, and visit history.
+                        </p>
 
                     </div>
 
-                    <p className="text-sm text-rd-muted">
-                        {filteredPatients.length} patient
-                        {filteredPatients.length !== 1 ? "s" : ""}
-                    </p>
+                    <dl className="flex flex-wrap items-center gap-x-7 gap-y-4">
+
+                        {stats.map(({ label, value, hint, Icon, chip }) => (
+
+                            <div key={label} title={hint} className="flex items-center gap-3">
+
+                                <span className={`grid size-9 flex-none place-items-center rounded-xl ${chip}`}>
+                                    <Icon size={18} />
+                                </span>
+
+                                <div>
+
+                                    <dd className="text-xl font-bold tabular-nums leading-none tracking-tight text-rd-title">
+                                        {loading ? "—" : value}
+                                    </dd>
+
+                                    <dt className="mt-1 text-xs text-rd-muted">{label}</dt>
+
+                                </div>
+
+                            </div>
+
+                        ))}
+
+                    </dl>
 
                 </div>
 
-            </div>
+            </header>
 
+            <section className="rd-panel flex min-h-0 flex-1 flex-col overflow-hidden">
 
-            {/* PATIENT LIST */}
+                <div className="flex flex-none flex-wrap items-center justify-between gap-4 border-b border-rd-hair p-4">
 
-            <div className="rd-panel overflow-hidden">
+                    <div>
 
-                {loading ? (
+                        <h2 className="text-lg font-semibold text-rd-title">
+                            Patient records
+                        </h2>
 
-                    <div className="space-y-3 p-5">
-
-                        <div className="h-16 animate-pulse rounded-xl bg-rd-sunken" />
-                        <div className="h-16 animate-pulse rounded-xl bg-rd-sunken" />
-                        <div className="h-16 animate-pulse rounded-xl bg-rd-sunken" />
+                        <p className="mt-0.5 text-sm text-rd-muted">
+                            {loading
+                                ? "Loading records…"
+                                : filteredPatients.length === 0
+                                    ? "No matching patients"
+                                    : `Showing ${rangeStart}–${rangeEnd} of ${
+                                          filteredPatients.length
+                                      }${
+                                          searchValue
+                                              ? ` (filtered from ${rows.length})`
+                                              : ` ${
+                                                    filteredPatients.length === 1
+                                                        ? "patient"
+                                                        : "patients"
+                                                }`
+                                      }`}
+                        </p>
 
                     </div>
 
-                ) : filteredPatients.length === 0 ? (
+                    <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
 
-                    <div className="p-10 text-center">
+                        <div className="relative w-full sm:w-64">
 
-                        <p className="text-sm font-medium text-rd-title">
-                            No patients found
-                        </p>
+                            <span
+                                aria-hidden="true"
+                                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-rd-placeholder"
+                            >
+                                <SearchIcon />
+                            </span>
 
-                        <p className="mt-1 text-sm text-rd-muted">
-                            Try a different search term.
-                        </p>
+                            <input
+                                type="search"
+                                aria-label="Search patients"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder="Search name or ID…"
+                                className="rd-input pl-11"
+                            />
+
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => setShowFilters((prev) => !prev)}
+                            aria-expanded={showFilters}
+                            className="rd-btn-secondary rd-press rd-focus whitespace-nowrap"
+                        >
+
+                            Filters
+
+                            {activeFilterCount > 0 && (
+                                <span className="rd-tint-cyan rounded-full px-2 py-0.5 text-xs font-bold tabular-nums">
+                                    {activeFilterCount}
+                                </span>
+                            )}
+
+                        </button>
 
                     </div>
 
-                ) : (
+                </div>
 
-                    <div className="overflow-x-auto">
 
-                        <table className="w-full">
+                {/* COLLAPSIBLE FILTERS */}
+
+                {showFilters && (
+
+                    <div className="flex-none border-b border-rd-hair bg-rd-sunken p-4">
+
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+
+                            <label className="space-y-2">
+
+                                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-rd-muted">
+                                    Sort by
+                                </span>
+
+                                <select
+                                    value={sortKey}
+                                    onChange={(e) => setSortKey(e.target.value)}
+                                    className="rd-input"
+                                >
+                                    {Object.entries(SORTS).map(([key, { label }]) => (
+                                        <option key={key} value={key}>
+                                            {label}
+                                        </option>
+                                    ))}
+                                </select>
+
+                            </label>
+
+                        </div>
+
+
+                        {activeFilterCount > 0 && (
+
+                            <div className="mt-4 flex justify-end">
+
+                                <button
+                                    type="button"
+                                    onClick={clearFilters}
+                                    className="text-sm font-medium text-rd-muted hover:text-rd-title"
+                                >
+                                    Clear filters
+                                </button>
+
+                            </div>
+
+                        )}
+
+                    </div>
+
+                )}
+
+                <div className="rd-scroll-thin min-h-0 flex-1 overflow-auto">
+
+                    {loading ? (
+
+                        <TableSkeleton rows={5} />
+
+                    ) : hasError ? (
+
+                        <EmptyState
+                            title="Could not load patients"
+                            hint="Something went wrong reaching the server. Refresh the page to try again."
+                        />
+
+                    ) : filteredPatients.length === 0 ? (
+
+                        <EmptyState
+                            title="No patients found"
+                            hint={
+                                searchValue
+                                    ? "No name or ID matches that search."
+                                    : "Registered patients appear here."
+                            }
+                        />
+
+                    ) : (
+
+                        <table className="w-full min-w-[860px] border-collapse">
 
                             <thead>
 
-                                <tr className="border-b border-rd-hair bg-rd-sunken">
+                                <tr className="border-b border-rd-hair-strong bg-rd-sunken">
 
-                                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                        Patient
-                                    </th>
+                                    <th className={th}>Patient</th>
 
-                                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                        Patient ID
-                                    </th>
+                                    <th className={th}>ID</th>
 
-                                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                        Age / Sex
-                                    </th>
+                                    <th className={th}>Age / Sex</th>
 
-                                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                        Last Visit
-                                    </th>
+                                    <th className={th}>Last visit</th>
 
-                                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                        Visits
-                                    </th>
+                                    <th className={th}>Visits</th>
 
-                                    <th className="px-5 py-4 text-right text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                                        Actions
+                                    <th className={`${th} text-right`}>
+                                        <span className="sr-only">Actions</span>
                                     </th>
 
                                 </tr>
 
                             </thead>
 
-
                             <tbody>
 
-                                {filteredPatients.map(patient => (
+                                {pagedPatients.map((patient) => {
 
-                                    <tr
-                                        key={patient.patientid}
-                                        className="border-b border-rd-hair last:border-0 transition-colors hover:bg-rd-raised"
-                                    >
+                                    const lastVisit = visitDate(patient.lastvisited);
+                                    const visits = patient.visitcount ?? 0;
 
-                                        {/* NAME */}
+                                    return (
 
-                                        <td className="px-5 py-4">
+                                        <tr
+                                            key={patient.patientid}
+                                            className="border-b border-rd-hair transition-colors last:border-0 hover:bg-rd-raised"
+                                        >
 
-                                            <div>
+                                            <td className={td}>
 
-                                                <p className="font-medium text-rd-title">
-                                                    {patient.name}
-                                                </p>
+                                                <div className="flex items-center gap-3">
 
-                                                {patient.address && (
+                                                    <Avatar name={patient.name} />
 
-                                                    <p className="mt-1 max-w-xs truncate text-xs text-rd-muted">
-                                                        {patient.address}
-                                                    </p>
+                                                    <div className="min-w-0">
 
+                                                        <div className="flex items-center gap-2">
+
+                                                            <p className="truncate font-medium text-rd-title">
+                                                                {patient.name}
+                                                            </p>
+
+                                                            {!lastVisit && (
+                                                                <span className="rd-tint-amber flex-none rounded-full px-2 py-0.5 text-[11px] font-bold">
+                                                                    New
+                                                                </span>
+                                                            )}
+
+                                                        </div>
+
+                                                        {patient.address && (
+                                                            <p className="mt-0.5 max-w-[22ch] truncate text-xs text-rd-muted">
+                                                                {patient.address}
+                                                            </p>
+                                                        )}
+
+                                                    </div>
+
+                                                </div>
+
+                                            </td>
+
+                                            <td className={`${td} tabular-nums text-rd-muted`}>
+                                                #{patient.patientid}
+                                            </td>
+
+                                            <td className={td}>
+                                                {[
+                                                    patient.age ? `${patient.age} yrs` : null,
+                                                    patient.sex,
+                                                ]
+                                                    .filter(Boolean)
+                                                    .join(" · ") || "—"}
+                                            </td>
+
+                                            <td className={td}>
+                                                {lastVisit ? (
+                                                    <span
+                                                        title={exactDate(lastVisit)}
+                                                        className={`font-medium ${recencyTone(lastVisit)}`}
+                                                    >
+                                                        {relativeLabel(lastVisit)}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-rd-muted">No visits yet</span>
                                                 )}
+                                            </td>
 
-                                            </div>
-
-                                        </td>
-
-
-                                        {/* ID */}
-
-                                        <td className="px-5 py-4 text-sm tabular-nums text-rd-label">
-
-                                            #{patient.patientid}
-
-                                        </td>
-
-
-                                        {/* AGE / SEX */}
-
-                                        <td className="px-5 py-4 text-sm text-rd-label">
-
-                                            <div className="flex flex-col">
-
-                                                <span>
-                                                    {patient.age} years old
+                                            <td className={td}>
+                                                <span
+                                                    title={`${visits} ${
+                                                        visits === 1 ? "visit" : "visits"
+                                                    } · ${visitTier(visits).label}`}
+                                                    className={`inline-flex min-w-9 items-center justify-center rounded-full border px-2.5 py-1 text-xs font-bold tabular-nums ${
+                                                        visitTier(visits).className
+                                                    }`}
+                                                >
+                                                    {visits}
                                                 </span>
+                                            </td>
 
-                                                <span className="text-xs text-rd-muted">
-                                                    {patient.sex}
-                                                </span>
-
-                                            </div>
-
-                                        </td>
-
-
-                                        {/* LAST VISIT */}
-
-                                        <td className="px-5 py-4 text-sm text-rd-label">
-
-                                            {patient.lastvisited
-                                                ? new Date(patient.lastvisited).toLocaleDateString()
-                                                : "No visits"
-                                            }
-
-                                        </td>
-
-
-                                        {/* VISITS */}
-
-                                        <td className="px-5 py-4">
-
-                                            <span className="inline-flex items-center rounded-full border border-rd-hair-strong bg-rd-raised px-2.5 py-1 text-xs font-medium text-rd-label">
-
-                                                {patient.visitcount ?? 0}
-
-                                            </span>
-
-                                        </td>
-
-
-                                        {/* ACTIONS */}
-
-                                        <td className="px-5 py-4">
-
-                                            <div className="flex justify-end gap-2">
+                                            <td className={`${td} text-right`}>
 
                                                 <Link
                                                     href={`/dashboard/doctor/patients/${patient.patientid}`}
-                                                    className="rd-press rd-focus inline-flex min-h-10 items-center rounded-xl border border-rd-hair-strong bg-rd-sunken px-3.5 text-sm font-medium text-rd-label transition hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan"
+                                                    aria-label={`Open the record for ${patient.name}`}
+                                                    className={rowAction}
                                                 >
-                                                    Details & History
+                                                    Open record
+                                                    <ChevronRightIcon size={16} />
                                                 </Link>
 
-                                            </div>
+                                            </td>
 
-                                        </td>
+                                        </tr>
 
-                                    </tr>
+                                    );
 
-                                ))}
+                                })}
 
                             </tbody>
 
                         </table>
 
+                    )}
+
+                </div>
+
+                {!loading && !hasError && filteredPatients.length > 0 && (
+
+                    <div className="flex flex-none items-center justify-between border-t border-rd-hair px-5 py-4">
+
+                        <p className="text-sm text-rd-muted">
+                            Page {currentPage} of {totalPages}
+                        </p>
+
+                        <div className="flex items-center gap-2">
+
+                            <button
+                                type="button"
+                                disabled={currentPage <= 1}
+                                onClick={() =>
+                                    setPage((prev) => Math.max(1, prev - 1))
+                                }
+                                className="rd-btn-ghost rd-press rd-focus min-h-10 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Previous
+                            </button>
+
+                            <button
+                                type="button"
+                                disabled={currentPage >= totalPages}
+                                onClick={() =>
+                                    setPage((prev) =>
+                                        Math.min(totalPages, prev + 1)
+                                    )
+                                }
+                                className="rd-btn rd-press rd-focus min-h-10 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Next
+                            </button>
+
+                        </div>
+
                     </div>
 
                 )}
 
-            </div>
+            </section>
 
         </div>
 

@@ -1,67 +1,139 @@
 import Link from "next/link";
 
+import {
+    Avatar,
+    CalendarCheckIcon,
+    ChevronRightIcon,
+    ClipboardIcon,
+    PageHeader,
+    toneBar,
+} from "./_ui";
+
 const queueItems = [
-  { name: "S. Ibrahim", note: "Blood sample collection pending" },
-  { name: "T. Olu", note: "Results ready for pickup" },
-  { name: "M. Adebayo", note: "Billing summary requested" },
+    { name: "S. Ibrahim", note: "Blood sample collection pending", tone: "warn" },
+    { name: "T. Olu", note: "Results ready for pickup", tone: "ok" },
+    { name: "M. Adebayo", note: "Billing summary requested", tone: "info" },
 ];
 
 const intakeActions = [
-  {
-    title: "Patient registration",
-    description: "Create new visits, capture demographics, and prepare intake documents.",
-    href: "/dashboard/reception/registration",
-  },
-  {
-    title: "Patient visitation",
-    description: "Track arrival status, visit history, and front-desk handoffs.",
-    href: "/dashboard/reception/visitation",
-  },
+    {
+        title: "Patient registration",
+        description: "Capture demographics and prepare intake documents for a new patient.",
+        href: "/dashboard/reception/registration",
+        Icon: ClipboardIcon,
+        chip: "bg-cyan-500/12 text-cyan-600",
+    },
+    {
+        title: "Patient visitation",
+        description: "Register a visit, choose tests, and hand off to the laboratory.",
+        href: "/dashboard/reception/visitation",
+        Icon: CalendarCheckIcon,
+        chip: "bg-emerald-500/12 text-emerald-600",
+    },
 ];
 
 export default function ReceptionDashboardPage() {
-  return (
-    <div className="mx-auto max-w-5xl space-y-5">
-      <header className="rd-panel p-6">
-        <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">Reception</p>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">Patient intake workspace</h1>
-        <p className="mt-2 text-sm text-rd-muted">Keep patient registration and visitation workflows organized from one compact view.</p>
-      </header>
+    return (
+        <div className="mx-auto max-w-5xl space-y-5">
 
-      <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <article className="rd-panel p-6">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold text-rd-title">Primary intake functions</h2>
-            <span className="rounded-full border border-rd-cyan/40 bg-rd-cyan/10 px-2.5 py-1 text-xs font-medium uppercase tracking-[0.2em] text-rd-cyan">
-              Priority
-            </span>
-          </div>
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            {intakeActions.map((action) => (
-              <Link
-                key={action.title}
-                href={action.href}
-                className="rd-press rd-focus rounded-xl border border-rd-hair bg-rd-sunken p-4 transition hover:border-rd-cyan/50 hover:bg-rd-raised"
-              >
-                <h3 className="text-sm font-semibold text-rd-title">{action.title}</h3>
-                <p className="mt-2 text-sm text-rd-muted">{action.description}</p>
-              </Link>
-            ))}
-          </div>
-        </article>
+            <PageHeader
+                title="Patient intake workspace"
+                description="Keep patient registration and visitation workflows organised from one compact view."
+            />
 
-        <article className="rd-panel p-6">
-          <h2 className="text-lg font-semibold text-rd-title">Today’s queue</h2>
-          <div className="mt-4 space-y-3">
-            {queueItems.map((item) => (
-              <div key={item.name} className="rounded-xl border border-rd-hair bg-rd-sunken p-3">
-                <p className="text-sm font-medium text-rd-title">{item.name}</p>
-                <p className="mt-1 text-sm text-rd-muted">{item.note}</p>
-              </div>
-            ))}
-          </div>
-        </article>
-      </section>
-    </div>
-  );
+            <section className="grid gap-4 sm:grid-cols-2">
+
+                {intakeActions.map(({ title, description, href, Icon, chip }) => (
+
+                    <Link
+                        key={title}
+                        href={href}
+                        className="rd-panel rd-press rd-focus group flex flex-col p-5 transition-colors hover:border-rd-cyan/40"
+                    >
+
+                        <div className="flex items-start justify-between gap-3">
+
+                            <span className={`grid size-10 flex-none place-items-center rounded-xl ${chip}`}>
+                                <Icon size={20} />
+                            </span>
+
+                            <ChevronRightIcon
+                                size={18}
+                                className="text-rd-muted transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-rd-cyan motion-reduce:transition-none"
+                            />
+
+                        </div>
+
+                        <h2 className="mt-4 text-lg font-semibold text-rd-title">
+                            {title}
+                        </h2>
+
+                        <p className="mt-1 text-sm text-rd-muted">
+                            {description}
+                        </p>
+
+                    </Link>
+
+                ))}
+
+            </section>
+
+            <section className="rd-panel overflow-hidden">
+
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-rd-hair p-4">
+
+                    <div>
+
+                        <h2 className="text-lg font-semibold text-rd-title">Today’s queue</h2>
+
+                        <p className="mt-0.5 text-sm text-rd-muted">
+                            Front-desk items waiting on an action.
+                        </p>
+
+                    </div>
+
+                    <span className="text-sm text-rd-muted">
+                        {queueItems.length} {queueItems.length === 1 ? "item" : "items"}
+                    </span>
+
+                </div>
+
+                <ul className="space-y-3 p-4">
+
+                    {queueItems.map((item) => (
+
+                        <li
+                            key={item.name}
+                            className="relative flex flex-wrap items-center gap-x-4 gap-y-2 overflow-hidden rounded-xl border border-rd-hair bg-rd-sunken py-4 pl-6 pr-4 transition-colors hover:border-rd-hair-strong hover:bg-rd-raised"
+                        >
+
+                            <span
+                                aria-hidden="true"
+                                className={`absolute inset-y-0 left-0 w-1 ${toneBar[item.tone]}`}
+                            />
+
+                            <Avatar name={item.name} className="size-10 text-sm" />
+
+                            <div className="min-w-0 flex-1">
+
+                                <p className="truncate text-[15px] font-semibold text-rd-title">
+                                    {item.name}
+                                </p>
+
+                                <p className="mt-0.5 truncate text-sm text-rd-muted">
+                                    {item.note}
+                                </p>
+
+                            </div>
+
+                        </li>
+
+                    ))}
+
+                </ul>
+
+            </section>
+
+        </div>
+    );
 }

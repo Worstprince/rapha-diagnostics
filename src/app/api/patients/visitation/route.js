@@ -8,10 +8,13 @@ export async function POST(request) {
   const {
     patientId,
     doctorId,
+    referringDoctor,
+    clinic,
     visitDate,
     priority,
     notes,
     tests, 
+    userId
   } = body;
 
   // Basic validation
@@ -29,16 +32,62 @@ export async function POST(request) {
   const connection = await db.getConnection();
 
   try {
+
+    let referringDoctorId = null;
+
+    if (
+        referringDoctor &&
+        referringDoctor.trim() !== "" &&
+        referringDoctor !== "Walk-in / none"
+    ) {
+
+        const [referringRows] = await connection.query(
+            `
+            SELECT id
+            FROM tblreferringdoctors
+            WHERE name = ?
+            LIMIT 1
+            `,
+            [referringDoctor.trim()]
+        );
+
+
+        if (referringRows.length > 0) {
+
+            // if doctor exists
+            referringDoctorId = referringRows[0].id;
+
+        } else {
+
+            // if doctor doesn't exist, create one
+            const [insertResult] = await connection.query(
+                `
+                INSERT INTO tblreferringdoctors
+                (name, clinic)
+                VALUES (?, ?)
+                `,
+                [
+                    referringDoctor.trim(),
+                    clinic && clinic.trim() !== "" ? clinic.trim() : null,
+                ]
+            );
+
+            referringDoctorId = insertResult.insertId;
+
+        }
+
+    }
+
     await connection.beginTransaction();
 
     // Insert the visitation record
     const [visitResult] = await connection.query(
       `
       INSERT INTO tblpatientvisitation
-      (patientId, visited_at, doctorid, status, priority, notes)
-      VALUES (?, ?, ?, ?, ?, ?)
+      (patientId, visited_at, doctorid, status, priority, notes, referringdoctor, recorded_at, recorded_by)
+      VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?)
       `,
-      [patientId, visitDate, resolvedDoctorId, "Pending", priority, notes ?? null]
+      [patientId, visitDate, resolvedDoctorId, "Pending", priority, notes ?? null, referringDoctorId, userId]
     );
 
     const visitId = visitResult.insertId;
@@ -56,6 +105,13 @@ export async function POST(request) {
     );
 
     await connection.commit();
+
+    await logActivity(
+      userId,
+      "Visitation created",
+      `Created new visitation for patient ID: ${patientId}`,
+      "Patient Management"
+    );
 
     return NextResponse.json({
       success: true,

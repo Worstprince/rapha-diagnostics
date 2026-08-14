@@ -5,25 +5,27 @@ import Link from "next/link";
 
 import {
     Avatar,
+    CheckIcon,
     ChevronRightIcon,
-    ClockIcon,
     EmptyState,
     HeaderGlow,
-    priorityTone,
-    toneBar,
     Pill,
     PriorityPill,
     SearchIcon,
     TableSkeleton,
+    priorityTone,
     rowAction,
     td,
     th,
-} from "../_ui";
+    toneBar,
+} from "../../_ui";
+
+const PAGE_SIZE = 10;
 
 const DAY = 24 * 60 * 60 * 1000;
 
-/* Same wording and colour rules as the patients list, so a date means the
-   same thing whichever queue you are reading. */
+/* Shared wording and colour rules with the queue and the patients list, so a
+   date reads the same way on every doctor page. */
 function relativeLabel(date) {
     const days = Math.floor((Date.now() - date.getTime()) / DAY);
 
@@ -53,31 +55,30 @@ function recencyTone(date) {
     return "text-rd-muted";
 }
 
-export default function DoctorVisitationPage() {
+export default function DoctorVisitationHistoryPage() {
 
     const [visitations, setVisitations] = useState([]);
 
-    const [page, setPage] = useState(1);
-    const [limit] = useState(10);
-
-    const [total, setTotal] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
-
-    const [loading, setLoading] = useState(true);
-
     const [search, setSearch] = useState("");
 
-    /* The queue is server-paginated, so the search term is debounced rather
-       than filtered locally — otherwise every keystroke is its own query. */
+    /* Debounced so typing a name is one query instead of one per keystroke. */
     const [debouncedSearch, setDebouncedSearch] = useState("");
 
     const [hasError, setHasError] = useState(false);
 
-    const [showFilters, setShowFilters] = useState(false);
-
-    const [statusFilter, setStatusFilter] = useState("");
     const [priorityFilter, setPriorityFilter] = useState("");
-    const [sortDate, setSortDate] = useState("");
+
+    const [sortDate, setSortDate] = useState("newest");
+
+    const [page, setPage] = useState(1);
+
+    const [total, setTotal] = useState(0);
+
+    const [totalPages, setTotalPages] = useState(1);
+
+    const [loading, setLoading] = useState(true);
+
+    const [showFilters, setShowFilters] = useState(false);
 
 
     useEffect(() => {
@@ -93,7 +94,7 @@ export default function DoctorVisitationPage() {
 
         let cancelled = false;
 
-        async function fetchVisitations() {
+        async function fetchHistory() {
 
             setLoading(true);
 
@@ -102,14 +103,10 @@ export default function DoctorVisitationPage() {
                 const params = new URLSearchParams();
 
                 params.set("page", page);
-                params.set("limit", limit);
+                params.set("limit", PAGE_SIZE);
 
                 if (debouncedSearch.trim()) {
                     params.set("search", debouncedSearch.trim());
-                }
-
-                if (statusFilter) {
-                    params.set("status", statusFilter);
                 }
 
                 if (priorityFilter) {
@@ -122,10 +119,12 @@ export default function DoctorVisitationPage() {
 
 
                 const response = await fetch(
-                    `/api/doctor/visitationDisplay?${params.toString()}`
+                    `/api/doctor/visitationHistory?${params.toString()}`
                 );
 
+
                 const data = await response.json();
+
 
                 if (cancelled) {
                     return;
@@ -139,7 +138,7 @@ export default function DoctorVisitationPage() {
                     setHasError(true);
                     setVisitations([]);
                     setTotal(0);
-                    setTotalPages(0);
+                    setTotalPages(1);
 
                     return;
 
@@ -154,10 +153,15 @@ export default function DoctorVisitationPage() {
                         : []
                 );
 
-                setTotal(data.total ?? 0);
+                setTotal(
+                    data.total ?? 0
+                );
 
                 setTotalPages(
-                    data.totalPages ?? 0
+                    Math.max(
+                        data.totalPages ?? 1,
+                        1
+                    )
                 );
 
             } catch (error) {
@@ -169,7 +173,7 @@ export default function DoctorVisitationPage() {
                     setHasError(true);
                     setVisitations([]);
                     setTotal(0);
-                    setTotalPages(0);
+                    setTotalPages(1);
 
                 }
 
@@ -184,7 +188,7 @@ export default function DoctorVisitationPage() {
         }
 
 
-        fetchVisitations();
+        fetchHistory();
 
 
         return () => {
@@ -193,9 +197,7 @@ export default function DoctorVisitationPage() {
 
     }, [
         page,
-        limit,
         debouncedSearch,
-        statusFilter,
         priorityFilter,
         sortDate
     ]);
@@ -209,12 +211,27 @@ export default function DoctorVisitationPage() {
     }
 
 
+    function handlePriorityChange(e) {
+
+        setPriorityFilter(e.target.value);
+        setPage(1);
+
+    }
+
+
+    function handleSortChange(e) {
+
+        setSortDate(e.target.value);
+        setPage(1);
+
+    }
+
+
     function clearFilters() {
 
         setSearch("");
-        setStatusFilter("");
         setPriorityFilter("");
-        setSortDate("");
+        setSortDate("newest");
         setPage(1);
 
     }
@@ -222,9 +239,7 @@ export default function DoctorVisitationPage() {
 
     const activeFilterCount = [
         search,
-        statusFilter,
-        priorityFilter,
-        sortDate
+        priorityFilter
     ].filter(Boolean).length;
 
 
@@ -232,12 +247,11 @@ export default function DoctorVisitationPage() {
 
         <div className="mx-auto flex max-w-6xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
 
-
-            <header className="rd-panel relative flex-none overflow-hidden">
+            <header className="rd-panel relative flex-none overflow-hidden p-6">
 
                 <HeaderGlow />
 
-                <div className="relative flex flex-wrap items-end justify-between gap-x-8 gap-y-5 px-6 py-5">
+                <div className="relative flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
 
                     <div>
 
@@ -246,21 +260,19 @@ export default function DoctorVisitationPage() {
                         </p>
 
                         <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-rd-title">
-                            Patient Visitations
+                            Visitation History
                         </h1>
 
                         <p className="mt-1.5 text-sm text-rd-muted">
-                            Review visitations that still require test approval.
+                            View previously approved patient visitations.
                         </p>
 
                     </div>
 
-                    {/* The queue is paginated server-side, so the server's own
-                        total is the only count this page can state truthfully. */}
                     <div className="flex items-center gap-3">
 
-                        <span className="rd-tint-cyan grid size-9 flex-none place-items-center rounded-xl">
-                            <ClockIcon size={18} />
+                        <span className="rd-tint-green grid size-9 flex-none place-items-center rounded-xl">
+                            <CheckIcon size={18} />
                         </span>
 
                         <div>
@@ -268,7 +280,7 @@ export default function DoctorVisitationPage() {
                                 {loading ? "—" : total}
                             </p>
                             <p className="mt-1 text-xs text-rd-muted">
-                                {activeFilterCount > 0 ? "Matching visits" : "In the queue"}
+                                {activeFilterCount > 0 ? "Matching visits" : "Approved"}
                             </p>
                         </div>
 
@@ -282,34 +294,37 @@ export default function DoctorVisitationPage() {
             <section className="rd-panel flex min-h-0 flex-1 flex-col overflow-hidden">
 
 
-                {/* SEARCH + FILTER BUTTON */}
+                {/* SEARCH / FILTER HEADER */}
 
-                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-rd-hair p-4">
+                <div className="flex flex-none flex-col gap-3 border-b border-rd-hair p-4 sm:flex-row sm:items-center sm:justify-between">
 
-
-                    <div className="min-w-0">
+                    <div>
 
                         <h2 className="text-lg font-semibold text-rd-title">
-                            Visitation queue
+                            Approved Visitations
                         </h2>
 
                         <p className="mt-0.5 text-sm text-rd-muted">
+
                             {loading
-                                ? "Loading visitations…"
+                                ? "Loading history…"
                                 : visitations.length === 0
                                     ? "No matching visitations"
-                                    : `Showing ${(page - 1) * limit + 1}–${
-                                          (page - 1) * limit + visitations.length
+                                    : `Showing ${(page - 1) * PAGE_SIZE + 1}–${
+                                          (page - 1) * PAGE_SIZE + visitations.length
                                       } of ${total}`}
+
                         </p>
 
                     </div>
 
 
-                    <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
+                    <div className="flex w-full items-center gap-3 sm:w-auto">
 
 
-                        <div className="relative w-full sm:w-64">
+                        {/* SEARCH */}
+
+                        <div className="relative w-full sm:w-72">
 
                             <span
                                 aria-hidden="true"
@@ -318,10 +333,9 @@ export default function DoctorVisitationPage() {
                                 <SearchIcon />
                             </span>
 
-
                             <input
                                 type="search"
-                                aria-label="Search patients"
+                                aria-label="Search patient history"
                                 placeholder="Search patient…"
                                 value={search}
                                 onChange={handleSearchChange}
@@ -331,12 +345,12 @@ export default function DoctorVisitationPage() {
                         </div>
 
 
+                        {/* FILTER BUTTON */}
+
                         <button
                             type="button"
                             onClick={() =>
-                                setShowFilters(
-                                    prev => !prev
-                                )
+                                setShowFilters(prev => !prev)
                             }
                             className="rd-btn-secondary rd-press rd-focus whitespace-nowrap"
                         >
@@ -358,7 +372,7 @@ export default function DoctorVisitationPage() {
                 </div>
 
 
-                {/* COLLAPSIBLE FILTERS */}
+                {/* FILTERS */}
 
                 {showFilters && (
 
@@ -370,65 +384,12 @@ export default function DoctorVisitationPage() {
                             <label className="space-y-2">
 
                                 <span className="text-xs font-semibold uppercase tracking-[0.18em] text-rd-muted">
-                                    Status
-                                </span>
-
-                                <select
-                                    value={statusFilter}
-                                    onChange={(e) => {
-
-                                        setStatusFilter(
-                                            e.target.value
-                                        );
-
-                                        setPage(1);
-
-                                    }}
-                                    className="rd-input"
-                                >
-
-                                    <option value="">
-                                        All statuses
-                                    </option>
-
-                                    <option value="Pending">
-                                        Pending
-                                    </option>
-
-                                    <option value="In Progress">
-                                        In Progress
-                                    </option>
-
-                                    <option value="Under Review">
-                                        Under Review
-                                    </option>
-
-                                    <option value="Done">
-                                        Done
-                                    </option>
-
-                                </select>
-
-                            </label>
-
-
-                            <label className="space-y-2">
-
-                                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-rd-muted">
                                     Priority
                                 </span>
 
                                 <select
                                     value={priorityFilter}
-                                    onChange={(e) => {
-
-                                        setPriorityFilter(
-                                            e.target.value
-                                        );
-
-                                        setPage(1);
-
-                                    }}
+                                    onChange={handlePriorityChange}
                                     className="rd-input"
                                 >
 
@@ -461,21 +422,9 @@ export default function DoctorVisitationPage() {
 
                                 <select
                                     value={sortDate}
-                                    onChange={(e) => {
-
-                                        setSortDate(
-                                            e.target.value
-                                        );
-
-                                        setPage(1);
-
-                                    }}
+                                    onChange={handleSortChange}
                                     className="rd-input"
                                 >
-
-                                    <option value="">
-                                        Default order
-                                    </option>
 
                                     <option value="newest">
                                         Newest first
@@ -522,21 +471,18 @@ export default function DoctorVisitationPage() {
                 ) : hasError ? (
 
                     <EmptyState
-                        title="Could not load the queue"
+                        title="Could not load visitation history"
                         hint="Something went wrong reaching the server. Adjust the filters or refresh to try again."
                     />
 
                 ) : visitations.length === 0 ? (
 
                     <EmptyState
-                        title="No visitations found"
+                        title="No visitation history"
                         hint={
-                            search ||
-                            statusFilter ||
-                            priorityFilter ||
-                            sortDate
+                            search || priorityFilter
                                 ? "Nothing matches the current search and filters."
-                                : "Visitations requiring approval will appear here."
+                                : "Approved visitations will appear here."
                         }
                     />
 
@@ -590,12 +536,8 @@ export default function DoctorVisitationPage() {
                                         className="border-b border-rd-hair transition-colors last:border-0 hover:bg-rd-raised"
                                     >
 
-
                                         <td className={`${td} relative`}>
 
-                                            {/* A triage queue should show urgency
-                                                down its edge — you find the
-                                                emergencies without reading a cell. */}
                                             <span
                                                 aria-hidden="true"
                                                 className={`absolute inset-y-0 left-0 w-1 ${
@@ -670,20 +612,16 @@ export default function DoctorVisitationPage() {
 
 
                                         <td className={td}>
-
                                             <Pill
                                                 value={visit.status}
                                             />
-
                                         </td>
 
 
                                         <td className={td}>
-
                                             <PriorityPill
                                                 value={visit.priority}
                                             />
-
                                         </td>
 
 
@@ -720,58 +658,52 @@ export default function DoctorVisitationPage() {
 
                 {/* PAGINATION */}
 
-                {!loading &&
-                    visitations.length > 0 && (
+                {!loading && visitations.length > 0 && (
 
-                        <div className="flex flex-none items-center justify-between border-t border-rd-hair px-5 py-4">
+                    <div className="flex flex-none items-center justify-between border-t border-rd-hair px-5 py-4">
 
-                            <p className="text-sm text-rd-muted">
-                                Page {page} of {totalPages}
-                            </p>
+                        <p className="text-sm text-rd-muted">
+                            Page {page} of {totalPages}
+                        </p>
 
 
-                            <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2">
 
-                                <button
-                                    type="button"
-                                    disabled={page <= 1}
-                                    onClick={() =>
-                                        setPage(prev =>
-                                            Math.max(
-                                                1,
-                                                prev - 1
-                                            )
+                            <button
+                                type="button"
+                                disabled={page <= 1}
+                                onClick={() =>
+                                    setPage(prev =>
+                                        Math.max(1, prev - 1)
+                                    )
+                                }
+                                className="rd-btn-ghost rd-press rd-focus min-h-10 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Previous
+                            </button>
+
+
+                            <button
+                                type="button"
+                                disabled={page >= totalPages}
+                                onClick={() =>
+                                    setPage(prev =>
+                                        Math.min(
+                                            totalPages,
+                                            prev + 1
                                         )
-                                    }
-                                    className="rd-btn-ghost rd-press rd-focus min-h-10 disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                    Previous
-                                </button>
-
-
-                                <button
-                                    type="button"
-                                    disabled={
-                                        page >= totalPages
-                                    }
-                                    onClick={() =>
-                                        setPage(prev =>
-                                            Math.min(
-                                                totalPages,
-                                                prev + 1
-                                            )
-                                        )
-                                    }
-                                    className="rd-btn rd-press rd-focus min-h-10 disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                    Next
-                                </button>
-
-                            </div>
+                                    )
+                                }
+                                className="rd-btn rd-press rd-focus min-h-10 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Next
+                            </button>
 
                         </div>
 
-                    )}
+                    </div>
+
+                )}
 
             </section>
 

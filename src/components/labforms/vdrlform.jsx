@@ -44,7 +44,7 @@ export default function SyphilisForm({
 
         if (readOnly) return;
 
-        onSubmit(result);
+        onSubmit(result, hasExistingResult);
 
     }
 

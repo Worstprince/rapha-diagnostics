@@ -15,6 +15,8 @@ import {
     formSkin,
 } from "../../_ui";
 
+import Toast from "@/components/Toast";
+
 import bloodtypeform from "@/components/labforms/bloodtypeform";
 import chemistryform from "@/components/labforms/chemistryform";
 import hematology from "@/components/labforms/hematology";
@@ -28,7 +30,7 @@ import stoolexam from "@/components/labforms/stoolexamform";
 import thyroidexam from "@/components/labforms/thyroidform";
 import urinalysisexam from "@/components/labforms/urinalysisform";
 import vdrlexam from "@/components/labforms/vdrlform";
-
+import { useCurrentUser } from "@/lib/session";
 const forms = {
 
     1: bloodtypeform,
@@ -59,42 +61,72 @@ const forms = {
 };
 
 export default function TestPage() {
-
+    const currentUser = useCurrentUser();
     const { id } = useParams();
 
     const [patient, setPatient] = useState(null);
     const [test, setTest] = useState(null);
     const [result, setResult] = useState(null);
 
-    async function handleSubmit(result) {
-        try {
+    const [toast, setToast] = useState(null);
+
+async function handleSubmit(result, hasExistingResult) {
+
+    if (!currentUser?.id) {
+        setToast({
+            tone: "error",
+            text: "User session not found."
+        });
+        console.log("CURRENT USER:", currentUser);
+        return;
+    }
+
+    try {
+
         const response = await fetch("/api/medtech/test/save", {
             method: "POST",
+
             headers: {
                 "Content-Type": "application/json"
             },
+
             body: JSON.stringify({
                 patientId: patient.patientid,
-                assignmentId: test.id, 
+                assignmentId: test.id,
                 testId: test.testid,
                 visitId: test.visitid,
-                result
+                result,
+                userId: currentUser.id,
+                hasExistingResult
             })
         });
-                const data = await response.json();
 
-                if (!response.ok) {
-                    alert(data.message);
-                    return;
-                }
+        const data = await response.json();
 
-                alert("Test result saved successfully!");
+        if (!response.ok) {
+            setToast({
+                tone: "error",
+                text: data.message || "Failed to save test result."
+            });
+            return;
+        }
 
-            } catch (error) {
-                console.error(error);
-                alert("Failed to save test result.");
-        } // BLOOD TYPE RESULT
+        setToast({
+            tone: "success",
+            text: "Test result saved successfully."
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        setToast({
+            tone: "error",
+            text: "Unable to reach the server. Please try again."
+        });
+
     }
+}
     useEffect(() => {
 
         if (id) {
@@ -204,6 +236,11 @@ async function fetchTest() {
                 />
 
             </div>
+
+            <Toast
+                status={toast}
+                onDismiss={() => setToast(null)}
+            />
 
         </div>
     );

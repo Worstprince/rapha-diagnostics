@@ -46,7 +46,7 @@ export default function ThyroidPanelForm({
 
         if (readOnly) return;
 
-        onSubmit(result);
+        onSubmit(result, hasExistingResult);
 
     }
 

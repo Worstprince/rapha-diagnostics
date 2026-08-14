@@ -2,13 +2,13 @@ import db from "@/lib/db";
 import { NextResponse } from "next/server";
 
 export async function GET(request) {
+
     try {
 
         const searchParams = request.nextUrl.searchParams;
 
         const search = searchParams.get("search") ?? "";
         const date = searchParams.get("date") ?? "";
-        const status = searchParams.get("status") ?? "";
         const priority = searchParams.get("priority") ?? "";
         const sortDate = searchParams.get("sortDate") ?? "";
 
@@ -26,7 +26,7 @@ export async function GET(request) {
 
 
         const conditions = [
-            `v.status != 'Approved'`
+            `v.status = 'Approved'`
         ];
 
         const values = [];
@@ -58,17 +58,6 @@ export async function GET(request) {
             `);
 
             values.push(date);
-
-        }
-
-
-        if (status) {
-
-            conditions.push(`
-                v.status = ?
-            `);
-
-            values.push(status);
 
         }
 
@@ -166,22 +155,12 @@ export async function GET(request) {
         );
 
 
-        const [statuses] = await db.query(
-            `
-            SELECT DISTINCT status
-            FROM tblpatientvisitation
-            WHERE status IS NOT NULL
-            AND status != 'Approved'
-            ORDER BY status
-            `
-        );
-
-
         const [priorities] = await db.query(
             `
             SELECT DISTINCT priority
             FROM tblpatientvisitation
-            WHERE priority IS NOT NULL
+            WHERE status = 'Approved'
+            AND priority IS NOT NULL
             ORDER BY priority
             `
         );
@@ -194,10 +173,6 @@ export async function GET(request) {
             total,
 
             totalPages,
-
-            statuses: statuses.map(
-                row => row.status
-            ),
 
             priorities: priorities.map(
                 row => row.priority
@@ -220,4 +195,5 @@ export async function GET(request) {
         );
 
     }
+
 }

@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-
+import { useCurrentUser } from "@/lib/session";
 import ConfirmDialog from "@/components/ConfirmDialog";
 
 import Toast from "../_toast";
@@ -29,7 +29,7 @@ function field(hasError) {
 function EditUserForm() {
   const searchParams = useSearchParams();
   const userId = searchParams.get("id");
-
+  const currentUser = useCurrentUser();
   const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState("");
@@ -213,7 +213,10 @@ function EditUserForm() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(userData),
+          body: JSON.stringify({
+            ...userData,
+            userId: currentUser?.id
+          }),
         }
       );
 

@@ -1,30 +1,42 @@
 import db from "@/lib/db";
 import { NextResponse } from "next/server";
 
-export async function GET(request) {
-  const { searchParams } = new URL(request.url);
-  const search = searchParams.get("search");
+export async function GET() {
+    try {
+        const [rows] = await db.query(`
+            SELECT
+                id,
+                fname,
+                mname,
+                lname,
+                suffix,
+                birthdate,
+                sex,
+                civilStatus,
+                mobileNum,
+                email,
+                address
+            FROM tblpatients
+            ORDER BY lname, fname
+        `);
 
-  if (!search || search.trim().length === 0) {
-    return NextResponse.json({ success: true, patients: [] });
-  }
+        return NextResponse.json({
+            success: true,
+            patients: rows
+        });
 
-  const term = `%${search}%`;
+    } catch (error) {
 
-  const [rows] = await db.query(
-    `
-    SELECT id, fname, mname, lname, suffix, birthdate, sex, civilStatus, mobileNum, email, address
-    FROM tblpatients
-    WHERE CONCAT(fname, ' ', lname) LIKE ?
-    OR fname LIKE ?
-    OR lname LIKE ?
-    LIMIT 20
-    `,
-    [term, term, term]
-  );
+        console.error("PATIENT SEARCH API ERROR:", error);
 
-  return NextResponse.json({
-    success: true,
-    patients: rows
-  });
+        return NextResponse.json(
+            {
+                success: false,
+                message: "Failed to load patients."
+            },
+            {
+                status: 500
+            }
+        );
+    }
 }

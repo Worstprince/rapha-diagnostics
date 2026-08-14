@@ -75,7 +75,7 @@ export default function UrinalysisForm({
 
         if (readOnly) return;
 
-        onSubmit(result);
+        onSubmit(result, hasExistingResult);
 
     }
 

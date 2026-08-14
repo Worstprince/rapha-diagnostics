@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useCurrentUser } from "@/lib/session";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import Toast from "@/components/Toast";
 
 import {
     ArrowLeftIcon,
@@ -79,12 +82,16 @@ const reportSkin = [
 ].join(" ");
 
 export default function DoctorResultPage() {
-
+    const currentUser = useCurrentUser();
     const { id } = useParams();
 
     const [patient, setPatient] = useState(null);
     const [test, setTest] = useState(null);
     const [result, setResult] = useState(null);
+
+    const [toast, setToast] = useState(null);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [isApproving, setIsApproving] = useState(false);
 
     useEffect(() => {
 
@@ -108,35 +115,54 @@ export default function DoctorResultPage() {
 
     }
 
-async function handleApprove() {
+async function approveResult() {
 
-    const confirmed = window.confirm(
-        "Are you sure you want to approve this laboratory result?"
-    );
+    setIsApproving(true);
 
-    if (!confirmed) return;
+    try {
 
-    const response = await fetch(`/api/doctor/result/${id}`, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            status: "Approved"
-        })
-    });
+        const response = await fetch(`/api/doctor/result/${id}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                status: "Approved",
+                userId: currentUser?.id
+            })
+        });
 
-    const data = await response.json();
+        const data = await response.json();
 
-    if (!response.ok) {
-        alert(data.message || "Failed to approve result.");
-        return;
+        if (!response.ok) {
+            setToast({
+                tone: "error",
+                text: data.message || "Failed to approve result."
+            });
+            return;
+        }
+
+        setToast({
+            tone: "success",
+            text: "Laboratory result approved successfully."
+        });
+
+        await fetchResult();
+
+    } catch (error) {
+
+        console.error(error);
+
+        setToast({
+            tone: "error",
+            text: "Unable to reach the server. Please try again."
+        });
+
+    } finally {
+
+        setIsApproving(false);
+
     }
-
-    alert("Laboratory result approved successfully.");
-
-    // Optional: refresh the page so the new status appears
-    window.location.reload();
 }
 
     function handlePrint() {
@@ -249,10 +275,11 @@ async function handleApprove() {
 
                         <button
                             type="button"
-                            onClick={handleApprove}
+                            onClick={() => setIsConfirmOpen(true)}
+                            disabled={isApproving}
                             className="rd-btn rd-press rd-focus"
                         >
-                            Approve
+                            {isApproving ? "Approving…" : "Approve"}
                         </button>
 
                     )}
@@ -260,6 +287,24 @@ async function handleApprove() {
                 </div>
 
             </div>
+
+            <ConfirmDialog
+                open={isConfirmOpen}
+                title="Approve this result?"
+                description="Approving releases this laboratory result to the patient record. This cannot be undone."
+                confirmLabel="Approve result"
+                cancelLabel="Go back"
+                onConfirm={() => {
+                    setIsConfirmOpen(false);
+                    approveResult();
+                }}
+                onCancel={() => setIsConfirmOpen(false)}
+            />
+
+            <Toast
+                status={toast}
+                onDismiss={() => setToast(null)}
+            />
 
         </div>
     );

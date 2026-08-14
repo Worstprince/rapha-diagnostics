@@ -3,6 +3,7 @@
 import { useState, useSyncExternalStore } from "react";
 
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { useCurrentUser } from "@/lib/session";
 
 import Toast from "../_toast";
 import { PageHeader, roleLabel } from "../_ui";
@@ -24,19 +25,21 @@ function field(hasError) {
   return `rd-input ${hasError ? "rd-input--error" : ""}`;
 }
 
-// One shared interval for every mounted clock, so the tick doesn't multiply.
 const tickers = new Set();
 let timer = null;
 
 function subscribeSecond(onTick) {
   tickers.add(onTick);
+
   if (!timer) {
     timer = setInterval(() => {
       for (const fn of tickers) fn();
     }, 1000);
   }
+
   return () => {
     tickers.delete(onTick);
+
     if (tickers.size === 0) {
       clearInterval(timer);
       timer = null;
@@ -46,12 +49,15 @@ function subscribeSecond(onTick) {
 
 const getSecond = () => Math.floor(Date.now() / 1000);
 
-// 0 means "not on the client yet". Rendering a real clock during SSR would
-// hydrate against a different second and mismatch.
 const getServerSecond = () => 0;
 
 function LiveTimestamp() {
-  const tick = useSyncExternalStore(subscribeSecond, getSecond, getServerSecond);
+  const tick = useSyncExternalStore(
+    subscribeSecond,
+    getSecond,
+    getServerSecond
+  );
+
   return (
     <input
       id="createdAt"
@@ -66,13 +72,19 @@ function LiveTimestamp() {
 }
 
 export default function AddUsers() {
+  const currentUser = useCurrentUser();
+
   const [user, setUser] = useState({
     username: "",
+    fname: "",
+    mname: "",
+    lname: "",
     password: "",
     confirmPassword: "",
     email: "",
     role: "",
   });
+
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -80,14 +92,18 @@ export default function AddUsers() {
 
   function handleChange(e) {
     const { name, value } = e.target;
-    setUser((prev) => ({ ...prev, [name]: value }));
 
-    // Clear a field's error as soon as it's touched — leaving it up while the
-    // user fixes it reads as though the fix didn't register.
+    setUser((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
     setErrors((prev) => {
       if (!prev[name]) return prev;
+
       const next = { ...prev };
       delete next[name];
+
       return next;
     });
   }
@@ -95,45 +111,66 @@ export default function AddUsers() {
   function validate() {
     const found = {};
 
-    if (!user.username.trim()) found.username = "Username is required.";
-    else if (user.username.trim().length < MIN_USERNAME)
+    if (!user.username.trim()) {
+      found.username = "Username is required.";
+    } else if (user.username.trim().length < MIN_USERNAME) {
       found.username = `Username must be at least ${MIN_USERNAME} characters.`;
+    }
 
-    if (!user.password) found.password = "Password is required.";
-    else if (user.password.length < MIN_PASSWORD)
+    if (!user.fname.trim()) {
+      found.fname = "First name is required.";
+    }
+
+    if (!user.lname.trim()) {
+      found.lname = "Last name is required.";
+    }
+
+    if (!user.password) {
+      found.password = "Password is required.";
+    } else if (user.password.length < MIN_PASSWORD) {
       found.password = `Password must be at least ${MIN_PASSWORD} characters.`;
-    else if (!/[a-z]/.test(user.password))
-      found.password = "Password must include at least one lowercase letter.";
-    else if (!/[A-Z]/.test(user.password))
-      found.password = "Password must include at least one uppercase letter.";
-    else if (!/\d/.test(user.password))
-      found.password = "Password must include at least one number.";
-    else if (!/[^A-Za-z0-9]/.test(user.password))
-      found.password = "Password must include at least one symbol.";
-    
+    } else if (!/[a-z]/.test(user.password)) {
+      found.password =
+        "Password must include at least one lowercase letter.";
+    } else if (!/[A-Z]/.test(user.password)) {
+      found.password =
+        "Password must include at least one uppercase letter.";
+    } else if (!/\d/.test(user.password)) {
+      found.password =
+        "Password must include at least one number.";
+    } else if (!/[^A-Za-z0-9]/.test(user.password)) {
+      found.password =
+        "Password must include at least one symbol.";
+    }
+
     if (!user.confirmPassword) {
-    found.confirmPassword = "Please confirm the password.";
-    }
-    else if (user.password !== user.confirmPassword) {
-        found.confirmPassword = "Passwords do not match.";
+      found.confirmPassword = "Please confirm the password.";
+    } else if (user.password !== user.confirmPassword) {
+      found.confirmPassword = "Passwords do not match.";
     }
 
-    if (!user.email.trim()) found.email = "Email is required.";
-    else if (!EMAIL.test(user.email)) found.email = "Enter a valid email address.";
+    if (!user.email.trim()) {
+      found.email = "Email is required.";
+    } else if (!EMAIL.test(user.email)) {
+      found.email = "Enter a valid email address.";
+    }
 
-    if (!user.role) found.role = "Please select a role.";
+    if (!user.role) {
+      found.role = "Please select a role.";
+    }
 
     setErrors(found);
+
     return Object.keys(found).length === 0;
   }
 
-  /* Validation runs before the dialog, not after: asking "are you sure?" about a
-     form that's about to fail its own checks wastes a click. */
   function handleSubmit(e) {
     e.preventDefault();
+
     if (submitting) return;
 
     setStatus(null);
+
     if (!validate()) return;
 
     setConfirmOpen(true);
@@ -144,29 +181,52 @@ export default function AddUsers() {
     setSubmitting(true);
 
     try {
-      
       const { confirmPassword, ...userData } = user;
 
       const response = await fetch("/api/users/add", {
-          method: "POST",
-          headers: {
-              "Content-Type": "application/json",
-          },
-          body: JSON.stringify(userData),
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...userData, userId: currentUser?.id })
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        setStatus({ tone: "error", text: result.message || result.error || "Could not add user." });
+        setStatus({
+          tone: "error",
+          text:
+            result.message ||
+            result.error ||
+            "Could not add user.",
+        });
+
         return;
       }
 
-      setStatus({ tone: "success", text: `User “${user.username}” added successfully.` });
-      setUser({ username: "", password: "", confirmPassword: "", email: "", role: "" });
+      setStatus({
+        tone: "success",
+        text: `User “${user.username}” added successfully.`,
+      });
+
+      setUser({
+        username: "",
+        fname: "",
+        mname: "",
+        lname: "",
+        password: "",
+        confirmPassword: "",
+        email: "",
+        role: "",
+      });
+
       setErrors({});
     } catch {
-      setStatus({ tone: "error", text: "Unable to reach the server. Please try again." });
+      setStatus({
+        tone: "error",
+        text: "Unable to reach the server. Please try again.",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -176,19 +236,28 @@ export default function AddUsers() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
+
       <PageHeader
         title="Add User"
         description="Create an account and assign the role that matches their department."
       />
 
       <section className="rd-panel p-6">
-        {/* noValidate because the checks below replace the browser's — without
-            them the required attributes would do nothing at all. */}
-        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-5"
+          noValidate
+        >
+
           <div>
-            <label htmlFor="username" className="rd-label">
+            <label
+              htmlFor="username"
+              className="rd-label"
+            >
               Username
             </label>
+
             <input
               id="username"
               type="text"
@@ -196,21 +265,130 @@ export default function AddUsers() {
               autoComplete="off"
               value={user.username}
               onChange={handleChange}
-              aria-invalid={errors.username ? true : undefined}
-              aria-describedby={errors.username ? "username-error" : undefined}
+              aria-invalid={
+                errors.username ? true : undefined
+              }
+              aria-describedby={
+                errors.username
+                  ? "username-error"
+                  : undefined
+              }
               className={field(errors.username)}
             />
+
             {errors.username && (
-              <p id="username-error" className={errText}>
+              <p
+                id="username-error"
+                className={errText}
+              >
                 {errors.username}
               </p>
             )}
           </div>
 
+
           <div>
-            <label htmlFor="password" className="rd-label">
+            <label
+              htmlFor="fname"
+              className="rd-label"
+            >
+              First Name
+            </label>
+
+            <input
+              id="fname"
+              type="text"
+              name="fname"
+              autoComplete="given-name"
+              value={user.fname}
+              onChange={handleChange}
+              aria-invalid={
+                errors.fname ? true : undefined
+              }
+              aria-describedby={
+                errors.fname
+                  ? "fname-error"
+                  : undefined
+              }
+              className={field(errors.fname)}
+            />
+
+            {errors.fname && (
+              <p
+                id="fname-error"
+                className={errText}
+              >
+                {errors.fname}
+              </p>
+            )}
+          </div>
+
+
+          <div>
+            <label
+              htmlFor="mname"
+              className="rd-label"
+            >
+              Middle Name
+            </label>
+
+            <input
+              id="mname"
+              type="text"
+              name="mname"
+              autoComplete="additional-name"
+              value={user.mname}
+              onChange={handleChange}
+              className="rd-input"
+            />
+          </div>
+
+
+          <div>
+            <label
+              htmlFor="lname"
+              className="rd-label"
+            >
+              Last Name
+            </label>
+
+            <input
+              id="lname"
+              type="text"
+              name="lname"
+              autoComplete="family-name"
+              value={user.lname}
+              onChange={handleChange}
+              aria-invalid={
+                errors.lname ? true : undefined
+              }
+              aria-describedby={
+                errors.lname
+                  ? "lname-error"
+                  : undefined
+              }
+              className={field(errors.lname)}
+            />
+
+            {errors.lname && (
+              <p
+                id="lname-error"
+                className={errText}
+              >
+                {errors.lname}
+              </p>
+            )}
+          </div>
+
+
+          <div>
+            <label
+              htmlFor="password"
+              className="rd-label"
+            >
               Password
             </label>
+
             <input
               id="password"
               type="password"
@@ -218,49 +396,75 @@ export default function AddUsers() {
               autoComplete="new-password"
               value={user.password}
               onChange={handleChange}
-              aria-invalid={errors.password ? true : undefined}
-              aria-describedby={errors.password ? "password-error" : undefined}
+              aria-invalid={
+                errors.password ? true : undefined
+              }
+              aria-describedby={
+                errors.password
+                  ? "password-error"
+                  : undefined
+              }
               className={field(errors.password)}
             />
+
             {errors.password && (
-              <p id="password-error" className={errText}>
+              <p
+                id="password-error"
+                className={errText}
+              >
                 {errors.password}
               </p>
             )}
           </div>
 
+
           <div>
-            <label htmlFor="confirmPassword" className="rd-label">
-                Confirm Password
+            <label
+              htmlFor="confirmPassword"
+              className="rd-label"
+            >
+              Confirm Password
             </label>
 
             <input
-                id="confirmPassword"
-                type="password"
-                name="confirmPassword"
-                autoComplete="new-password"
-                value={user.confirmPassword}
-                onChange={handleChange}
-                aria-invalid={errors.confirmPassword ? true : undefined}
-                aria-describedby={
-                    errors.confirmPassword
-                        ? "confirmPassword-error"
-                        : undefined
-                }
-                className={field(errors.confirmPassword)}
+              id="confirmPassword"
+              type="password"
+              name="confirmPassword"
+              autoComplete="new-password"
+              value={user.confirmPassword}
+              onChange={handleChange}
+              aria-invalid={
+                errors.confirmPassword
+                  ? true
+                  : undefined
+              }
+              aria-describedby={
+                errors.confirmPassword
+                  ? "confirmPassword-error"
+                  : undefined
+              }
+              className={field(errors.confirmPassword)}
             />
 
             {errors.confirmPassword && (
-                <p id="confirmPassword-error" className={errText}>
-                    {errors.confirmPassword}
-                </p>
+              <p
+                id="confirmPassword-error"
+                className={errText}
+              >
+                {errors.confirmPassword}
+              </p>
             )}
-        </div>
+          </div>
+
 
           <div>
-            <label htmlFor="email" className="rd-label">
+            <label
+              htmlFor="email"
+              className="rd-label"
+            >
               Email
             </label>
+
             <input
               id="email"
               type="email"
@@ -268,66 +472,124 @@ export default function AddUsers() {
               autoComplete="off"
               value={user.email}
               onChange={handleChange}
-              aria-invalid={errors.email ? true : undefined}
-              aria-describedby={errors.email ? "email-error" : undefined}
+              aria-invalid={
+                errors.email ? true : undefined
+              }
+              aria-describedby={
+                errors.email
+                  ? "email-error"
+                  : undefined
+              }
               className={field(errors.email)}
             />
+
             {errors.email && (
-              <p id="email-error" className={errText}>
+              <p
+                id="email-error"
+                className={errText}
+              >
                 {errors.email}
               </p>
             )}
           </div>
 
+
           <div>
-            <label htmlFor="role" className="rd-label">
+            <label
+              htmlFor="role"
+              className="rd-label"
+            >
               Role
             </label>
+
             <select
               id="role"
               name="role"
               value={user.role}
               onChange={handleChange}
               data-empty={user.role === ""}
-              aria-invalid={errors.role ? true : undefined}
-              aria-describedby={errors.role ? "role-error" : undefined}
+              aria-invalid={
+                errors.role ? true : undefined
+              }
+              aria-describedby={
+                errors.role
+                  ? "role-error"
+                  : undefined
+              }
               className={field(errors.role)}
             >
-              <option value="" disabled hidden>
+              <option
+                value=""
+                disabled
+                hidden
+              >
                 Select Role
               </option>
+
               {ROLES.map((role) => (
-                <option key={role} value={role}>
+                <option
+                  key={role}
+                  value={role}
+                >
                   {roleLabel(role)}
                 </option>
               ))}
             </select>
+
             {errors.role && (
-              <p id="role-error" className={errText}>
+              <p
+                id="role-error"
+                className={errText}
+              >
                 {errors.role}
               </p>
             )}
           </div>
 
+
           <div>
-            <label htmlFor="createdAt" className="rd-label">
+            <label
+              htmlFor="createdAt"
+              className="rd-label"
+            >
               Created At
             </label>
+
             <LiveTimestamp />
-            <p id="createdAt-hint" className="mt-1.5 text-sm text-rd-muted">
+
+            <p
+              id="createdAt-hint"
+              className="mt-1.5 text-sm text-rd-muted"
+            >
               Recorded automatically when the account is saved.
             </p>
           </div>
 
+
           <div className="flex justify-end">
-            <button type="submit" disabled={submitting} className="rd-btn rd-press rd-focus">
-              {submitting ? "Adding…" : "Add User"}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="rd-btn rd-press rd-focus"
+            >
+              {submitting
+                ? "Adding…"
+                : "Add User"}
             </button>
+
           </div>
+
         </form>
+
       </section>
 
-      <Toast status={status} onDismiss={() => setStatus(null)} />
+
+      <Toast
+        status={status}
+        onDismiss={() => setStatus(null)}
+      />
+
 
       <ConfirmDialog
         open={confirmOpen}
@@ -337,6 +599,7 @@ export default function AddUsers() {
         onConfirm={addUser}
         onCancel={() => setConfirmOpen(false)}
       />
+
     </div>
   );
 }

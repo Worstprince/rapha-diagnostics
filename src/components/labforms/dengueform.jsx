@@ -38,7 +38,7 @@ export default function DengueForm({
 
         if (readOnly) return;
 
-        onSubmit(result);
+        onSubmit(result, hasExistingResult);
 
     }
 

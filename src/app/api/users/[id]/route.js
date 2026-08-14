@@ -74,6 +74,8 @@ export async function PUT(request, { params }) {
 
         const user = await request.json();
 
+        const { userId } = user;
+
 
         // Get the user's current information
         // so we can detect archive/restore changes.
@@ -199,7 +201,7 @@ export async function PUT(request, { params }) {
         ) {
 
             await logActivity(
-                1, // Replace with logged-in user's ID later
+                userId,
                 "User Archived",
                 `Archived user: ${user.username}`,
                 "User Management"
@@ -213,7 +215,7 @@ export async function PUT(request, { params }) {
         ) {
 
             await logActivity(
-                1, // Replace with logged-in user's ID later
+                userId,
                 "User Restored",
                 `Restored user: ${user.username}`,
                 "User Management"
@@ -224,7 +226,7 @@ export async function PUT(request, { params }) {
         else {
 
             await logActivity(
-                1, // Replace with logged-in user's ID later
+                userId,
                 "User Update",
                 `Updated user: ${user.username}`,
                 "User Management"

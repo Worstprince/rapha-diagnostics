@@ -1,26 +1,94 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useCurrentUser } from "@/lib/session";
+
+import {
+  Avatar,
+  CheckIcon,
+  CloseIcon,
+  SearchIcon,
+  Spinner,
+} from "@/app/dashboard/reception/_ui";
+import Toast from "@/app/dashboard/reception/_toast";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 const today = new Date().toISOString().slice(0, 10);
 
+function SummaryRow({ label, value }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3">
+      <dt className="flex-none text-sm text-rd-muted">{label}</dt>
+      <dd className="min-w-0 truncate text-right text-sm font-medium text-rd-title">
+        {value || <span className="font-normal text-rd-muted">Not set</span>}
+      </dd>
+    </div>
+  );
+}
+
+function PatientDetail({ label, value, span }) {
+  return (
+    <div className={span ? "sm:col-span-2" : undefined}>
+      <dt className="text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
+        {label}
+      </dt>
+      <dd className="mt-1 text-sm font-medium text-rd-title">
+        {value || <span className="font-normal text-rd-muted">—</span>}
+      </dd>
+    </div>
+  );
+}
+
 export default function VisitRegistrationForm() {
+  const currentUser = useCurrentUser();
+
   const [patientSearch, setPatientSearch] = useState("");
+  const [patients, setPatients] = useState([]);
+  const [showPatientDropdown, setShowPatientDropdown] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const [hasVisitToday, setHasVisitToday] = useState(false);
+
   const [visitDate, setVisitDate] = useState(today);
   const [priority, setPriority] = useState("Routine");
-  const [referringDoctor, setReferringDoctor] = useState("Walk-in / none");
-  const [doctorSearch, setDoctorSearch] = useState("");
-  const [showDoctorDropdown, setShowDoctorDropdown] = useState(false);
+
+  const [clinic, setClinic] = useState("");
+
+  const [assignedDoctor, setAssignedDoctor] =
+    useState("");
+
+  const [referralType, setReferralType] =
+    useState("walk-in");
+
+  const [referringDoctor, setReferringDoctor] =
+    useState("");
+
+  // For the dropdown display on doctor referral
+  const [referringDoctors, setReferringDoctors] = useState([]);
+  const [showReferringDoctorDropdown, setShowReferringDoctorDropdown] =
+  useState(false);
+
   const [notes, setNotes] = useState("");
+
   const [selectedTests, setSelectedTests] = useState([]);
   const [testCatalog, setTestCatalog] = useState([]);
   const [testSearch, setTestSearch] = useState("");
-  const [hasLoadingError, setHasLoadingError] = useState(false);
+
   const [doctors, setDoctors] = useState([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState("");
+
+  const [hasLoadingError, setHasLoadingError] =
+    useState(false);
+
+  const [isSubmitting, setIsSubmitting] =
+    useState(false);
+
+  const [toast, setToast] =
+    useState(null);
+
+  const [isConfirmOpen, setIsConfirmOpen] =
+    useState(false);
 
   const [selectedPatient, setSelectedPatient] = useState({
+    id: "",
     fname: "",
     mname: "",
     lname: "",
@@ -32,158 +100,367 @@ export default function VisitRegistrationForm() {
     email: "",
     address: "",
   });
-  const [searchResults, setSearchResults] = useState([]);
-  const [showDropdown, setShowDropdown] = useState(false);
 
-  const selectedCountLabel = useMemo(() => {
-    if (selectedTests.length === 0) return "0 selected";
-    return `${selectedTests.length} selected`;
-  }, [selectedTests]);
 
-  const filteredDoctors = useMemo(() => {
-    if (doctorSearch.trim() === "") return doctors;
-    const term = doctorSearch.toLowerCase();
-    return doctors.filter((doctor) =>
-      `${doctor.fname} ${doctor.lname}`.toLowerCase().includes(term)
+  /*
+   * PATIENTS
+   */
+
+  const filteredPatients = useMemo(() => {
+    const terms = patientSearch
+      .trim()
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(Boolean);
+
+    if (terms.length === 0) {
+      return patients;
+    }
+
+    return patients.filter((patient) => {
+      const haystack = [
+        patient.fname,
+        patient.mname,
+        patient.lname,
+        patient.suffix,
+        patient.id,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return terms.every((term) =>
+        haystack.includes(term)
+      );
+    });
+  }, [patients, patientSearch]);
+
+
+  /*
+   * WHAT THE DROPDOWN ACTUALLY SHOWS
+   *
+   * With no search term the whole roster is not useful, so the
+   * newest records are offered instead. Results are capped so a
+   * large catalogue never renders thousands of rows.
+   */
+
+  const isShowingRecent = patientSearch.trim() === "";
+
+  const visiblePatients = useMemo(() => {
+    if (isShowingRecent) {
+      return [...patients]
+        .sort(
+          (a, b) => Number(b.id || 0) - Number(a.id || 0)
+        )
+        .slice(0, 8);
+    }
+
+    return filteredPatients.slice(0, 50);
+  }, [patients, filteredPatients, isShowingRecent]);
+
+
+  /*
+   * DOCTORS
+   */
+
+  const sortedDoctors = useMemo(() => {
+    return [...doctors].sort((a, b) =>
+      `${a.lname} ${a.fname}`.localeCompare(
+        `${b.lname} ${b.fname}`
+      )
     );
-  }, [doctors, doctorSearch]);
+  }, [doctors]);
 
-  async function searchPatients(name) {
-    const params = new URLSearchParams({ search: name });
-    const response = await fetch(`/api/patients/search?${params.toString()}`);
-    const data = await response.json();
-    setSearchResults(data.patients);
-    setShowDropdown(true);
-  }
 
-  async function handleChange(e) {
-    const value = e.target.value;
-    setPatientSearch(value);
-    searchPatients(value);
-  }
+  /*
+   * TESTS
+   */
 
-  useEffect(() => {
-    async function fetchDoctors() {
-      try {
-        const response = await fetch("/api/doctor/getDoctorList");
-        if (!response.ok) throw new Error("Failed to fetch doctors");
-        const data = await response.json();
-        setDoctors(data.doctors);
-      } catch (err) {
-        console.error(err);
-        setHasLoadingError(true);
-      }
-    }
-    fetchDoctors();
-  }, []);
-  //------------------------------//
-  async function handleCreateVisit() {
-  setSubmitError("");
-
-  if (!selectedPatient.id) {
-    setSubmitError("Please select a patient first.");
-
-    return;
-  }
-
-  if (selectedTests.length === 0) {
-    setSubmitError("Please select at least one test.");
-    return;
-  }
-
-  setIsSubmitting(true);
-
-  try {
-    const response = await fetch("/api/patients/visitation", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        patientId: selectedPatient.id,
-        doctorId: referringDoctor,
-        visitDate,
-        priority,
-        notes,
-        tests: selectedTests.map((test) => test.id),
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || !data.success) {
-      throw new Error(data.message || "Failed to create visit.");
-    }
-
-    // Reset the form after a successful submission
-    setPatientSearch("");
-    setSelectedPatient({
-      fname: "",
-      mname: "",
-      lname: "",
-      suffix: "",
-      birthdate: "",
-      sex: "",
-      civilStatus: "",
-      mobileNum: "",
-      email: "",
-      address: "",
-    });
-    setReferringDoctor("Walk-in / none");
-    setDoctorSearch("");
-    setPriority("Routine");
-    setNotes("");
-    setSelectedTests([]);
-  } catch (err) {
-    console.error(err);
-    setSubmitError(err.message);
-  } finally {
-    setIsSubmitting(false);
-  }
-}
-
-  //------------------------------//
   const filteredTests = useMemo(() => {
-    if (testSearch.trim() === "") return testCatalog;
-    const term = testSearch.toLowerCase();
+    const term = testSearch.trim().toLowerCase();
+
+    if (term === "") {
+      return testCatalog;
+    }
+
     return testCatalog.filter((test) =>
       test.name.toLowerCase().includes(term)
     );
   }, [testCatalog, testSearch]);
 
+
+  /*
+   * SELECTED TEST COUNT
+   */
+
+  const selectedCountLabel = useMemo(() => {
+    if (selectedTests.length === 0) {
+      return "0 selected";
+    }
+
+    return `${selectedTests.length} selected`;
+  }, [selectedTests]);
+
+
+  /*
+   * TOTAL COST
+   */
+
+  const totalCost = useMemo(() => {
+    return selectedTests.reduce(
+      (total, test) =>
+        total + Number(test.price || 0),
+      0
+    );
+  }, [selectedTests]);
+
+  const filteredReferringDoctors = useMemo(() => {
+  const term = referringDoctor
+    .trim()
+    .toLowerCase();
+
+  if (term === "") {
+    return referringDoctors;
+  }
+
+  return referringDoctors.filter((doctor) =>
+    doctor.name
+      .toLowerCase()
+      .includes(term)
+  );
+}, [referringDoctors, referringDoctor]);
+
+
+  /*
+   * LOAD PATIENTS
+   *
+   * The endpoint is called with an empty search.
+   * This gives us the patient list once.
+   *
+   * After that, searching is done locally using
+   * filteredPatients.
+   */
+
   useEffect(() => {
-    async function fetchTests() {
+    async function fetchPatients() {
       try {
-        const response = await fetch("/api/tests/getTestCatalog");
-        if (!response.ok) throw new Error("Failed to fetch tests");
+        const response = await fetch(
+          "/api/patients/search?search=",
+          {
+            cache: "no-store",
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            "Failed to fetch patients."
+          );
+        }
+
         const data = await response.json();
-        setTestCatalog(data.tests);
-      } catch (err) {
-        console.error(err);
+
+        setPatients(data.patients || []);
+      } catch (error) {
+        console.error(
+          "PATIENT LOAD ERROR:",
+          error
+        );
+
         setHasLoadingError(true);
       }
     }
+
+    fetchPatients();
+  }, []);
+
+
+  /*
+   * LOAD DOCTORS
+   */
+
+  useEffect(() => {
+    async function fetchDoctors() {
+      try {
+        const response = await fetch(
+          "/api/doctor/getDoctorList",
+          {
+            cache: "no-store",
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            "Failed to fetch doctors."
+          );
+        }
+
+        const data = await response.json();
+
+        setDoctors(data.doctors || []);
+      } catch (error) {
+        console.error(
+          "DOCTOR LOAD ERROR:",
+          error
+        );
+
+        setHasLoadingError(true);
+      }
+    }
+
+    fetchDoctors();
+  }, []);
+
+
+  /*
+   * LOAD TEST CATALOG
+   */
+
+  useEffect(() => {
+    async function fetchTests() {
+      try {
+        const response = await fetch(
+          "/api/tests/getTestCatalog",
+          {
+            cache: "no-store",
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            "Failed to fetch tests."
+          );
+        }
+
+        const data = await response.json();
+
+        setTestCatalog(data.tests || []);
+      } catch (error) {
+        console.error(
+          "TEST LOAD ERROR:",
+          error
+        );
+
+        setHasLoadingError(true);
+      }
+    }
+
     fetchTests();
   }, []);
 
-  function handleAddTest(test) {
-    const alreadyAdded = selectedTests.some((t) => t.id === test.id);
-    if (alreadyAdded) return;
-    setSelectedTests((prev) => [...prev, test]);
+
+  // for loading the referring doctors list
+  useEffect(() => {
+  async function fetchReferringDoctors() {
+    try {
+      const response = await fetch(
+        "/api/doctor/referringDoctors",
+        {
+          cache: "no-store",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          "Failed to fetch referring doctors."
+        );
+      }
+
+      const data = await response.json();
+      
+      console.log("REFERRING DOCTORS API:", data);
+
+      setReferringDoctors(
+        data.referringDoctors || []
+      );
+    } catch (error) {
+      console.error(
+        "REFERRING DOCTOR LOAD ERROR:",
+        error
+      );
+
+      setHasLoadingError(true);
+    }
   }
 
-  function handleRemoveTest(testId) {
-    setSelectedTests((prev) => prev.filter((t) => t.id !== testId));
+  fetchReferringDoctors();
+}, []);
+
+
+  /*
+   * PATIENT SEARCH
+   *
+   * This no longer calls the API.
+   * It only changes the search text.
+   *
+   * filteredPatients automatically updates.
+   */
+
+  function handlePatientSearchChange(e) {
+    setPatientSearch(e.target.value);
+    setShowPatientDropdown(true);
+    setHighlightedIndex(0);
   }
 
-  //------------------------------//
+  function handleSelectReferringDoctor(doctor) {
+  setReferringDoctor(doctor.name);
+  setClinic(doctor.clinic || "");
+  setShowReferringDoctorDropdown(false);
+}
+
+
+  /*
+   * KEYBOARD NAVIGATION
+   */
+
+  function handlePatientKeyDown(e) {
+    if (!showPatientDropdown) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setShowPatientDropdown(true);
+        setHighlightedIndex(0);
+      }
+      return;
+    }
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightedIndex((index) =>
+        Math.min(index + 1, visiblePatients.length - 1)
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightedIndex((index) =>
+        Math.max(index - 1, 0)
+      );
+    } else if (e.key === "Enter") {
+      const patient = visiblePatients[highlightedIndex];
+
+      if (patient) {
+        e.preventDefault();
+        handleSelectPatient(patient);
+      }
+    } else if (e.key === "Escape") {
+      setShowPatientDropdown(false);
+    }
+  }
+
+
+  /*
+   * SELECT PATIENT
+   */
 
   function handleSelectPatient(patient) {
     const sanitizedPatient = Object.fromEntries(
-      Object.entries(patient).map(([key, value]) => [key, value ?? ""])
+      Object.entries(patient).map(
+        ([key, value]) => [
+          key,
+          value ?? "",
+        ]
+      )
     );
 
     setSelectedPatient({
+      id: "",
       fname: "",
       mname: "",
       lname: "",
@@ -196,359 +473,1060 @@ export default function VisitRegistrationForm() {
       address: "",
       ...sanitizedPatient,
     });
-    setPatientSearch(`${patient.fname} ${patient.lname}`);
-    setShowDropdown(false);
+
+    setPatientSearch(
+      [
+        patient.fname,
+        patient.mname,
+        patient.lname,
+        patient.suffix,
+      ]
+        .filter(Boolean)
+        .join(" ")
+    );
+
+    setShowPatientDropdown(false);
   }
 
-  function handleDoctorSearchChange(e) {
-    setDoctorSearch(e.target.value);
-    setShowDoctorDropdown(true);
+
+  /*
+   * CLEAR PATIENT
+   */
+
+  function handleClearPatient() {
+    setSelectedPatient({
+      id: "",
+      fname: "",
+      mname: "",
+      lname: "",
+      suffix: "",
+      birthdate: "",
+      sex: "",
+      civilStatus: "",
+      mobileNum: "",
+      email: "",
+      address: "",
+    });
+
+    setPatientSearch("");
+    setShowPatientDropdown(false);
   }
 
-  function handleSelectDoctor(doctor) {
-    setReferringDoctor(doctor.id);
-    setDoctorSearch(`Dr. ${doctor.fname} ${doctor.lname}`);
-    setShowDoctorDropdown(false);
+
+  /*
+   * REFERRAL SOURCE
+   */
+
+  function handleReferralTypeChange(value) {
+    setReferralType(value);
+
+    if (value === "walk-in") {
+      setReferringDoctor("");
+      setClinic("");
+    }
   }
 
-  function handleSelectWalkIn() {
-    setReferringDoctor("Walk-in / none");
-    setDoctorSearch("Walk-in / none");
-    setShowDoctorDropdown(false);
+
+  /*
+   * ADD TEST
+   */
+
+  function handleAddTest(test) {
+    const alreadyAdded =
+      selectedTests.some(
+        (selectedTest) =>
+          selectedTest.id === test.id
+      );
+
+    if (alreadyAdded) {
+      return;
+    }
+
+    setSelectedTests((prev) => [
+      ...prev,
+      test,
+    ]);
   }
+
+
+  /*
+   * REMOVE TEST
+   */
+
+  function handleRemoveTest(testId) {
+    setSelectedTests((prev) =>
+      prev.filter(
+        (test) => test.id !== testId
+      )
+    );
+  }
+
+
+  /*
+   * CREATE VISIT
+   */
+
+  async function handleCreateVisit() {
+    setToast(null);
+
+    if (!selectedPatient.id) {
+      setToast({
+        tone: "error",
+        text: "Please select a patient first.",
+      });
+      return;
+    }
+
+    if (selectedTests.length === 0) {
+      setToast({
+        tone: "error",
+        text: "Please select at least one test.",
+      });
+      return;
+    }
+
+    if (!currentUser?.id) {
+      setToast({
+        tone: "error",
+        text: "Unable to determine the current user.",
+      });
+      return;
+    }
+
+    if (!assignedDoctor) {
+      setToast({
+        tone: "error",
+        text: "Please assign a doctor to this visit.",
+      });
+      return;
+    }
+
+    if (isReferred && !referringDoctor.trim()) {
+      setToast({
+        tone: "error",
+        text: "Please enter the referring doctor.",
+      });
+      return;
+    }
+
+    const visitPatientName = [
+      selectedPatient.fname,
+      selectedPatient.lname,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+
+    const visitTestCount =
+      selectedTests.length;
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(
+        "/api/patients/visitation",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            patientId:
+              selectedPatient.id,
+
+            doctorId:
+              assignedDoctor || null,
+
+            visitDate,
+
+            priority,
+
+            referringDoctor:
+              isReferred
+                ? referringDoctor.trim()
+                : "Walk-in / none",
+
+            clinic,
+
+            notes,
+
+            tests:
+              selectedTests.map(
+                (test) => test.id
+              ),
+
+            userId:
+              currentUser.id,
+          }),
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+            "Failed to create visit."
+        );
+      }
+
+
+      setToast({
+        tone: "success",
+        text: `Visit created for ${
+          visitPatientName || "the patient"
+        } with ${visitTestCount} ${
+          visitTestCount === 1
+            ? "test"
+            : "tests"
+        }.`,
+      });
+
+
+      /*
+       * RESET FORM
+       */
+
+      setPatientSearch("");
+
+      setSelectedPatient({
+        id: "",
+        fname: "",
+        mname: "",
+        lname: "",
+        suffix: "",
+        birthdate: "",
+        sex: "",
+        civilStatus: "",
+        mobileNum: "",
+        email: "",
+        address: "",
+      });
+
+      setShowPatientDropdown(false);
+
+      setReferralType("walk-in");
+
+      setReferringDoctor("");
+
+      setPriority("Routine");
+
+      setClinic("");
+
+      setAssignedDoctor("");
+
+      setNotes("");
+
+      setSelectedTests([]);
+
+      setTestSearch("");
+
+    } catch (error) {
+      console.error(error);
+
+      setToast({
+        tone: "error",
+        text:
+          error.message ||
+          "Failed to create visit.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+
+  /*
+   * CLOSE DROPDOWNS WHEN CLICKING OUTSIDE
+   */
 
   useEffect(() => {
     function handleClickOutside(e) {
-      if (!e.target.closest("#patient-search-container")) {
-        setShowDropdown(false);
+      if (
+        !e.target.closest(
+          "#patient-search-container"
+        )
+      ) {
+        setShowPatientDropdown(false);
       }
-      if (!e.target.closest("#doctor-search-container")) {
-        setShowDoctorDropdown(false);
+      if (
+        !e.target.closest(
+          "#referring-doctor-search-container"
+        )
+      ) {
+        setShowReferringDoctorDropdown(false);
       }
+
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+    };
   }, []);
 
+
+  const patientFullName = [
+    selectedPatient.fname,
+    selectedPatient.mname,
+    selectedPatient.lname,
+    selectedPatient.suffix,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const hasSelectedPatient = Boolean(patientFullName);
+
+  const isReferred = referralType === "referred";
+
+  const referralSummary = isReferred
+    ? referringDoctor.trim() ||
+      "Outside doctor"
+    : "Walk-in / none";
+
+  const assignedDoctorName = (() => {
+    const match = doctors.find(
+      (doctor) =>
+        String(doctor.id) ===
+        String(assignedDoctor)
+    );
+
+    return match
+      ? `Dr. ${match.fname} ${match.lname}`
+      : "";
+  })();
+
+  const validationMessage = !hasSelectedPatient
+    ? "Select a patient to continue."
+    : selectedTests.length === 0
+      ? "Add at least one test."
+      : !assignedDoctor
+        ? "Assign a doctor to continue."
+        : isReferred && !referringDoctor.trim()
+          ? "Enter the referring doctor's name."
+          : null;
+
+  const hasUnsavedWork =
+    hasSelectedPatient ||
+    selectedTests.length > 0 ||
+    isReferred ||
+    clinic.trim() !== "" ||
+    assignedDoctor !== "" ||
+    notes.trim() !== "";
+
+
+  /*
+   * UNSAVED WORK GUARD
+   */
+
+  useEffect(() => {
+    if (!hasUnsavedWork) return;
+
+    function handleBeforeUnload(event) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+
+    window.addEventListener(
+      "beforeunload",
+      handleBeforeUnload
+    );
+
+    return () => {
+      window.removeEventListener(
+        "beforeunload",
+        handleBeforeUnload
+      );
+    };
+  }, [hasUnsavedWork]);
+
+
+  /*
+   * SAME-DAY VISIT CHECK
+   *
+   * Reads the existing patient record endpoint so reception can
+   * see that a visit already exists before creating a second one.
+   */
+
+  useEffect(() => {
+    if (!selectedPatient.id) {
+      setHasVisitToday(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const response = await fetch(
+          `/api/doctor/patients/${selectedPatient.id}`,
+          { cache: "no-store" }
+        );
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+
+        if (cancelled) return;
+
+        const now = new Date();
+
+        const visitedToday = (data.visits || []).some(
+          (visit) => {
+            const date = new Date(visit.visited_at);
+
+            return (
+              date.getFullYear() === now.getFullYear() &&
+              date.getMonth() === now.getMonth() &&
+              date.getDate() === now.getDate()
+            );
+          }
+        );
+
+        setHasVisitToday(visitedToday);
+      } catch (error) {
+        console.error("VISIT CHECK ERROR:", error);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedPatient.id]);
+
   return (
-    <section className="rounded-[2rem] border border-rd-hair bg-rd-sunken p-8 shadow-[var(--rd-card-shadow)]">
-      <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="space-y-3">
-          <h1 className="text-3xl font-semibold tracking-tight text-rd-title">Register Visit</h1>
-          <p className="max-w-2xl text-sm leading-6 text-rd-muted">
-            Find the patient, then select the tests requested for this visit.
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)] lg:items-start">
+
+      {/* MAIN COLUMN */}
+
+      <div className="space-y-5">
+
+        {hasLoadingError && (
+          <p role="alert" className="rd-status rd-status--error">
+            Could not load patients, doctors, or test catalog. Refresh and try again.
           </p>
-        </div>
-      </div>
+        )}
 
-      {hasLoadingError && (
-        <div className="mb-8 rounded-3xl border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-100">
-          Could not load doctors or test catalog. Refresh and try again.
-        </div>
-      )}
 
-      <div className="space-y-8">
-        <div className="space-y-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-rd-muted">Patient</p>
-          <div id="patient-search-container" className="relative">
-            <input
-              type="text"
-              value={patientSearch}
-              onChange={handleChange}
-              placeholder="Search by name or patient ID..."
-              className="w-full rounded-3xl border border-rd-hair bg-rd-field px-4 py-3 text-rd-text placeholder:text-rd-placeholder focus:border-rd-cyan focus:outline-none focus:ring-2 focus:ring-rd-cyan/20"
-            />
+        {/* PATIENT */}
 
-            {showDropdown && searchResults.length > 0 && (
-              <ul className="absolute z-10 mt-1 max-h-64 w-full overflow-y-auto rounded-2xl border border-rd-hair bg-rd-popover shadow-lg">
-                {searchResults.map((patient) => (
-                  <li
-                    key={patient.id}
-                    onClick={() => handleSelectPatient(patient)}
-                    className="cursor-pointer px-4 py-2 text-sm text-rd-text hover:bg-rd-raised"
-                  >
-                    {patient.fname} {patient.mname} {patient.lname} {patient.suffix}
-                    <span className="ml-2 text-rd-muted">{patient.birthdate}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
+        <section className="rd-panel relative z-20">
 
-            {showDropdown && patientSearch.trim() !== "" && searchResults.length === 0 && (
-              <div className="absolute z-10 mt-1 w-full rounded-2xl border border-rd-hair bg-rd-popover px-4 py-3 text-sm text-rd-muted">
-                No patients found.
-              </div>
-            )}
+          <div className="border-b border-rd-hair p-4">
+            <h2 className="text-lg font-semibold text-rd-title">Patient</h2>
+            <p className="mt-0.5 text-sm text-rd-muted">
+              Search the record this visit belongs to.
+            </p>
           </div>
 
-          <div className="space-y-4 rounded-[1.75rem] border border-rd-hair bg-rd-sunken p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-rd-muted">Selected patient</p>
+          <div className="space-y-4 p-4">
 
-            <div className="grid gap-4 lg:grid-cols-3">
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-rd-label">First name</span>
-                <input
-                  type="text"
-                  value={selectedPatient.fname}
-                  disabled
-                  readOnly
-                  className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
-                />
-              </label>
+            {!hasSelectedPatient && (
 
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-rd-label">Middle name</span>
-                <input
-                  type="text"
-                  value={selectedPatient.mname}
-                  disabled
-                  readOnly
-                  className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
-                />
-              </label>
+            <div id="patient-search-container" className="relative">
 
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-rd-label">Last name</span>
-                <input
-                  type="text"
-                  value={selectedPatient.lname}
-                  disabled
-                  readOnly
-                  className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
-                />
-              </label>
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute left-3.5 top-1/2 z-10 -translate-y-1/2 text-rd-placeholder"
+              >
+                <SearchIcon />
+              </span>
 
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-rd-label">Suffix</span>
-                <input
-                  type="text"
-                  value={selectedPatient.suffix}
-                  disabled
-                  readOnly
-                  className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
-                />
-              </label>
-
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-rd-label">Birthdate</span>
-                <input
-                  type="text"
-                  value={selectedPatient.birthdate}
-                  disabled
-                  readOnly
-                  className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
-                />
-              </label>
-
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-rd-label">Sex</span>
-                <input
-                  type="text"
-                  value={selectedPatient.sex}
-                  disabled
-                  readOnly
-                  className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
-                />
-              </label>
-
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-rd-label">Civil status</span>
-                <input
-                  type="text"
-                  value={selectedPatient.civilStatus}
-                  disabled
-                  readOnly
-                  className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
-                />
-              </label>
-
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-rd-label">Mobile number</span>
-                <input
-                  type="text"
-                  value={selectedPatient.mobileNum}
-                  disabled
-                  readOnly
-                  className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
-                />
-              </label>
-
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-rd-label">Email</span>
-                <input
-                  type="text"
-                  value={selectedPatient.email}
-                  disabled
-                  readOnly
-                  className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
-                />
-              </label>
-            </div>
-
-            <label className="block space-y-2">
-              <span className="text-sm font-medium text-rd-label">Address</span>
               <input
                 type="text"
-                value={selectedPatient.address}
-                disabled
-                readOnly
-                className="w-full cursor-not-allowed rounded-3xl border border-rd-hair bg-rd-sunken px-4 py-3 text-rd-muted"
+                role="combobox"
+                aria-expanded={showPatientDropdown}
+                aria-controls="patient-listbox"
+                aria-autocomplete="list"
+                aria-label="Search patients by name or ID"
+                value={patientSearch}
+                onChange={handlePatientSearchChange}
+                onFocus={() => setShowPatientDropdown(true)}
+                onKeyDown={handlePatientKeyDown}
+                placeholder="Search by name or patient ID…"
+                className="rd-input pl-11"
               />
-            </label>
-          </div>
-        </div>
 
-        <div className="space-y-6 rounded-[1.75rem] border border-rd-hair bg-rd-sunken p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-rd-muted">Visit details</p>
-
-          <div className="grid gap-4 lg:grid-cols-3">
-            <label className="space-y-2">
-              <span className="text-sm font-medium text-rd-label">Visit date</span>
-              <input
-                type="date"
-                value={visitDate}
-                onChange={(event) => setVisitDate(event.target.value)}
-                className="w-full rounded-3xl border border-rd-hair bg-rd-field px-4 py-3 text-rd-text focus:border-rd-cyan focus:outline-none focus:ring-2 focus:ring-rd-cyan/20"
-              />
-            </label>
-
-            <label className="space-y-2">
-              <span className="text-sm font-medium text-rd-label">Priority</span>
-              <select
-                value={priority}
-                onChange={(event) => setPriority(event.target.value)}
-                className="w-full rounded-3xl border border-rd-hair bg-rd-field px-4 py-3 text-rd-text focus:border-rd-cyan focus:outline-none focus:ring-2 focus:ring-rd-cyan/20"
-              >
-                <option>Routine</option>
-                <option>Urgent</option>
-                <option>Emergency</option>
-              </select>
-            </label>
-
-            <label className="space-y-2">
-              <span className="text-sm font-medium text-rd-label">Referring doctor</span>
-              <div id="doctor-search-container" className="relative">
-                <input
-                  type="text"
-                  value={doctorSearch}
-                  onChange={handleDoctorSearchChange}
-                  onFocus={() => setShowDoctorDropdown(true)}
-                  placeholder="Search doctor by name..."
-                  className="w-full rounded-3xl border border-rd-hair bg-rd-field px-4 py-3 text-rd-text focus:border-rd-cyan focus:outline-none focus:ring-2 focus:ring-rd-cyan/20"
-                />
-
-                {showDoctorDropdown && (
-                  <ul className="absolute z-10 mt-1 max-h-64 w-full overflow-y-auto rounded-2xl border border-slate-800 bg-slate-900 shadow-lg">
-                    <li
-                      onClick={handleSelectWalkIn}
-                      className="cursor-pointer px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
-                    >
-                      Walk-in / none
+              {showPatientDropdown && (
+                <ul
+                  id="patient-listbox"
+                  role="listbox"
+                  aria-label="Patient records"
+                  className="rd-scroll-thin absolute z-30 mt-1 max-h-72 w-full overflow-y-auto rounded-xl border border-rd-hair-strong bg-rd-popover shadow-[var(--rd-card-shadow)]"
+                >
+                  {visiblePatients.length > 0 && (
+                    <li className="border-b border-rd-hair px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-rd-muted">
+                      {isShowingRecent
+                        ? "Recently registered"
+                        : `${filteredPatients.length} ${
+                            filteredPatients.length === 1 ? "match" : "matches"
+                          }`}
                     </li>
-                    {filteredDoctors.map((doctor) => (
-                      <li
-                        key={doctor.id}
-                        onClick={() => handleSelectDoctor(doctor)}
-                        className="cursor-pointer px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
+                  )}
+
+                  {visiblePatients.map((patient, index) => (
+                    <li key={patient.id} role="option" aria-selected={index === highlightedIndex}>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectPatient(patient)}
+                        onMouseEnter={() => setHighlightedIndex(index)}
+                        className={`rd-focus flex min-h-11 w-full cursor-pointer flex-col justify-center px-4 py-2 text-left transition-colors ${
+                          index === highlightedIndex ? "bg-rd-raised" : ""
+                        }`}
                       >
-                        Dr. {doctor.fname} {doctor.lname}
+                        <span className="truncate text-sm font-medium text-rd-title">
+                          {[patient.fname, patient.mname, patient.lname, patient.suffix]
+                            .filter(Boolean)
+                            .join(" ")}
+                        </span>
+                        <span className="mt-0.5 truncate text-xs text-rd-muted">
+                          ID #{patient.id}
+                          {patient.birthdate ? ` · ${patient.birthdate}` : ""}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+
+                  {visiblePatients.length === 0 && (
+                    <li className="px-4 py-3 text-sm text-rd-muted">
+                      No patient matches “{patientSearch.trim()}”.
+                    </li>
+                  )}
+
+                  {!isShowingRecent &&
+                    filteredPatients.length > visiblePatients.length && (
+                      <li className="border-t border-rd-hair px-4 py-2 text-xs text-rd-muted">
+                        Showing the first {visiblePatients.length} of{" "}
+                        {filteredPatients.length} — keep typing to narrow it down.
                       </li>
-                    ))}
-                    {filteredDoctors.length === 0 && (
-                      <li className="px-4 py-2 text-sm text-slate-500">No doctors found.</li>
                     )}
-                  </ul>
+                </ul>
+              )}
+
+            </div>
+
+            )}
+
+            {hasSelectedPatient ? (
+
+              <div className="rounded-xl border border-rd-cyan/45 bg-rd-cyan/8 p-4">
+
+                <div className="flex flex-wrap items-center gap-4">
+
+                  <Avatar name={patientFullName} className="size-12 text-sm" />
+
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-base font-semibold text-rd-title">
+                      {patientFullName}
+                    </p>
+                    <p className="mt-0.5 truncate text-sm text-rd-muted">
+                      {[
+                        selectedPatient.id ? `ID #${selectedPatient.id}` : null,
+                        selectedPatient.sex,
+                        selectedPatient.birthdate,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleClearPatient}
+                    className="rd-press rd-focus inline-flex min-h-11 flex-none cursor-pointer items-center gap-1.5 rounded-xl border border-rd-hair-strong bg-rd-card px-3.5 text-sm font-medium text-rd-label hover:border-rd-cyan/50 hover:text-rd-cyan"
+                  >
+                    Change patient
+                  </button>
+
+                </div>
+
+                {hasVisitToday && (
+                  <p className="mt-4 rounded-xl border border-amber-500/45 bg-amber-500/12 px-3.5 py-2.5 text-sm text-rd-label">
+                    This patient already has a visit recorded today. Check before
+                    creating another one.
+                  </p>
+                )}
+
+                <dl className="mt-4 grid gap-x-8 gap-y-4 border-t border-rd-hair pt-4 sm:grid-cols-2">
+                  <PatientDetail label="Civil status" value={selectedPatient.civilStatus} />
+                  <PatientDetail label="Mobile number" value={selectedPatient.mobileNum} />
+                  <PatientDetail label="Email" value={selectedPatient.email} />
+                  <PatientDetail label="Address" value={selectedPatient.address} span />
+                </dl>
+
+              </div>
+
+            ) : (
+
+              <div className="rounded-xl border border-dashed border-rd-hair-strong bg-rd-sunken px-4 py-8 text-center">
+                <p className="text-sm font-semibold text-rd-title">No patient selected</p>
+                <p className="mt-1 text-sm text-rd-muted">
+                  Search above to attach this visit to a patient record.
+                </p>
+              </div>
+
+            )}
+
+          </div>
+
+        </section>
+
+
+        {/* VISIT DETAILS */}
+
+        <section className="rd-panel relative z-10">
+
+          <div className="border-b border-rd-hair p-4">
+            <h2 className="text-lg font-semibold text-rd-title">Visit details</h2>
+            <p className="mt-0.5 text-sm text-rd-muted">
+              When the patient is being seen, where, and who is handling them.
+            </p>
+          </div>
+
+          <div className="space-y-4 p-4">
+
+            <div className="grid gap-4 sm:grid-cols-2">
+
+              <label className="block">
+                <span className="rd-label">Visit date</span>
+                <input
+                  type="date"
+                  value={visitDate}
+                  onChange={(event) => setVisitDate(event.target.value)}
+                  className="rd-input"
+                />
+              </label>
+
+              <label className="block">
+                <span className="rd-label">Priority</span>
+                <select
+                  value={priority}
+                  onChange={(event) => setPriority(event.target.value)}
+                  className="rd-input"
+                >
+                  <option>Routine</option>
+                  <option>Urgent</option>
+                  <option>Emergency</option>
+                </select>
+              </label>
+
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+
+              <label className="block">
+                <span className="rd-label">Referring doctor</span>
+                <select
+                  value={referralType}
+                  onChange={(event) => handleReferralTypeChange(event.target.value)}
+                  className="rd-input"
+                >
+                  <option value="walk-in">Walk-in / none</option>
+                  <option value="referred">Referred by an outside doctor</option>
+                </select>
+              </label>
+
+              <label className="block">
+                <span className="rd-label">Assigned doctor</span>
+                <select
+                  value={assignedDoctor}
+                  onChange={(event) => setAssignedDoctor(event.target.value)}
+                  data-empty={assignedDoctor ? "false" : "true"}
+                  className="rd-input"
+                >
+                  <option value="">Unassigned</option>
+                  {sortedDoctors.map((doctor) => (
+                    <option key={doctor.id} value={doctor.id}>
+                      Dr. {doctor.fname} {doctor.lname}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+            </div>
+
+            {isReferred && (
+              <div className="grid gap-4 sm:grid-cols-2">
+
+                <label className="block">
+                  <span className="rd-label">Doctor name</span>
+
+                  <div className="relative" id="referring-doctor-search-container">
+                    <input
+                      type="text"
+                      value={referringDoctor}
+                      onChange={(event) => {
+                        setReferringDoctor(event.target.value);
+                        setShowReferringDoctorDropdown(true);
+                      }}
+                      onFocus={() =>
+                        setShowReferringDoctorDropdown(true)
+                      }
+                      placeholder="Dr. Juan Dela Cruz"
+                      className="rd-input"
+                    />
+
+                    {showReferringDoctorDropdown && (
+                      <ul className="rd-scroll-thin absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-xl border border-rd-hair-strong bg-rd-popover shadow-[var(--rd-card-shadow)]">
+
+                        {filteredReferringDoctors.length > 0 ? (
+                          filteredReferringDoctors.map((doctor) => (
+                            <li key={doctor.id}>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleSelectReferringDoctor(doctor)
+                                }
+                                className="rd-focus flex min-h-11 w-full cursor-pointer flex-col px-4 py-2 text-left hover:bg-rd-raised"
+                              >
+                                <span className="text-sm font-medium text-rd-title">
+                                  {doctor.name}
+                                </span>
+
+                                <span className="mt-0.5 text-xs text-rd-muted">
+                                  {doctor.clinic || "No clinic recorded"}
+                                </span>
+                              </button>
+                            </li>
+                          ))
+                        ) : (
+                          <li className="px-4 py-3 text-sm text-rd-muted">
+                            No referring doctors found.
+                          </li>
+                        )}
+
+                      </ul>
+                    )}
+                  </div>
+                </label>
+
+                <label className="block">
+                  <span className="rd-label">Clinic name</span>
+                  <input
+                    type="text"
+                    value={clinic}
+                    onChange={(event) => setClinic(event.target.value)}
+                    placeholder="Clinic or hospital"
+                    className="rd-input"
+                  />
+                </label>
+
+              </div>
+            )}
+
+            <label className="block">
+              <span className="rd-label">Notes (optional)</span>
+              <textarea
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+                rows={3}
+                placeholder="Fasting status, symptoms, special instructions…"
+                className="rd-input"
+              />
+            </label>
+
+          </div>
+
+        </section>
+
+
+        {/* TESTS */}
+
+        <section className="rd-panel">
+
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-rd-hair p-4">
+
+            <div className="min-w-0">
+              <div className="flex items-center gap-2.5">
+                <h2 className="text-lg font-semibold text-rd-title">Tests requested</h2>
+                {selectedTests.length > 0 && (
+                  <span
+                    aria-label={selectedCountLabel}
+                    className="grid min-w-6 place-items-center rounded-full bg-rd-cyan px-2 py-0.5 text-xs font-bold tabular-nums text-rd-on-cyan shadow-[0_0_0_3px_var(--rd-focus-ring)]"
+                  >
+                    {selectedTests.length}
+                  </span>
                 )}
               </div>
-            </label>
+              <p className="mt-0.5 text-sm text-rd-muted">
+                Tap a test to add it to this visit. Tap again to remove it.
+              </p>
+            </div>
+
+            {selectedTests.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setSelectedTests([])}
+                className="rd-press rd-focus inline-flex min-h-11 cursor-pointer items-center rounded-lg px-2 text-sm font-medium text-rd-muted hover:text-rd-danger"
+              >
+                Clear all
+              </button>
+            )}
+
           </div>
 
-          <label className="block space-y-2">
-            <span className="text-sm font-medium text-rd-label">Notes (optional)</span>
-            <textarea
-              value={notes}
-              onChange={(event) => setNotes(event.target.value)}
-              rows={4}
-              placeholder="Fasting status, symptoms, special instructions..."
-              className="w-full rounded-3xl border border-rd-hair bg-rd-field px-4 py-3 text-rd-text placeholder:text-rd-placeholder focus:border-rd-cyan focus:outline-none focus:ring-2 focus:ring-rd-cyan/20"
-            />
-          </label>
-        </div>
+          <div className="space-y-4 p-4">
 
-        <div className="rounded-[1.75rem] border border-rd-hair bg-rd-sunken p-6">
-          <div className="flex items-center justify-between gap-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-rd-muted">Tests requested</p>
-            <span className="text-sm text-rd-muted">{selectedCountLabel}</span>
-          </div>
+            <div className="relative">
 
-          <div className="relative mt-4">
-            <input
-              type="text"
-              value={testSearch}
-              onChange={(e) => setTestSearch(e.target.value)}
-              placeholder="Search tests to add..."
-              className="w-full rounded-3xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
-            />
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-rd-placeholder"
+              >
+                <SearchIcon />
+              </span>
 
-            {testSearch.trim() !== "" && (
-              <ul className="absolute z-10 mt-1 max-h-64 w-full overflow-y-auto rounded-2xl border border-slate-800 bg-slate-900 shadow-lg">
-                {filteredTests.map((test) => (
-                  <li
-                    key={test.id}
-                    onClick={() => {
-                      handleAddTest(test);
-                      setTestSearch("");
-                    }}
-                    className="cursor-pointer px-4 py-2 text-sm text-slate-200 uppercase hover:bg-slate-800"
+              <input
+                type="search"
+                aria-label="Filter tests"
+                value={testSearch}
+                onChange={(e) => setTestSearch(e.target.value)}
+                placeholder="Filter tests…"
+                className="rd-input pl-11"
+              />
+
+            </div>
+
+            {filteredTests.length === 0 ? (
+
+              <div className="py-6 text-center">
+
+                <p className="text-sm text-rd-muted">
+                  {testCatalog.length === 0
+                    ? "No tests available yet."
+                    : "No tests match that filter."}
+                </p>
+
+                {testSearch !== "" && (
+                  <button
+                    type="button"
+                    onClick={() => setTestSearch("")}
+                    className="rd-press rd-focus mt-2 inline-flex min-h-11 cursor-pointer items-center rounded-lg px-3 text-sm font-medium text-rd-cyan hover:bg-rd-cyan/10"
                   >
-                    {test.name}
-                  </li>
-                ))}
-                {filteredTests.length === 0 && (
-                  <li className="px-4 py-2 text-sm text-slate-500">No tests found.</li>
+                    Clear filter
+                  </button>
                 )}
-              </ul>
+
+              </div>
+
+            ) : (
+
+              <div className="rd-scroll-thin max-h-[24rem] overflow-y-auto pr-1">
+
+                <ul className="grid gap-3 sm:grid-cols-2">
+
+                  {filteredTests.map((test) => {
+
+                    const isSelected = selectedTests.some(
+                      (selectedTest) => selectedTest.id === test.id
+                    );
+
+                    return (
+                      <li key={test.id}>
+                        <button
+                          type="button"
+                          aria-pressed={isSelected}
+                          onClick={() =>
+                            isSelected
+                              ? handleRemoveTest(test.id)
+                              : handleAddTest(test)
+                          }
+                          className={`rd-press rd-focus flex h-full w-full cursor-pointer flex-col justify-between gap-3 rounded-xl border p-3.5 text-left transition-colors ${
+                            isSelected
+                              ? "border-rd-cyan/60 bg-rd-cyan/12 shadow-[var(--rd-lift)]"
+                              : "border-rd-hair bg-rd-sunken hover:border-rd-cyan/50 hover:bg-rd-raised"
+                          }`}
+                        >
+
+                          <div className="flex items-start justify-between gap-2">
+
+                            <span className="min-w-0 text-sm font-medium uppercase leading-snug text-rd-title">
+                              {test.name}
+                            </span>
+
+                            <span
+                              aria-hidden="true"
+                              className={`grid size-5 flex-none place-items-center rounded-full border transition-colors ${
+                                isSelected
+                                  ? "border-rd-cyan bg-rd-cyan text-rd-on-cyan"
+                                  : "border-rd-hair-strong"
+                              }`}
+                            >
+                              {isSelected && <CheckIcon size={12} />}
+                            </span>
+
+                          </div>
+
+                          <span
+                            className={`text-sm font-semibold tabular-nums ${
+                              isSelected ? "text-rd-cyan" : "text-rd-text"
+                            }`}
+                          >
+                            ₱{Number(test.price || 0).toFixed(2)}
+                          </span>
+
+                        </button>
+                      </li>
+                    );
+
+                  })}
+
+                </ul>
+
+              </div>
+
             )}
+
           </div>
 
-          <div className="mt-6 rounded-3xl border border-dashed border-rd-hair-strong bg-rd-sunken p-6 text-sm text-rd-muted">
-            {selectedTests.length === 0 ? (
-              "No tests selected yet. Select a test from the catalog to assign it to this visit."
-            ) : (
-              <ul className="space-y-2">
-                {selectedTests.map((test) => (
-                  <li
-                    key={test.id}
-                    className="flex items-center justify-between rounded-2xl bg-slate-900/70 px-4 py-2 text-slate-200 uppercase"
-                  >
-                    {test.name}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTest(test.id)}
-                      className="text-slate-500 hover:text-rose-400"
-                    >
-                      Remove
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-          {submitError && (
-          <p className="mb-3 text-right text-sm text-rose-400">{submitError}</p>
-          )}
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={handleCreateVisit}
-            disabled={isSubmitting}
-            className="rd-btn rd-press rd-focus"
-          >
-            {isSubmitting ? "Creating..." : "Create Visit"}
-          </button>
-        </div>
+        </section>
+
       </div>
-    </section>
+
+
+      {/* SUMMARY RAIL */}
+
+      <aside className="lg:sticky lg:top-4">
+
+        <section className="rd-panel overflow-hidden">
+
+          <div className="border-b border-rd-hair p-4">
+            <h2 className="text-lg font-semibold text-rd-title">Visit summary</h2>
+            <p className="mt-0.5 text-sm text-rd-muted">
+              Check this before creating the visit.
+            </p>
+          </div>
+
+          <dl className="space-y-4 p-4">
+            <SummaryRow
+              label="Patient"
+              value={hasSelectedPatient ? patientFullName : null}
+            />
+            <SummaryRow label="Visit date" value={visitDate} />
+            <SummaryRow label="Priority" value={priority} />
+            <SummaryRow
+              label="Referring doctor"
+              value={referralSummary}
+            />
+            {isReferred && (
+              <SummaryRow label="Referring clinic" value={clinic} />
+            )}
+            <SummaryRow
+              label="Assigned doctor"
+              value={assignedDoctorName || "Unassigned"}
+            />
+            <SummaryRow
+              label="Tests"
+              value={`${selectedTests.length} ${
+                selectedTests.length === 1 ? "test" : "tests"
+              }`}
+            />
+
+            {selectedTests.length > 0 && (
+              <div className="border-t border-rd-hair pt-3">
+                <ul className="space-y-1">
+                  {selectedTests.map((test) => (
+                    <li
+                      key={test.id}
+                      className="flex items-center gap-2 text-sm"
+                    >
+                      <span className="min-w-0 flex-1 truncate text-rd-label">
+                        {test.name}
+                      </span>
+
+                      <span className="flex-none tabular-nums text-rd-muted">
+                        ₱{Number(test.price || 0).toFixed(2)}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTest(test.id)}
+                        aria-label={`Remove ${test.name}`}
+                        className="rd-press rd-focus grid size-7 flex-none cursor-pointer place-items-center rounded-lg text-rd-muted hover:bg-rd-danger-bg hover:text-rd-danger"
+                      >
+                        <CloseIcon size={14} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </dl>
+
+          <div className="border-t border-rd-hair p-4">
+
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="text-sm text-rd-muted">Estimated total</span>
+              <span className="text-xl font-bold tabular-nums tracking-tight text-rd-title">
+                ₱{totalCost.toFixed(2)}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsConfirmOpen(true)}
+              disabled={isSubmitting || Boolean(validationMessage)}
+              className="rd-btn rd-press rd-focus mt-4 w-full"
+            >
+              {isSubmitting ? (
+                <>
+                  <Spinner />
+                  Creating…
+                </>
+              ) : (
+                <>
+                  <CheckIcon size={16} />
+                  Create visit
+                </>
+              )}
+            </button>
+
+            {validationMessage && (
+              <p className="mt-2 text-center text-xs text-rd-muted">
+                {validationMessage}
+              </p>
+            )}
+
+          </div>
+
+        </section>
+
+      </aside>
+
+      <ConfirmDialog
+        open={isConfirmOpen}
+        title="Create this visit?"
+        description={`${patientFullName} will be booked for ${
+          selectedTests.length
+        } ${
+          selectedTests.length === 1 ? "test" : "tests"
+        } on ${visitDate}, totalling ₱${totalCost.toFixed(2)}.`}
+        confirmLabel="Create visit"
+        cancelLabel="Go back"
+        onConfirm={() => {
+          setIsConfirmOpen(false);
+          handleCreateVisit();
+        }}
+        onCancel={() => setIsConfirmOpen(false)}
+      />
+
+      <Toast
+        status={toast}
+        onDismiss={() => setToast(null)}
+      />
+
+    </div>
   );
 }

@@ -2,16 +2,19 @@ import db from "@/lib/db";
 import { NextResponse } from "next/server";
 import checkVisitComplete from "@/lib/checkVisitComplete";
 import saveTestResult from "@/lib/saveTestResult";
-
+import { logActivity } from "@/lib/logActivity";
 
 export async function POST(request) {
+    const body = await request.json();
 
-const {
-    assignmentId,
-    testId,
-    visitId,
-    result
-} = await request.json();
+    const {
+        assignmentId,
+        testId,
+        visitId,
+        result,
+        userId,
+        hasExistingResult
+    } = body;
 
     switch (testId) {
 
@@ -412,7 +415,14 @@ const {
     );
 
     await checkVisitComplete(visitId);
-
+await logActivity(
+    userId,
+    hasExistingResult ? "Update Test Result" : "Save Test Result",
+    hasExistingResult
+        ? `Updated test result for test ID: ${testId}`
+        : `Saved test result for test ID: ${testId}`,
+    "Test Management"
+);
     return NextResponse.json({
         success: true
     });

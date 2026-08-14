@@ -3,8 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import { CloseIcon } from "./_ui";
-
 const toneBorder = {
     success: "border-emerald-500/50",
     error: "border-red-500/50",
@@ -79,7 +77,20 @@ export default function Toast({ status, onDismiss, duration = 6000 }) {
                     aria-label="Dismiss notification"
                     className="rd-press rd-focus -m-1 grid size-8 flex-none cursor-pointer place-items-center rounded-lg text-rd-muted hover:bg-rd-raised hover:text-rd-title"
                 >
-                    <CloseIcon size={16} />
+                    <svg
+                        viewBox="0 0 24 24"
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.75"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                    >
+                        <path d="m6 6 12 12" />
+                        <path d="m18 6-12 12" />
+                    </svg>
                 </button>
 
             </div>
