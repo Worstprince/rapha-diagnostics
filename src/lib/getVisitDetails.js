@@ -81,16 +81,36 @@ export default async function getVisitDetails(visitId) {
             tests.push({ id: key, testType: testName, values });
         }
 
-        // 4. Existing note draft, if any
+        // 4. Existing note draft, if any — including who/when it was finalized
         const [noteRows] = await db.query(
             `
-            SELECT findings, impression, recommendation, status, critical_acknowledged
-            FROM tblvisitnotes
-            WHERE visitid = ?
+            SELECT
+                n.findings,
+                n.impression,
+                n.recommendation,
+                n.status,
+                n.critical_acknowledged,
+                n.finalized_at,
+                u.username AS finalizedByUsername
+            FROM tblvisitnotes AS n
+            LEFT JOIN tblusers AS u
+                ON u.id = n.finalizedby
+            WHERE n.visitid = ?
             `,
             [visitId]
         );
         const noteRow = noteRows[0];
+
+        // 5. Comment and attachment counts — cheap to fetch eagerly; the
+        // actual content is loaded lazily client-side when expanded.
+        const [commentCountRows] = await db.query(
+            `SELECT COUNT(*) AS count FROM tblvisitnotecomments WHERE visitid = ?`,
+            [visitId]
+        );
+        const [attachmentCountRows] = await db.query(
+            `SELECT COUNT(*) AS count FROM tblvisitnoteattachments WHERE visitid = ?`,
+            [visitId]
+        );
 
         return {
             id: String(visitRow.visitId),
@@ -112,6 +132,15 @@ export default async function getVisitDetails(visitId) {
                 recommendation: noteRow?.recommendation ?? "",
             },
             criticalAcknowledged: Boolean(noteRow?.critical_acknowledged),
+            finalizedAt: noteRow?.finalized_at
+                ? new Date(noteRow.finalized_at).toLocaleString("en-US", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                  })
+                : null,
+            finalizedBy: noteRow?.finalizedByUsername ?? null,
+            commentCount: commentCountRows[0]?.count ?? 0,
+            attachmentCount: attachmentCountRows[0]?.count ?? 0,
         };
     } catch (err) {
         console.error("getVisitDetails failed:", err);

@@ -17,6 +17,7 @@ import {
   History,
   AlertTriangle,
   Clock,
+  Lock,
   PenLine,
   ChevronDown,
   ChevronUp,
@@ -51,16 +52,17 @@ const PRIORITY_CLASSES = {
   Routine: "bg-slate-500/15 text-slate-400",
 };
 
-function ToolbarButton({ label, onClick, children, accent = false }) {
+function ToolbarButton({ label, onClick, children, accent = false, disabled = false }) {
   return (
     <button
       type="button"
       aria-label={label}
       title={label}
+      disabled={disabled}
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
       className={
-        "inline-flex h-7 items-center justify-center rounded-md px-2 text-sm transition-colors " +
+        "inline-flex h-7 items-center justify-center rounded-md px-2 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40 " +
         (accent
           ? "gap-1.5 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
           : "w-7 text-slate-400 hover:bg-white/5")
@@ -136,6 +138,10 @@ export default function NotesEditor({ visit }) {
     tests,
     initialSections,
     criticalAcknowledged,
+    finalizedAt,
+    finalizedBy,
+    commentCount,
+    attachmentCount,
   } = visit;
 
   const editableRefs = useRef({
@@ -167,8 +173,119 @@ export default function NotesEditor({ visit }) {
   const [savedJustNow, setSavedJustNow] = useState(true);
   const [showPhraseMenu, setShowPhraseMenu] = useState(false);
   const [aiGenerating, setAiGenerating] = useState(false);
+  // Finalized notes open read-only; "Edit note" explicitly unlocks them.
+  const [unlockedForEdit, setUnlockedForEdit] = useState(false);
+  const isLocked = status === "Finalized" && !unlockedForEdit;
 
-  const canFinalize = acknowledged && status !== "Finalized";
+  // Comments panel — content is fetched lazily, only when first expanded.
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [comments, setComments] = useState(null);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
+  const [localCommentCount, setLocalCommentCount] = useState(commentCount);
+
+  // Attachments panel — same lazy-load pattern.
+  const [attachmentsOpen, setAttachmentsOpen] = useState(false);
+  const [attachments, setAttachments] = useState(null);
+  const [attachmentsLoading, setAttachmentsLoading] = useState(false);
+  const [attachmentUploading, setAttachmentUploading] = useState(false);
+  const [localAttachmentCount, setLocalAttachmentCount] = useState(attachmentCount);
+  const fileInputRef = useRef(null);
+
+  const toggleComments = useCallback(async () => {
+    const next = !commentsOpen;
+    setCommentsOpen(next);
+    if (next && comments === null) {
+      setCommentsLoading(true);
+      try {
+        const res = await fetch(`/api/doctor/notes/${id}/comments`);
+        const data = await res.json();
+        setComments(data.comments ?? []);
+      } catch (err) {
+        console.error("Failed to load comments:", err);
+        setComments([]);
+      } finally {
+        setCommentsLoading(false);
+      }
+    }
+  }, [commentsOpen, comments, id]);
+
+  const handleAddComment = useCallback(async () => {
+    if (!newComment.trim()) return;
+    setCommentSubmitting(true);
+    try {
+      const res = await fetch(`/api/doctor/notes/${id}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ comment: newComment.trim() }),
+      });
+      if (!res.ok) throw new Error("Failed to add comment");
+      const refreshed = await fetch(`/api/doctor/notes/${id}/comments`);
+      const data = await refreshed.json();
+      setComments(data.comments ?? []);
+      setLocalCommentCount((c) => c + 1);
+      setNewComment("");
+    } catch (err) {
+      console.error("Failed to add comment:", err);
+    } finally {
+      setCommentSubmitting(false);
+    }
+  }, [newComment, id]);
+
+  const toggleAttachments = useCallback(async () => {
+    const next = !attachmentsOpen;
+    setAttachmentsOpen(next);
+    if (next && attachments === null) {
+      setAttachmentsLoading(true);
+      try {
+        const res = await fetch(`/api/doctor/notes/${id}/attachments`);
+        const data = await res.json();
+        setAttachments(data.attachments ?? []);
+      } catch (err) {
+        console.error("Failed to load attachments:", err);
+        setAttachments([]);
+      } finally {
+        setAttachmentsLoading(false);
+      }
+    }
+  }, [attachmentsOpen, attachments, id]);
+
+  const handleFileSelected = useCallback(
+    async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      setAttachmentUploading(true);
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch(`/api/doctor/notes/${id}/attachments`, {
+          method: "POST",
+          body: formData,
+        });
+        if (!res.ok) throw new Error("Upload failed");
+        const refreshed = await fetch(`/api/doctor/notes/${id}/attachments`);
+        const data = await refreshed.json();
+        setAttachments(data.attachments ?? []);
+        setLocalAttachmentCount((c) => c + 1);
+      } catch (err) {
+        console.error("Failed to upload attachment:", err);
+      } finally {
+        setAttachmentUploading(false);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+      }
+    },
+    [id]
+  );
+
+  function formatFileSize(bytes) {
+    if (!bytes) return "";
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  const canFinalize = acknowledged && !isLocked;
 
   const getSections = useCallback(() => {
     const out = {};
@@ -214,6 +331,7 @@ export default function NotesEditor({ visit }) {
         body: JSON.stringify(sections),
       });
       if (!res.ok) throw new Error("Finalize failed");
+      setUnlockedForEdit(false); // re-lock once signed again
       router.refresh(); // picks up the new "Finalized" status
     } catch (err) {
       console.error("Failed to finalize note:", err);
@@ -289,6 +407,41 @@ export default function NotesEditor({ visit }) {
           </div>
         </div>
 
+        {/* Finalized / amendment notice */}
+        {status === "Finalized" && (
+          <div
+            className={
+              "mb-4 flex items-center gap-2 rounded-xl border px-5 py-3 " +
+              (isLocked
+                ? "border-white/10 bg-white/[0.02]"
+                : "border-amber-500/20 bg-amber-500/[0.06]")
+            }
+          >
+            {isLocked ? (
+              <>
+                <Lock size={15} className="shrink-0 text-slate-500" aria-hidden="true" />
+                <p className="flex-1 text-[13px] text-slate-400">
+                  This note has been finalized
+                  {finalizedBy ? ` by ${finalizedBy}` : ""}
+                  {finalizedAt ? ` on ${finalizedAt}` : ""} and is read-only.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setUnlockedForEdit(true)}
+                  className="h-7 rounded-md border border-white/10 px-2.5 text-xs font-medium text-slate-300 hover:bg-white/5"
+                >
+                  Edit note
+                </button>
+              </>
+            ) : (
+              <p className="flex-1 text-[13px] text-amber-300">
+                You're editing a finalized note. Saving will record this as a signed
+                amendment, not a silent edit.
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Critical alert */}
         {criticalValues.length > 0 && (
           <div className="mb-4 flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/[0.06] px-5 py-3">
@@ -330,22 +483,24 @@ export default function NotesEditor({ visit }) {
           <div className="rounded-lg border border-white/5">
             {/* Toolbar */}
             <div className="relative flex flex-wrap items-center gap-0.5 border-b border-white/5 bg-white/[0.02] px-2 py-1.5">
-              <ToolbarButton label="Bold" onClick={() => exec("bold")}>
+              <ToolbarButton label="Bold" onClick={() => exec("bold")} disabled={isLocked}>
                 <Bold size={15} />
               </ToolbarButton>
-              <ToolbarButton label="Italic" onClick={() => exec("italic")}>
+              <ToolbarButton label="Italic" onClick={() => exec("italic")} disabled={isLocked}>
                 <Italic size={15} />
               </ToolbarButton>
               <span className="mx-1 h-4.5 w-px bg-white/10" />
               <ToolbarButton
                 label="Bullet list"
                 onClick={() => exec("insertUnorderedList")}
+                disabled={isLocked}
               >
                 <List size={15} />
               </ToolbarButton>
               <ToolbarButton
                 label="Numbered list"
                 onClick={() => exec("insertOrderedList")}
+                disabled={isLocked}
               >
                 <ListOrdered size={15} />
               </ToolbarButton>
@@ -353,10 +508,15 @@ export default function NotesEditor({ visit }) {
               <ToolbarButton
                 label="Insert quick phrase"
                 onClick={() => setShowPhraseMenu((v) => !v)}
+                disabled={isLocked}
               >
                 <MessageSquarePlus size={15} />
               </ToolbarButton>
-              <ToolbarButton label="Attach file" onClick={() => console.log("TODO: attach")}>
+              <ToolbarButton
+                label="Attach file"
+                onClick={() => console.log("TODO: attach")}
+                disabled={isLocked}
+              >
                 <Paperclip size={15} />
               </ToolbarButton>
 
@@ -380,7 +540,7 @@ export default function NotesEditor({ visit }) {
               <button
                 type="button"
                 onClick={handleAIAssist}
-                disabled={aiGenerating}
+                disabled={aiGenerating || isLocked}
                 className="inline-flex h-7 items-center gap-1.5 rounded-md border border-cyan-500/30 px-2.5 text-[13px] font-medium text-cyan-400 hover:bg-cyan-500/10 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Sparkles size={14} aria-hidden="true" />
@@ -399,10 +559,13 @@ export default function NotesEditor({ visit }) {
                     ref={(el) => {
                       editableRefs.current[key] = el;
                     }}
-                    contentEditable
+                    contentEditable={!isLocked}
                     suppressContentEditableWarning
                     data-placeholder={`Enter ${SECTION_LABELS[key].toLowerCase()}…`}
-                    className="min-h-[24px] whitespace-pre-wrap text-[14px] leading-[1.7] text-slate-300 outline-none empty:before:text-slate-600 empty:before:content-[attr(data-placeholder)]"
+                    className={
+                      "min-h-[24px] whitespace-pre-wrap text-[14px] leading-[1.7] outline-none empty:before:text-slate-600 empty:before:content-[attr(data-placeholder)] " +
+                      (isLocked ? "text-slate-400" : "text-slate-300")
+                    }
                   >
                     {initialSections[key]}
                   </div>
@@ -414,47 +577,144 @@ export default function NotesEditor({ visit }) {
             <div className="flex items-center gap-4 border-t border-white/5 bg-white/[0.02] px-4 py-2">
               <button
                 type="button"
-                onClick={() => console.log("TODO: comments")}
+                onClick={toggleComments}
                 className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-300"
               >
                 <MessageCircle size={14} aria-hidden="true" />
-                0 comments
+                {localCommentCount} comment{localCommentCount === 1 ? "" : "s"}
               </button>
-              <span className="flex items-center gap-1 text-xs text-slate-500">
+              <button
+                type="button"
+                onClick={toggleAttachments}
+                className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-300"
+              >
                 <Paperclip size={14} aria-hidden="true" />
-                0 attachments
-              </span>
+                {localAttachmentCount} attachment{localAttachmentCount === 1 ? "" : "s"}
+              </button>
               <span className="flex items-center gap-1 text-xs text-slate-500">
                 <History size={14} aria-hidden="true" />
                 Version history
               </span>
             </div>
+
+            {/* Comments panel */}
+            {commentsOpen && (
+              <div className="border-t border-white/5 px-4 py-3">
+                {commentsLoading ? (
+                  <p className="text-xs text-slate-500">Loading comments…</p>
+                ) : (
+                  <div className="space-y-3">
+                    {comments && comments.length === 0 && (
+                      <p className="text-xs text-slate-500">No comments yet.</p>
+                    )}
+                    {comments?.map((c) => (
+                      <div key={c.id} className="text-[13px]">
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-medium text-slate-200">{c.authorName}</span>
+                          <span className="text-xs text-slate-500">{c.createdAt}</span>
+                        </div>
+                        <p className="mt-0.5 text-slate-300">{c.comment}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="mt-3 flex gap-2">
+                  <input
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Add a comment…"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleAddComment();
+                    }}
+                    className="h-8 flex-1 rounded-md border border-white/10 bg-white/5 px-2.5 text-[13px] text-slate-200 placeholder:text-slate-500 outline-none focus:border-cyan-500/50"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddComment}
+                    disabled={commentSubmitting || !newComment.trim()}
+                    className="h-8 rounded-md border border-white/10 px-3 text-[13px] font-medium text-slate-300 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Post
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Attachments panel */}
+            {attachmentsOpen && (
+              <div className="border-t border-white/5 px-4 py-3">
+                {attachmentsLoading ? (
+                  <p className="text-xs text-slate-500">Loading attachments…</p>
+                ) : (
+                  <div className="space-y-2">
+                    {attachments && attachments.length === 0 && (
+                      <p className="text-xs text-slate-500">No attachments yet.</p>
+                    )}
+                    {attachments?.map((a) => (
+                      <a
+                        key={a.id}
+                        href={`/api/doctor/notes/${id}/attachments/${a.id}`}
+                        className="flex items-center justify-between rounded-md border border-white/5 px-3 py-2 text-[13px] hover:bg-white/5"
+                      >
+                        <span className="flex items-center gap-2 text-slate-200">
+                          <Paperclip size={13} className="text-slate-500" aria-hidden="true" />
+                          {a.filename}
+                        </span>
+                        <span className="text-xs text-slate-500">
+                          {formatFileSize(a.filesize)} · {a.uploadedByName} · {a.uploadedAt}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                )}
+                <div className="mt-3">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    onChange={handleFileSelected}
+                    disabled={attachmentUploading}
+                    className="text-xs text-slate-400 file:mr-3 file:cursor-pointer file:rounded-md file:border file:border-white/10 file:bg-white/5 file:px-3 file:py-1.5 file:text-[13px] file:text-slate-200"
+                  />
+                  {attachmentUploading && (
+                    <p className="mt-1 text-xs text-slate-500">Uploading…</p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Footer actions */}
           <div className="mt-3 flex items-center justify-between">
             <p className="flex items-center gap-1 text-xs text-slate-500">
               <Clock size={13} aria-hidden="true" />
-              {savedJustNow ? "Autosaved just now" : "Unsaved changes"}
+              {isLocked
+                ? "Read-only"
+                : savedJustNow
+                ? "Autosaved just now"
+                : "Unsaved changes"}
             </p>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={handleSaveDraft}
-                className="h-8 rounded-md border border-white/10 px-3 text-[13px] font-medium text-slate-300 hover:bg-white/5"
-              >
-                Save draft
-              </button>
-              <button
-                type="button"
-                disabled={!canFinalize}
-                onClick={handleFinalize}
-                className="flex h-8 items-center gap-1.5 rounded-md bg-cyan-500 px-3 text-[13px] font-medium text-[#0a0e1a] hover:bg-cyan-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500"
-              >
-                <PenLine size={14} aria-hidden="true" />
-                Sign and finalize
-              </button>
-            </div>
+            {!isLocked && (
+              <div className="flex gap-2">
+                {status !== "Finalized" && (
+                  <button
+                    type="button"
+                    onClick={handleSaveDraft}
+                    className="h-8 rounded-md border border-white/10 px-3 text-[13px] font-medium text-slate-300 hover:bg-white/5"
+                  >
+                    Save draft
+                  </button>
+                )}
+                <button
+                  type="button"
+                  disabled={!canFinalize}
+                  onClick={handleFinalize}
+                  className="flex h-8 items-center gap-1.5 rounded-md bg-cyan-500 px-3 text-[13px] font-medium text-[#0a0e1a] hover:bg-cyan-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500"
+                >
+                  <PenLine size={14} aria-hidden="true" />
+                  {status === "Finalized" ? "Sign amendment" : "Sign and finalize"}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
