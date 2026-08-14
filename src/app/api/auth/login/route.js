@@ -2,6 +2,8 @@ import db from "@/lib/db";
 import { NextResponse } from "next/server";
 import { logActivity } from "@/lib/logActivity";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { SESSION_COOKIE_NAME } from "@/lib/session.config";
 
 export async function POST(request) {
     try {
@@ -81,7 +83,15 @@ export async function POST(request) {
             "Authentication"
         );
 
-        return NextResponse.json({
+        // Sign a session token containing just enough to identify + authorize
+        // the user server-side. Never put the password hash in here.
+        const token = jwt.sign(
+            { id: user.id, role: user.role },
+            process.env.SESSION_SECRET,
+            { expiresIn: "8h" }
+        );
+
+        const response = NextResponse.json({
             success: true,
             message: "Signed in successfully.",
             user: {
@@ -91,6 +101,17 @@ export async function POST(request) {
                 role: user.role
             }
         });
+
+        // httpOnly: JS (and therefore any XSS payload) can't read this cookie.
+        response.cookies.set(SESSION_COOKIE_NAME, token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
+            maxAge: 60 * 60 * 8, // 8 hours, matches the token's expiresIn above
+        });
+
+        return response;
 
     } catch (error) {
         console.error(error);
