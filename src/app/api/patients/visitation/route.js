@@ -84,10 +84,10 @@ export async function POST(request) {
     const [visitResult] = await connection.query(
       `
       INSERT INTO tblpatientvisitation
-      (patientId, visited_at, doctorid, status, priority, notes, referringdoctor)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      (patientId, visited_at, doctorid, status, priority, notes, referringdoctor, recorded_at, recorded_by)
+      VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?)
       `,
-      [patientId, visitDate, resolvedDoctorId, "Pending", priority, notes ?? null, referringDoctorId]
+      [patientId, visitDate, resolvedDoctorId, "Pending", priority, notes ?? null, referringDoctorId, userId]
     );
 
     const visitId = visitResult.insertId;
