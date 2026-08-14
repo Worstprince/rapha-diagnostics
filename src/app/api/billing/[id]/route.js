@@ -20,54 +20,61 @@ export async function GET(request, { params }) {
 
         const [rows] = await db.query(
             `
-            SELECT
-                v.id AS visitId,
-                v.patientId,
+SELECT
+    v.id AS visitId,
+    v.patientId,
 
-                p.fname as patient,
-                p.mname,
-                p.lname,
-                p.suffix,
+    p.fname AS patientFname,
+    p.mname AS patientMname,
+    p.lname AS patientLname,
+    p.suffix AS patientSuffix,
 
-                v.visited_at AS visitDate,
-                v.status,
-                v.priority,
-                
-                CONCAT(ui.fname, ' ', ui.lname) as doctorName,
-                ui.fname,
-                ui.lname,
+    v.visited_at AS visitDate,
+    v.status,
+    v.priority,
 
-                pt.id AS patientTestId,
-                t.id AS testId,
-                t.name AS testName,
-                t.price AS testCost,
+    CONCAT(ui.fname, ' ', ui.lname) AS doctorName,
 
-                rd.name AS referringDoctorName,
-                rd.clinic AS referringDoctorClinic
+    pt.id AS patientTestId,
+    t.id AS testId,
+    t.name AS testName,
+    t.price AS testCost,
 
-            FROM tblpatientvisitation v
+    rd.name AS referringDoctorName,
+    rd.clinic AS referringDoctorClinic,
 
-            LEFT JOIN tblpatients p
-                ON p.id = v.patientId
+    v.recorded_at AS recordedAt,
+    CONCAT(recorderui.fname, ' ', recorderui.lname) AS recordedBy
 
-            LEFT JOIN tblpatienttests pt
-                ON pt.visitid = v.id
+FROM tblpatientvisitation v
 
-            LEFT JOIN tbltests t
-                ON t.id = pt.testid
+LEFT JOIN tblpatients p
+    ON p.id = v.patientId
 
-            LEFT JOIN tblusers u
-                ON u.id = v.doctorid
-            
-            LEFT JOIN tbluserinfo ui
-                ON ui.userid = u.id
+LEFT JOIN tblpatienttests pt
+    ON pt.visitid = v.id
 
-            LEFT JOIN tblreferringdoctors rd
-                ON rd.id = v.referringdoctor
+LEFT JOIN tbltests t
+    ON t.id = pt.testid
 
-            WHERE v.id = 34
+LEFT JOIN tblusers u
+    ON u.id = v.doctorid
 
-            ORDER BY t.name ASC
+LEFT JOIN tblusers recorder
+    ON recorder.id = v.recorded_by
+
+LEFT JOIN tbluserinfo recorderui
+    ON recorderui.userid = recorder.id
+
+LEFT JOIN tbluserinfo ui
+    ON ui.userid = u.id
+
+LEFT JOIN tblreferringdoctors rd
+    ON rd.id = v.referringdoctor
+
+WHERE v.id = ?
+
+ORDER BY t.name ASC
             `,
             [id]
         );
@@ -88,40 +95,42 @@ export async function GET(request, { params }) {
         }
 
 
-        const visit = {
-            visitId: rows[0].visitId,
+const visit = {
+    visitId: rows[0].visitId,
 
-            patientId: rows[0].patientId,
+    patientId: rows[0].patientId,
 
-            fname: rows[0].fname,
-            mname: rows[0].mname,
-            lname: rows[0].lname,
-            suffix: rows[0].suffix,
+    fname: rows[0].patientFname,
+    mname: rows[0].patientMname,
+    lname: rows[0].patientLname,
+    suffix: rows[0].patientSuffix,
 
-            visitDate: rows[0].visitDate,
+    visitDate: rows[0].visitDate,
+    status: rows[0].status,
+    priority: rows[0].priority,
 
-            status: rows[0].status,
-            priority: rows[0].priority,
+    doctorName: rows[0].doctorName,
 
-            doctorName: rows[0].doctorName,
+    referringDoctorName: rows[0].referringDoctorName,
+    referringDoctorClinic: rows[0].referringDoctorClinic,
 
-            tests: rows
-                .filter((row) => row.testId !== null)
-                .map((row) => ({
-                    id: row.testId,
-                    name: row.testName,
-                    cost: row.testCost
-                })),
+    recordedAt: rows[0].recordedAt,
+    recordedBy: rows[0].recordedBy,
 
-            totalCost: rows.reduce(
-                (total, row) =>
-                    total + Number(row.testCost || 0),
-                0
-            ),
+    tests: rows
+        .filter((row) => row.testId !== null)
+        .map((row) => ({
+            id: row.testId,
+            name: row.testName,
+            cost: row.testCost
+        })),
 
-            referringDoctorName: rows[0].referringDoctorName,
-            referringDoctorClinic: rows[0].referringDoctorClinic
-        };
+    totalCost: rows.reduce(
+        (total, row) =>
+            total + Number(row.testCost || 0),
+        0
+    )
+};
 
 
         return NextResponse.json({
