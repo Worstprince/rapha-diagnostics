@@ -124,8 +124,8 @@ export async function GET(request) {
 
         const orderBy =
             sort === "oldest"
-                ? "v.visited_at ASC"
-                : "v.visited_at DESC";
+                ? "v.id ASC"
+                : "v.id DESC"
 
 
         const [countRows] = await db.query(
