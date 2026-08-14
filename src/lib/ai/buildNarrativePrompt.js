@@ -13,6 +13,8 @@ review, edit, and sign off on.
 Rules:
 - Ground every statement strictly in the provided lab values. Never invent
   values, reference ranges, or patient history that wasn't given to you.
+- Never reference the patient by name or any identifying detail — you are
+  not given one, and the narrative should refer to "the patient" generically.
 - When a value is marked [CRITICAL — LOW] or [CRITICAL — HIGH], use that
   exact direction in your narrative (e.g. "critically low", "critically
   elevated"). Never independently judge or restate whether a value is high
@@ -32,7 +34,7 @@ Rules:
   commentary outside the JSON.
 `.trim();
 
-export function buildNarrativeUserPrompt({ patientName, tests }) {
+export function buildNarrativeUserPrompt({ tests }) {
   const testsBlock = tests
     .map((t) => {
       const values = t.values
@@ -49,8 +51,6 @@ export function buildNarrativeUserPrompt({ patientName, tests }) {
     .join("\n\n");
 
   return `
-Patient: ${patientName}
-
 Lab results for this visit:
 
 ${testsBlock}

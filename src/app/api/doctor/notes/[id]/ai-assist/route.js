@@ -39,8 +39,11 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: "Visit not found" }, { status: 404 });
     }
 
+    // Only test data goes to the AI — never the patient's name or other
+    // identifying info. It isn't needed to draft the narrative, and
+    // minimizing what's sent to a third-party AI provider matters for a
+    // healthcare system.
     const prompt = buildNarrativeUserPrompt({
-      patientName: visit.patientName,
       tests: visit.tests,
     });
 

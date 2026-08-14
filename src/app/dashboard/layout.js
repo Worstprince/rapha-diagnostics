@@ -17,6 +17,7 @@ import {
   UserPlusIcon,
   UsersIcon,
 } from "@/components/icons";
+import { NotebookPen as NotebookPenIcon } from "lucide-react";
 import { signOut, useCurrentUser } from "@/lib/session";
 import { useTheme } from "@/lib/theme";
 
@@ -68,6 +69,11 @@ const doctorSections = [
         href: "/dashboard/doctor/visitation",
         label: "View Visitations",
         Icon: CalendarCheckIcon,
+      },
+      {
+        href: "/dashboard/doctor/notes",
+        label: "Diagnostic Notes",
+        Icon: NotebookPenIcon,
       },
     ],
   },
