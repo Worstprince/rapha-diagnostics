@@ -62,6 +62,11 @@ export default function VisitRegistrationForm() {
   const [referringDoctor, setReferringDoctor] =
     useState("");
 
+  // For the dropdown display on doctor referral
+  const [referringDoctors, setReferringDoctors] = useState([]);
+  const [showReferringDoctorDropdown, setShowReferringDoctorDropdown] =
+  useState(false);
+
   const [notes, setNotes] = useState("");
 
   const [selectedTests, setSelectedTests] = useState([]);
@@ -325,6 +330,42 @@ export default function VisitRegistrationForm() {
 
     fetchTests();
   }, []);
+
+
+  // for loading the referring doctors list
+  useEffect(() => {
+  async function fetchReferringDoctors() {
+    try {
+      const response = await fetch(
+        "/api/referring-doctors",
+        {
+          cache: "no-store",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          "Failed to fetch referring doctors."
+        );
+      }
+
+      const data = await response.json();
+
+      setReferringDoctors(
+        data.referringDoctors || []
+      );
+    } catch (error) {
+      console.error(
+        "REFERRING DOCTOR LOAD ERROR:",
+        error
+      );
+
+      setHasLoadingError(true);
+    }
+  }
+
+  fetchReferringDoctors();
+}, []);
 
 
   /*
