@@ -24,7 +24,7 @@ export async function GET(request, { params }) {
                 v.id AS visitId,
                 v.patientId,
 
-                p.fname,
+                p.fname as patient,
                 p.mname,
                 p.lname,
                 p.suffix,
@@ -32,14 +32,17 @@ export async function GET(request, { params }) {
                 v.visited_at AS visitDate,
                 v.status,
                 v.priority,
-                v.doctorId,
+                
+                CONCAT(ui.fname, ' ', ui.lname) as doctorName,
+                ui.fname,
+                ui.lname,
 
                 pt.id AS patientTestId,
                 t.id AS testId,
                 t.name AS testName,
-                t.price AS testCost
+                t.price AS testCost,
 
-                rd.name AS referringDoctorName
+                rd.name AS referringDoctorName,
                 rd.clinic AS referringDoctorClinic
 
             FROM tblpatientvisitation v
@@ -53,10 +56,16 @@ export async function GET(request, { params }) {
             LEFT JOIN tbltests t
                 ON t.id = pt.testid
 
+            LEFT JOIN tblusers u
+                ON u.id = v.doctorid
+            
+            LEFT JOIN tbluserinfo ui
+                ON ui.userid = u.id
+
             LEFT JOIN tblreferringdoctors rd
                 ON rd.id = v.referringdoctor
 
-            WHERE v.id = ?
+            WHERE v.id = 34
 
             ORDER BY t.name ASC
             `,
@@ -94,7 +103,7 @@ export async function GET(request, { params }) {
             status: rows[0].status,
             priority: rows[0].priority,
 
-            doctorId: rows[0].doctorId,
+            doctorName: rows[0].doctorName,
 
             tests: rows
                 .filter((row) => row.testId !== null)
