@@ -63,11 +63,18 @@ export default async function getVisitDetails(visitId) {
             const resultRow = resultRows[0];
 
             const values = config.fields.map((f) => {
-                const rawValue = resultRow?.[f.column] ?? "—";
+                const dbValue = resultRow?.[f.column];
+                const hasValue =
+                    dbValue !== null && dbValue !== undefined && String(dbValue).trim() !== "";
+                const displayValue = hasValue ? dbValue : "—";
+
                 return {
                     label: f.label,
-                    value: String(rawValue),
-                    critical: f.isCritical ? f.isCritical(rawValue) : false,
+                    value: String(displayValue),
+                    // Never evaluate criticality on a missing/blank result —
+                    // Number("") is 0 in JS, which could otherwise clear a
+                    // lower-bound threshold and falsely flag an empty field.
+                    critical: hasValue && f.isCritical ? f.isCritical(dbValue) : false,
                 };
             });
 

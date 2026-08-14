@@ -149,10 +149,14 @@ export default function NotesEditor({ visit }) {
       tests.flatMap((t) =>
         t.values
           .filter((v) => v.critical)
-          .map((v) => ({
-            id: `${t.id}-${v.label}`,
-            label: `${t.testType}: ${v.label} ${v.value}`,
-          }))
+          .map((v) => {
+            const direction =
+              v.critical === "low" ? " (low)" : v.critical === "high" ? " (high)" : "";
+            return {
+              id: `${t.id}-${v.label}`,
+              label: `${t.testType}: ${v.label} ${v.value}${direction}`,
+            };
+          })
       ),
     [tests]
   );

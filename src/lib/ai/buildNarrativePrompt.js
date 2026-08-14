@@ -13,6 +13,10 @@ review, edit, and sign off on.
 Rules:
 - Ground every statement strictly in the provided lab values. Never invent
   values, reference ranges, or patient history that wasn't given to you.
+- When a value is marked [CRITICAL — LOW] or [CRITICAL — HIGH], use that
+  exact direction in your narrative (e.g. "critically low", "critically
+  elevated"). Never independently judge or restate whether a value is high
+  or low based on the number alone — use only the direction given to you.
 - Draft "findings" per test, independently — one short paragraph or a few
   bullet points per test type, describing only what that test's values show.
 - Draft "impression" and "recommendation" holistically across all tests in
@@ -32,7 +36,13 @@ export function buildNarrativeUserPrompt({ patientName, tests }) {
   const testsBlock = tests
     .map((t) => {
       const values = t.values
-        .map((v) => `  - ${v.label}: ${v.value}${v.critical ? " (flagged critical)" : ""}`)
+        .map((v) => {
+          let flag = "";
+          if (v.critical === "low") flag = " [CRITICAL — LOW, below normal reference range]";
+          else if (v.critical === "high") flag = " [CRITICAL — HIGH, above normal reference range]";
+          else if (v.critical) flag = " [CRITICAL — abnormal result]";
+          return `  - ${v.label}: ${v.value}${flag}`;
+        })
         .join("\n");
       return `Test: ${t.testType}\n${values || "  (no values recorded)"}`;
     })
