@@ -39,6 +39,9 @@ export async function GET(request, { params }) {
                 t.name AS testName,
                 t.price AS testCost
 
+                rd.name AS referringDoctorName
+                rd.clinic AS referringDoctorClinic
+
             FROM tblpatientvisitation v
 
             LEFT JOIN tblpatients p
@@ -49,6 +52,9 @@ export async function GET(request, { params }) {
 
             LEFT JOIN tbltests t
                 ON t.id = pt.testid
+
+            LEFT JOIN tblreferringdoctors rd
+                ON rd.id = v.referringdoctor
 
             WHERE v.id = ?
 
@@ -102,7 +108,10 @@ export async function GET(request, { params }) {
                 (total, row) =>
                     total + Number(row.testCost || 0),
                 0
-            )
+            ),
+
+            referringDoctorName: rows[0].referringDoctorName,
+            referringDoctorClinic: rows[0].referringDoctorClinic
         };
 
 
