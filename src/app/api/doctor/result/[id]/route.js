@@ -13,10 +13,23 @@ export async function GET(request, { params }) {
             `
             SELECT
                 pt.*,
-                t.name
+                t.name,
+                v.doctorid,
+                CONCAT(docui.fname, ' ', docui.lname) AS doctorname,
+                CONCAT(mtui.fname, ' ', mtui.lname) AS medtechname
             FROM tblpatienttests pt
             INNER JOIN tbltests t
                 ON pt.testid = t.id
+            INNER JOIN tblpatientvisitation v
+                ON v.id = pt.visitid
+            LEFT JOIN tblusers docu
+                ON docu.id = v.doctorid
+            LEFT JOIN tbluserinfo docui
+                ON docui.userid = docu.id
+            LEFT JOIN tblusers mtu
+                ON mtu.id = pt.medtechid
+            LEFT JOIN tbluserinfo mtui
+                ON mtui.userid = mtu.id
             WHERE pt.id = ?
             `,
             [assignmentId]
@@ -87,14 +100,24 @@ export async function GET(request, { params }) {
 
         return NextResponse.json({
 
-            patient: patientRows[0],
+            patient: {
+                ...patientRows[0],
+                doctorId: assignment.doctorid ?? null,
+                doctorName: assignment.doctorname || null,
+                medtechId: assignment.medtechid ?? null,
+                medtechName: assignment.medtechname || null
+            },
 
             test: {
                 id: assignment.id,
                 visitid: assignment.visitid,
                 testid: assignment.testid,
                 status: assignment.status,
-                name: assignment.name
+                name: assignment.name,
+                doctorid: assignment.doctorid ?? null,
+                doctorName: assignment.doctorname || null,
+                medtechid: assignment.medtechid ?? null,
+                medtechName: assignment.medtechname || null
             },
 
             result

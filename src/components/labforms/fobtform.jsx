@@ -1,14 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import LabReportHeader from "./labReportHeader";
+import LabReportHeader, { LabSignatures } from "./labReportHeader";
 
 export default function FOBTForm({
     patient,
     onSubmit,
     initialData = {},
     readOnly = false,
-    hasExistingResult = false
+    hasExistingResult = false,
+    doctorId,
+    doctorName,
+    medtechId,
+    medtechName,
 }) {
 
     const [result, setResult] = useState({
@@ -112,25 +116,12 @@ export default function FOBTForm({
 
             </table>
 
-            <div className="grid grid-cols-2 gap-20 pt-16">
-
-                <div className="text-center">
-
-                    <div className="border-t border-current pt-2">
-                        Pathologist
-                    </div>
-
-                </div>
-
-                <div className="text-center">
-
-                    <div className="border-t border-current pt-2">
-                        Medical Technologist
-                    </div>
-
-                </div>
-
-            </div>
+<LabSignatures
+                doctorId={doctorId}
+                doctorName={doctorName}
+                medtechId={medtechId}
+                medtechName={medtechName}
+            />
 
             {!readOnly && (
 
