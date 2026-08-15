@@ -1,5 +1,3 @@
-import Script from "next/script";
-
 import "./globals.css";
 
 
@@ -20,12 +18,13 @@ const THEME_BOOTSTRAP = `
 export default function RootLayout({ children }) {
   return (
     <html lang="en" data-theme="dark" suppressHydrationWarning>
-      <body>
-        <Script
+      <head>
+        <script
           id="rd-theme-bootstrap"
-          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }}
         />
+      </head>
+      <body>
         {children}
       </body>
     </html>

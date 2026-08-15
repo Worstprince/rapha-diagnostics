@@ -736,6 +736,26 @@
     }
   }
 
+  /* `backwards` holds the from-state during animation-delay, so callers can
+     stagger a list purely via inline animationDelay without a flash of the
+     unanimated end-state first. */
+  .rd-rise-in {
+    animation: rd-rise-in 480ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+
+  @keyframes rd-rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rd-rise-in {
+      animation: none;
+    }
+  }
+
   /* Shared by the login and the dashboard sidebar. Base sits in normal flow;
      login pins it to the viewport itself. */
   .rd-theme {

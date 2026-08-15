@@ -53,6 +53,14 @@ export function ChevronDownIcon(props) {
     );
 }
 
+export function ChevronRightIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="m9 18 6-6-6-6" />
+        </Icon>
+    );
+}
+
 export function PencilIcon(props) {
     return (
         <Icon {...props}>
@@ -98,6 +106,54 @@ export function InboxIcon(props) {
         <Icon {...props}>
             <path d="M3 13h4l2 3h6l2-3h4" />
             <path d="M5.5 5h13l2.5 8v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4Z" />
+        </Icon>
+    );
+}
+
+export function WarningIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="m10.3 3.86-8.2 14.2A1.7 1.7 0 0 0 3.55 20.6h16.9a1.7 1.7 0 0 0 1.45-2.54l-8.2-14.2a1.7 1.7 0 0 0-2.9 0Z" />
+            <path d="M12 9v4" />
+            <path d="M12 17h.01" />
+        </Icon>
+    );
+}
+
+export function CheckCircleIcon(props) {
+    return (
+        <Icon {...props}>
+            <circle cx="12" cy="12" r="9" />
+            <path d="m8.5 12.5 2.5 2.5 5-5" />
+        </Icon>
+    );
+}
+
+export function XCircleIcon(props) {
+    return (
+        <Icon {...props}>
+            <circle cx="12" cy="12" r="9" />
+            <path d="m9.5 9.5 5 5" />
+            <path d="m14.5 9.5-5 5" />
+        </Icon>
+    );
+}
+
+export function InfoIcon(props) {
+    return (
+        <Icon {...props}>
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 11v5" />
+            <path d="M12 8h.01" />
+        </Icon>
+    );
+}
+
+export function ClockIcon(props) {
+    return (
+        <Icon {...props}>
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v5l3.5 2" />
         </Icon>
     );
 }
@@ -331,5 +387,14 @@ export function RowSkeleton({ rows = 5 }) {
                 />
             ))}
         </div>
+    );
+}
+
+export function HeaderGlow() {
+    return (
+        <span
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-20 -top-24 size-56 rounded-full bg-rd-cyan/10 blur-3xl"
+        />
     );
 }
