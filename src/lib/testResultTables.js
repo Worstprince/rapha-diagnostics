@@ -213,7 +213,7 @@ export const TEST_RESULT_TABLES = {
     ],
   },
   semenalysis: {
-    table: "test_semenanalysisresult",
+    table: "test_semenalysis",
     fields: [
       { column: "appearance", label: "Appearance" },
       { column: "volume", label: "Volume" },
