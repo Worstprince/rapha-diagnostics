@@ -140,8 +140,15 @@ async function handleSubmit(result, hasExistingResult) {
 async function fetchTest() {
 
     const response = await fetch(`/api/medtech/test/${id}`);
-
     const data = await response.json();
+
+    if (!response.ok || !data?.test) {
+        setToast({
+            tone: "error",
+            text: data?.message || "Unable to load this test."
+        });
+        return;
+    }
 
     setPatient({
         patientid: data.test.patientid,
@@ -157,7 +164,11 @@ async function fetchTest() {
         testid: data.test.testid,
         visitid: data.test.visitid,
         status: data.test.status,
-        medtechid: data.test.medtechid
+        doctorId: data.test.doctorId,
+        doctorName: data.test.doctorName,
+        medtechId: data.test.medtechId,
+        medtechName: data.test.medtechName,
+        medtechid: data.test.medtechId
     });
 
     setResult(data.result);
@@ -233,6 +244,10 @@ async function fetchTest() {
                     initialData={result ?? {}}
                     hasExistingResult={result !== null}
                     onSubmit={handleSubmit}
+                    doctorId={test.doctorId}
+                    doctorName={test.doctorName}
+                    medtechId={test.medtechId}
+                    medtechName={test.medtechName}
                 />
 
             </div>

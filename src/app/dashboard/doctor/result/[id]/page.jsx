@@ -248,6 +248,10 @@ async function approveResult() {
                     patient={patient}
                     initialData={result}
                     readOnly={true}
+                    doctorId={test.doctorid}
+                    doctorName={test.doctorName}
+                    medtechId={test.medtechid}
+                    medtechName={test.medtechName}
                 />
 
             </div>

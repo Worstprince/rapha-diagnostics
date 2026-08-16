@@ -62,6 +62,11 @@ export default function VisitRegistrationForm() {
   const [referringDoctor, setReferringDoctor] =
     useState("");
 
+  // For the dropdown display on doctor referral
+  const [referringDoctors, setReferringDoctors] = useState([]);
+  const [showReferringDoctorDropdown, setShowReferringDoctorDropdown] =
+  useState(false);
+
   const [notes, setNotes] = useState("");
 
   const [selectedTests, setSelectedTests] = useState([]);
@@ -209,6 +214,22 @@ export default function VisitRegistrationForm() {
     );
   }, [selectedTests]);
 
+  const filteredReferringDoctors = useMemo(() => {
+  const term = referringDoctor
+    .trim()
+    .toLowerCase();
+
+  if (term === "") {
+    return referringDoctors;
+  }
+
+  return referringDoctors.filter((doctor) =>
+    doctor.name
+      .toLowerCase()
+      .includes(term)
+  );
+}, [referringDoctors, referringDoctor]);
+
 
   /*
    * LOAD PATIENTS
@@ -327,6 +348,44 @@ export default function VisitRegistrationForm() {
   }, []);
 
 
+  // for loading the referring doctors list
+  useEffect(() => {
+  async function fetchReferringDoctors() {
+    try {
+      const response = await fetch(
+        "/api/doctor/referringDoctors",
+        {
+          cache: "no-store",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          "Failed to fetch referring doctors."
+        );
+      }
+
+      const data = await response.json();
+      
+      console.log("REFERRING DOCTORS API:", data);
+
+      setReferringDoctors(
+        data.referringDoctors || []
+      );
+    } catch (error) {
+      console.error(
+        "REFERRING DOCTOR LOAD ERROR:",
+        error
+      );
+
+      setHasLoadingError(true);
+    }
+  }
+
+  fetchReferringDoctors();
+}, []);
+
+
   /*
    * PATIENT SEARCH
    *
@@ -341,6 +400,12 @@ export default function VisitRegistrationForm() {
     setShowPatientDropdown(true);
     setHighlightedIndex(0);
   }
+
+  function handleSelectReferringDoctor(doctor) {
+  setReferringDoctor(doctor.name);
+  setClinic(doctor.clinic || "");
+  setShowReferringDoctorDropdown(false);
+}
 
 
   /*
@@ -528,6 +593,22 @@ export default function VisitRegistrationForm() {
       return;
     }
 
+    if (!assignedDoctor) {
+      setToast({
+        tone: "error",
+        text: "Please assign a doctor to this visit.",
+      });
+      return;
+    }
+
+    if (isReferred && !referringDoctor.trim()) {
+      setToast({
+        tone: "error",
+        text: "Please enter the referring doctor.",
+      });
+      return;
+    }
+
     const visitPatientName = [
       selectedPatient.fname,
       selectedPatient.lname,
@@ -673,6 +754,13 @@ export default function VisitRegistrationForm() {
       ) {
         setShowPatientDropdown(false);
       }
+      if (
+        !e.target.closest(
+          "#referring-doctor-search-container"
+        )
+      ) {
+        setShowReferringDoctorDropdown(false);
+      }
 
     }
 
@@ -724,7 +812,11 @@ export default function VisitRegistrationForm() {
     ? "Select a patient to continue."
     : selectedTests.length === 0
       ? "Add at least one test."
-      : null;
+      : !assignedDoctor
+        ? "Assign a doctor to continue."
+        : isReferred && !referringDoctor.trim()
+          ? "Enter the referring doctor's name."
+          : null;
 
   const hasUnsavedWork =
     hasSelectedPatient ||
@@ -1070,13 +1162,54 @@ export default function VisitRegistrationForm() {
 
                 <label className="block">
                   <span className="rd-label">Doctor name</span>
-                  <input
-                    type="text"
-                    value={referringDoctor}
-                    onChange={(event) => setReferringDoctor(event.target.value)}
-                    placeholder="Dr. Juan Dela Cruz"
-                    className="rd-input"
-                  />
+
+                  <div className="relative" id="referring-doctor-search-container">
+                    <input
+                      type="text"
+                      value={referringDoctor}
+                      onChange={(event) => {
+                        setReferringDoctor(event.target.value);
+                        setShowReferringDoctorDropdown(true);
+                      }}
+                      onFocus={() =>
+                        setShowReferringDoctorDropdown(true)
+                      }
+                      placeholder="Dr. Juan Dela Cruz"
+                      className="rd-input"
+                    />
+
+                    {showReferringDoctorDropdown && (
+                      <ul className="rd-scroll-thin absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-xl border border-rd-hair-strong bg-rd-popover shadow-[var(--rd-card-shadow)]">
+
+                        {filteredReferringDoctors.length > 0 ? (
+                          filteredReferringDoctors.map((doctor) => (
+                            <li key={doctor.id}>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleSelectReferringDoctor(doctor)
+                                }
+                                className="rd-focus flex min-h-11 w-full cursor-pointer flex-col px-4 py-2 text-left hover:bg-rd-raised"
+                              >
+                                <span className="text-sm font-medium text-rd-title">
+                                  {doctor.name}
+                                </span>
+
+                                <span className="mt-0.5 text-xs text-rd-muted">
+                                  {doctor.clinic || "No clinic recorded"}
+                                </span>
+                              </button>
+                            </li>
+                          ))
+                        ) : (
+                          <li className="px-4 py-3 text-sm text-rd-muted">
+                            No referring doctors found.
+                          </li>
+                        )}
+
+                      </ul>
+                    )}
+                  </div>
                 </label>
 
                 <label className="block">

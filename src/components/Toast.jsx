@@ -47,7 +47,7 @@ export default function Toast({ status, onDismiss, duration = 6000 }) {
     const tone = status.tone === "error" ? "error" : "success";
 
     return createPortal(
-        <div className="pointer-events-none fixed inset-x-0 top-4 z-[60] flex justify-center px-4 sm:justify-end sm:px-6">
+        <div className="no-print pointer-events-none fixed inset-x-0 top-4 z-[60] flex justify-center px-4 sm:justify-end sm:px-6">
 
             <div
                 role={tone === "error" ? "alert" : "status"}
