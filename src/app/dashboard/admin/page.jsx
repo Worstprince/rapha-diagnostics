@@ -144,7 +144,7 @@ export default function AdminDashboardPage() {
       setLoading(true);
       try {
         const [patientsRes, testsRes, billingRes, activityRes] = await Promise.all([
-          fetch("/api/patients"),
+          fetch("/api/patients/search"),
           fetch("/api/doctor/patients?search="),
           fetch("/api/billing"),
           fetch("/api/activityLog?limit=5&sortDate=newest"),
@@ -169,7 +169,11 @@ export default function AdminDashboardPage() {
 
         if (!cancelled) {
           setStats({
-            patients: Array.isArray(patientsData) ? patientsData.length : (patientsData?.total ?? 0),
+            patients: Array.isArray(patientsData?.patients)
+              ? patientsData.patients.length
+              : Array.isArray(patientsData)
+                ? patientsData.length
+                : (patientsData?.total ?? 0),
             pendingTests: Array.isArray(testsData?.rows) ? testsData.rows.filter((v) => v.status === "pending").length : 0,
             revenue: billingData?.totalRevenue ?? billingData?.revenue ?? 0,
           });

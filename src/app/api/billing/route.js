@@ -160,6 +160,31 @@ export async function GET(request) {
                 : Math.ceil(total / limit);
 
 
+        const [summaryRows] = await db.query(
+            `
+            SELECT
+                COALESCE(
+                    SUM(t.price),
+                    0
+                ) AS totalRevenue
+
+            FROM tblpatientvisitation v
+
+            LEFT JOIN tblpatients p
+                ON p.id = v.patientId
+
+            LEFT JOIN tblpatienttests pt
+                ON pt.visitid = v.id
+
+            LEFT JOIN tbltests t
+                ON t.id = pt.testid
+
+            ${whereClause}
+            `,
+            values
+        );
+
+
         const [rows] = await db.query(
             `
             SELECT
@@ -239,6 +264,7 @@ export async function GET(request) {
             success: true,
 
             rows,
+            totalRevenue: Number(summaryRows[0]?.totalRevenue || 0),
 
             pagination: {
                 page,
