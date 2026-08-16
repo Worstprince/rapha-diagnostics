@@ -16,7 +16,7 @@ import {
   SignOutIcon,
   UserPenIcon,
 } from "@/components/icons";
-import { signOut, useCurrentUser } from "@/lib/session";
+import { setCurrentUser, signOut, useCurrentUser } from "@/lib/session";
 import { useTheme } from "@/lib/theme";
 
 const MIN_USERNAME = 3;
@@ -196,7 +196,7 @@ function EditProfileDialog({ open, user, onClose }) {
     setStatus(null);
   }, [open, user?.username]);
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     const value = username.trim();
@@ -218,15 +218,31 @@ function EditProfileDialog({ open, user, onClose }) {
     }
 
     setError("");
+    setStatus(null);
 
-    /* TODO(backend): PATCH /api/users/{id} with { username }, then rewrite the
-       cached "rd-user" entry so the sidebar picks the new name up. Until that
-       route exists this deliberately reports failure — silently succeeding here
-       would leave the UI showing a name the database never received. */
-    setStatus({
-      tone: "error",
-      text: "Saving is not connected yet, so this change was not stored.",
-    });
+    try {
+      const response = await fetch(`/api/users/${user.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: value }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result?.message || "Unable to update username.");
+      }
+
+      const nextUser = { ...user, username: value };
+      setCurrentUser(nextUser);
+      setStatus({ tone: "success", text: "Username updated successfully." });
+      onClose();
+    } catch (error) {
+      setStatus({
+        tone: "error",
+        text: error.message || "Unable to update your username right now.",
+      });
+    }
   }
 
   return (
@@ -291,7 +307,7 @@ function EditProfileDialog({ open, user, onClose }) {
 
 const EMPTY_PASSWORD_FORM = { currentPassword: "", newPassword: "", confirmPassword: "" };
 
-function ChangePasswordDialog({ open, onClose }) {
+function ChangePasswordDialog({ open, user, onClose }) {
   const [form, setForm] = useState(EMPTY_PASSWORD_FORM);
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState(null);
@@ -327,7 +343,7 @@ function ChangePasswordDialog({ open, onClose }) {
 
   const strength = PASSWORD_RULES.filter((rule) => rule.test(form.newPassword)).length;
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     const found = {};
@@ -363,13 +379,32 @@ function ChangePasswordDialog({ open, onClose }) {
       return;
     }
 
-    /* TODO(backend): POST the current + new password to a change-password route
-       so the server can verify the old one and re-hash. Reporting success from
-       the client alone would be a lie the next sign-in exposes. */
-    setStatus({
-      tone: "error",
-      text: "Saving is not connected yet, so your password was not changed.",
-    });
+    setStatus(null);
+
+    try {
+      const response = await fetch(`/api/users/${user.id}/password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          currentPassword: form.currentPassword,
+          newPassword: form.newPassword,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result?.message || "Unable to update password.");
+      }
+
+      setStatus({ tone: "success", text: "Password updated successfully." });
+      onClose();
+    } catch (error) {
+      setStatus({
+        tone: "error",
+        text: error.message || "Unable to update your password right now.",
+      });
+    }
   }
 
   return (
@@ -652,7 +687,7 @@ export default function AccountMenu() {
 
       <EditProfileDialog open={dialog === "profile"} user={user} onClose={closeDialog} />
 
-      <ChangePasswordDialog open={dialog === "password"} onClose={closeDialog} />
+      <ChangePasswordDialog open={dialog === "password"} user={user} onClose={closeDialog} />
 
       <ConfirmDialog
         open={confirmOpen}

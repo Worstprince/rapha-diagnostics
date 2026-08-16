@@ -42,6 +42,15 @@ export function useCurrentUser() {
   }, [raw]);
 }
 
+export function setCurrentUser(user) {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(user));
+  } catch {
+    // Ignore storage errors; UI can still render the in-memory state.
+  }
+  window.dispatchEvent(new Event(SAME_TAB));
+}
+
 export function signOut() {
   try {
     localStorage.removeItem(KEY);
