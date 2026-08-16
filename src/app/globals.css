@@ -756,6 +756,27 @@
     }
   }
 
+  /* The account popover mounts on open rather than staying in the tree, so entry
+     is a keyframe. It grows from the edge it's anchored to, which is the bottom
+     one — the sidebar footer opens upward. */
+  .rd-pop {
+    transform-origin: bottom center;
+    animation: rd-pop-in 160ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  @keyframes rd-pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px) scale(0.97);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rd-pop {
+      animation: none;
+    }
+  }
+
   /* Shared by the login and the dashboard sidebar. Base sits in normal flow;
      login pins it to the viewport itself. */
   .rd-theme {

@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-import ConfirmDialog from "@/components/ConfirmDialog";
-import ThemeToggle from "@/components/ThemeToggle";
+import AccountMenu from "@/components/AccountMenu";
 import {
   ActivityIcon,
   CalendarCheckIcon,
@@ -13,12 +12,9 @@ import {
   CloseIcon,
   GridIcon,
   MenuIcon,
-  SignOutIcon,
   UserPlusIcon,
   UsersIcon,
 } from "@/components/icons";
-import { signOut, useCurrentUser } from "@/lib/session";
-import { useTheme } from "@/lib/theme";
 
 const ROLE_HOMES = {
   admin: "/dashboard/admin",
@@ -209,73 +205,12 @@ function SectionNav({ sections, pathname, onNavigate }) {
   );
 }
 
-function initialsOf(name) {
-  if (!name) return "";
-  return name
-    .split(/[\s._-]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join("");
-}
-
-function UserFooter() {
-  const router = useRouter();
-  const user = useCurrentUser();
-  const [confirmOpen, setConfirmOpen] = useState(false);
-
-  const handleSignOut = () => {
-    setConfirmOpen(false);
-    signOut();
-    router.push("/auth/login");
-  };
-
-  /* Null on the server and on the first client paint, so the block is skipped
-     rather than flashing a guessed name. */
-  if (!user) return null;
-
-  return (
-    <div className="mt-6 flex items-center gap-3 rounded-xl border border-rd-hair bg-rd-sunken p-2.5">
-      <span
-        aria-hidden="true"
-        className="grid size-9 flex-none place-items-center rounded-full bg-rd-cyan/15 text-xs font-bold text-rd-cyan"
-      >
-        {initialsOf(user.username)}
-      </span>
-      <div className="min-w-0 leading-tight">
-        <p className="truncate text-sm font-semibold text-rd-title">{user.username}</p>
-        <p className="truncate text-xs text-rd-muted">{user.role}</p>
-      </div>
-      <button
-        type="button"
-        onClick={() => setConfirmOpen(true)}
-        aria-label="Sign out"
-        title="Sign out"
-        className="rd-press rd-focus ml-auto grid size-11 flex-none cursor-pointer place-items-center rounded-lg text-rd-muted hover:bg-rd-danger-bg hover:text-rd-danger"
-      >
-        <SignOutIcon />
-      </button>
-
-      <ConfirmDialog
-        open={confirmOpen}
-        tone="danger"
-        title="Sign out?"
-        description={`You'll be signed out of ${user.username} and returned to the login page.`}
-        confirmLabel="Sign out"
-        cancelLabel="Stay signed in"
-        onConfirm={handleSignOut}
-        onCancel={() => setConfirmOpen(false)}
-      />
-    </div>
-  );
-}
-
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
-  const { theme, toggle } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef(null);
   const closeButtonRef = useRef(null);
+  const drawerRef = useRef(null);
 
   const sections = pathname.startsWith("/dashboard/admin") || pathname === "/dashboard"
     ? adminSections
@@ -296,7 +231,18 @@ export default function DashboardLayout({ children }) {
     closeButtonRef.current?.focus();
 
     const onKeyDown = (event) => {
-      if (event.key === "Escape") setMenuOpen(false);
+      if (event.key !== "Escape") return;
+
+      /* The account menu's dialogs portal to <body> and dismiss themselves on
+         Escape. Both listeners sit on document, so without this the one keypress
+         would close the dialog and collapse the drawer underneath it. */
+      const dialog =
+        event.target instanceof Element
+          ? event.target.closest('[role="dialog"][aria-modal="true"]')
+          : null;
+      if (dialog && dialog !== drawerRef.current) return;
+
+      setMenuOpen(false);
     };
     const onPopState = () => setMenuOpen(false);
     document.addEventListener("keydown", onKeyDown);
@@ -324,27 +270,27 @@ export default function DashboardLayout({ children }) {
         <aside className="no-print border-b border-rd-hair bg-rd-card backdrop-blur-xl lg:sticky lg:top-4 lg:flex lg:h-[calc(100dvh-2rem)] lg:w-72 lg:flex-none lg:flex-col lg:rounded-2xl lg:border lg:shadow-[var(--rd-card-shadow)]">
           <div className="flex items-center justify-between gap-3 p-5 lg:p-4">
             <Wordmark />
-            <div className="flex items-center gap-2">
-              <ThemeToggle theme={theme} onToggle={toggle} />
-              <button
-                ref={menuButtonRef}
-                type="button"
-                onClick={() => setMenuOpen(true)}
-                aria-label="Open navigation menu"
-                aria-expanded={menuOpen}
-                aria-controls="dashboard-menu"
-                className="rd-press rd-focus grid size-11 cursor-pointer place-items-center rounded-lg text-rd-label hover:bg-rd-raised hover:text-rd-title lg:hidden"
-              >
-                <MenuIcon />
-              </button>
-            </div>
+            <button
+              ref={menuButtonRef}
+              type="button"
+              onClick={() => setMenuOpen(true)}
+              aria-label="Open navigation menu"
+              aria-expanded={menuOpen}
+              aria-controls="dashboard-menu"
+              className="rd-press rd-focus grid size-11 cursor-pointer place-items-center rounded-lg text-rd-label hover:bg-rd-raised hover:text-rd-title lg:hidden"
+            >
+              <MenuIcon />
+            </button>
           </div>
-        
-          <div className="hidden min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-4 pt-4 lg:flex">
+
+          {/* Only the nav scrolls. The account row is pinned as its own block so
+              the menu it opens can't be clipped by the scroll container. */}
+          <div className="rd-scroll-thin hidden min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-2 pt-4 lg:flex">
             <SectionNav sections={sections} pathname={pathname} />
-            <div className="mt-auto">
-              <UserFooter />
-            </div>
+          </div>
+
+          <div className="hidden flex-none px-3 pb-4 lg:block">
+            <AccountMenu />
           </div>
         </aside>
 
@@ -352,6 +298,7 @@ export default function DashboardLayout({ children }) {
           <div className="no-print fixed inset-0 z-50 lg:hidden">
             <div className="rd-scrim absolute inset-0 bg-black/50" onClick={closeMenu} aria-hidden="true" />
             <div
+              ref={drawerRef}
               id="dashboard-menu"
               role="dialog"
               aria-modal="true"
@@ -371,11 +318,12 @@ export default function DashboardLayout({ children }) {
                 </button>
               </div>
 
-              <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-5 pt-4">
+              <div className="rd-scroll-thin flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-2 pt-4">
                 <SectionNav sections={sections} pathname={pathname} onNavigate={closeMenu} />
-                <div className="mt-auto">
-                  <UserFooter />
-                </div>
+              </div>
+
+              <div className="flex-none px-3 pb-5">
+                <AccountMenu />
               </div>
             </div>
           </div>
