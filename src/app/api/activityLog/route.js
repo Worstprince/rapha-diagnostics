@@ -42,10 +42,10 @@ export async function GET(request) {
 
             conditions.push(`
                 (
-                    username LIKE ?
-                    OR action LIKE ?
-                    OR module LIKE ?
-                    OR description LIKE ?
+                    u.username LIKE ?
+                    OR a.action LIKE ?
+                    OR a.module LIKE ?
+                    OR a.description LIKE ?
                 )
             `);
 
@@ -66,7 +66,7 @@ export async function GET(request) {
         if (moduleFilter) {
 
             conditions.push(
-                "module = ?"
+                "a.module = ?"
             );
 
             values.push(
@@ -81,7 +81,7 @@ export async function GET(request) {
         if (actionFilter) {
 
             conditions.push(
-                "action = ?"
+                "a.action = ?"
             );
 
             values.push(
@@ -96,7 +96,7 @@ export async function GET(request) {
         if (usernameFilter) {
 
             conditions.push(
-                "username = ?"
+                "u.username = ?"
             );
 
             values.push(
@@ -109,6 +109,11 @@ export async function GET(request) {
         // WHERE clause
 
         const whereClause =
+            conditions.length > 0
+                ? `WHERE ${conditions.join(" AND ")}`
+                : "";
+
+        const countWhereClause =
             conditions.length > 0
                 ? `WHERE ${conditions.join(" AND ")}`
                 : "";
@@ -156,7 +161,8 @@ export async function GET(request) {
             `
             SELECT COUNT(*) AS total
             FROM tblactivitylog a
-            ${whereClause}
+            LEFT JOIN tblusers u ON a.userid = u.id
+            ${countWhereClause}
             `,
             values
         );
