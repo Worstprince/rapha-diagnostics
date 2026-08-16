@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import {
@@ -14,6 +15,7 @@ import {
     td,
     th,
 } from "@/app/dashboard/admin/_ui";
+import { ArrowLeftIcon, PageHeader, backLink } from "../_ui";
 
 
 function formatCurrency(value) {
@@ -46,6 +48,12 @@ function formatDate(value) {
 
 }
 
+
+const STATUS_OPTIONS = [
+    { value: "Waiting", label: "Waiting" },
+    { value: "Pending", label: "Pending" },
+    { value: "Approved", label: "Approved" },
+];
 
 export default function ViewBillingHistory() {
 
@@ -274,8 +282,18 @@ export default function ViewBillingHistory() {
 
 
     return (
+        <div className="mx-auto max-w-6xl space-y-5">
+            <Link href="/dashboard/reception" className={backLink}>
+                <ArrowLeftIcon size={16} />
+                Back to intake
+            </Link>
 
-        <section className="flex min-h-0 flex-1 flex-col gap-5">
+            <PageHeader
+                title="Billing history"
+                description="Review visit totals, test charges, and billing status across the reception queue."
+            />
+
+            <section className="flex min-h-0 flex-1 flex-col gap-5">
 
 
             <div className="rd-panel flex-none overflow-hidden">
@@ -348,29 +366,11 @@ export default function ViewBillingHistory() {
                                     All statuses
                                 </option>
 
-                                <option value="Registered">
-                                    Registered
-                                </option>
-
-                                <option value="Pending Payment">
-                                    Pending Payment
-                                </option>
-
-                                <option value="In Progress">
-                                    In Progress
-                                </option>
-
-                                <option value="Under Review">
-                                    Under Review
-                                </option>
-
-                                <option value="Approved">
-                                    Approved
-                                </option>
-
-                                <option value="Released">
-                                    Released
-                                </option>
+                                {STATUS_OPTIONS.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
 
                             </FilterField>
 
@@ -740,7 +740,7 @@ export default function ViewBillingHistory() {
             </div>
 
         </section>
-
+        </div>
     );
 
 }
