@@ -185,6 +185,7 @@ function EditProfileDialog({ open, user, onClose }) {
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
   const [status, setStatus] = useState(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const inputRef = useRef(null);
 
   /* Reset per opening rather than per render, so reopening after a cancel shows
@@ -194,7 +195,36 @@ function EditProfileDialog({ open, user, onClose }) {
     setUsername(user?.username ?? "");
     setError("");
     setStatus(null);
+    setConfirmOpen(false);
   }, [open, user?.username]);
+
+  async function handleConfirm() {
+    setConfirmOpen(false);
+
+    try {
+      const response = await fetch(`/api/users/${user.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result?.message || "Unable to update username.");
+      }
+
+      const nextUser = { ...user, username };
+      setCurrentUser(nextUser);
+      setStatus({ tone: "success", text: "Username updated successfully." });
+      onClose();
+    } catch (error) {
+      setStatus({
+        tone: "error",
+        text: error.message || "Unable to update your username right now.",
+      });
+    }
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -219,89 +249,78 @@ function EditProfileDialog({ open, user, onClose }) {
 
     setError("");
     setStatus(null);
-
-    try {
-      const response = await fetch(`/api/users/${user.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: value }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        throw new Error(result?.message || "Unable to update username.");
-      }
-
-      const nextUser = { ...user, username: value };
-      setCurrentUser(nextUser);
-      setStatus({ tone: "success", text: "Username updated successfully." });
-      onClose();
-    } catch (error) {
-      setStatus({
-        tone: "error",
-        text: error.message || "Unable to update your username right now.",
-      });
-    }
+    setConfirmOpen(true);
   }
 
   return (
-    <FormDialog
-      open={open}
-      title="Edit profile"
-      description="Update the name your account signs in and appears under."
-      onClose={onClose}
-    >
-      <form onSubmit={handleSubmit} noValidate>
-        <div>
-          <label htmlFor="account-username" className="rd-label">
-            Username
-          </label>
-          <input
-            ref={inputRef}
-            id="account-username"
-            name="username"
-            type="text"
-            autoComplete="username"
-            value={username}
-            onChange={(event) => {
-              setUsername(event.target.value);
-              setError("");
-            }}
-            aria-invalid={error ? true : undefined}
-            aria-describedby={error ? "account-username-error" : undefined}
-            className={field(error)}
-          />
-          {error && (
-            <p id="account-username-error" className={errText}>
-              {error}
-            </p>
-          )}
-        </div>
-
-        {/* Email and role are shown for context but stay read-only — both are
-            administrator-managed, and a disabled input would wrongly imply this
-            screen could someday edit them. */}
-        <dl className="mt-5 space-y-3 rounded-xl border border-rd-hair bg-rd-sunken p-4">
-          <div className="flex items-center justify-between gap-3">
-            <dt className="text-xs font-semibold uppercase tracking-wider text-rd-muted">Email</dt>
-            <dd className="min-w-0 truncate text-sm text-rd-label">{user?.email ?? "—"}</dd>
+    <>
+      <FormDialog
+        open={open}
+        title="Edit profile"
+        description="Update the name your account signs in and appears under."
+        onClose={onClose}
+      >
+        <form onSubmit={handleSubmit} noValidate>
+          <div>
+            <label htmlFor="account-username" className="rd-label">
+              Username
+            </label>
+            <input
+              ref={inputRef}
+              id="account-username"
+              name="username"
+              type="text"
+              autoComplete="username"
+              value={username}
+              onChange={(event) => {
+                setUsername(event.target.value);
+                setError("");
+              }}
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? "account-username-error" : undefined}
+              className={field(error)}
+            />
+            {error && (
+              <p id="account-username-error" className={errText}>
+                {error}
+              </p>
+            )}
           </div>
-          <div className="flex items-center justify-between gap-3">
-            <dt className="text-xs font-semibold uppercase tracking-wider text-rd-muted">Role</dt>
-            <dd className="min-w-0 truncate text-sm text-rd-label">{user?.role ?? "—"}</dd>
-          </div>
-        </dl>
 
-        <p className="mt-2.5 text-xs text-rd-muted">
-          Email and role are managed by an administrator.
-        </p>
+          {/* Email and role are shown for context but stay read-only — both are
+              administrator-managed, and a disabled input would wrongly imply this
+              screen could someday edit them. */}
+          <dl className="mt-5 space-y-3 rounded-xl border border-rd-hair bg-rd-sunken p-4">
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-xs font-semibold uppercase tracking-wider text-rd-muted">Email</dt>
+              <dd className="min-w-0 truncate text-sm text-rd-label">{user?.email ?? "—"}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-xs font-semibold uppercase tracking-wider text-rd-muted">Role</dt>
+              <dd className="min-w-0 truncate text-sm text-rd-label">{user?.role ?? "—"}</dd>
+            </div>
+          </dl>
 
-        <StatusNote status={status} />
+          <p className="mt-2.5 text-xs text-rd-muted">
+            Email and role are managed by an administrator.
+          </p>
 
-        <DialogActions onCancel={onClose} submitLabel="Save changes" />
-      </form>
-    </FormDialog>
+          <StatusNote status={status} />
+
+          <DialogActions onCancel={onClose} submitLabel="Save changes" />
+        </form>
+      </FormDialog>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Update username?"
+        description={`This will change your display name from ${user?.username ?? "your current username"} to ${username.trim()}.`}
+        confirmLabel="Save username"
+        cancelLabel="Keep current"
+        onConfirm={handleConfirm}
+        onCancel={() => setConfirmOpen(false)}
+      />
+    </>
   );
 }
 
@@ -311,6 +330,7 @@ function ChangePasswordDialog({ open, user, onClose }) {
   const [form, setForm] = useState(EMPTY_PASSWORD_FORM);
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const currentRef = useRef(null);
   const newRef = useRef(null);
@@ -326,6 +346,7 @@ function ChangePasswordDialog({ open, user, onClose }) {
     setForm(EMPTY_PASSWORD_FORM);
     setErrors({});
     setStatus(null);
+    setConfirmOpen(false);
   }, [open]);
 
   function update(name) {
@@ -343,7 +364,36 @@ function ChangePasswordDialog({ open, user, onClose }) {
 
   const strength = PASSWORD_RULES.filter((rule) => rule.test(form.newPassword)).length;
 
-  async function handleSubmit(event) {
+  async function handleConfirm() {
+    setConfirmOpen(false);
+
+    try {
+      const response = await fetch(`/api/users/${user.id}/password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          currentPassword: form.currentPassword,
+          newPassword: form.newPassword,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result?.message || "Unable to update password.");
+      }
+
+      setStatus({ tone: "success", text: "Password updated successfully." });
+      onClose();
+    } catch (error) {
+      setStatus({
+        tone: "error",
+        text: error.message || "Unable to update your password right now.",
+      });
+    }
+  }
+
+  function handleSubmit(event) {
     event.preventDefault();
 
     const found = {};
@@ -380,119 +430,108 @@ function ChangePasswordDialog({ open, user, onClose }) {
     }
 
     setStatus(null);
-
-    try {
-      const response = await fetch(`/api/users/${user.id}/password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          currentPassword: form.currentPassword,
-          newPassword: form.newPassword,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        throw new Error(result?.message || "Unable to update password.");
-      }
-
-      setStatus({ tone: "success", text: "Password updated successfully." });
-      onClose();
-    } catch (error) {
-      setStatus({
-        tone: "error",
-        text: error.message || "Unable to update your password right now.",
-      });
-    }
+    setConfirmOpen(true);
   }
 
   return (
-    <FormDialog
-      open={open}
-      title="Change password"
-      description="Choose a password you don't use anywhere else."
-      onClose={onClose}
-    >
-      <form onSubmit={handleSubmit} noValidate className="space-y-5">
-        <PasswordField
-          id="current-password"
-          label="Current password"
-          value={form.currentPassword}
-          onChange={update("currentPassword")}
-          error={errors.currentPassword}
-          autoComplete="current-password"
-          inputRef={currentRef}
-        />
-
-        <div>
+    <>
+      <FormDialog
+        open={open}
+        title="Change password"
+        description="Choose a password you don't use anywhere else."
+        onClose={onClose}
+      >
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
           <PasswordField
-            id="new-password"
-            label="New password"
-            value={form.newPassword}
-            onChange={update("newPassword")}
-            error={errors.newPassword}
-            autoComplete="new-password"
-            inputRef={newRef}
-            describedBy="password-rules"
+            id="current-password"
+            label="Current password"
+            value={form.currentPassword}
+            onChange={update("currentPassword")}
+            error={errors.currentPassword}
+            autoComplete="current-password"
+            inputRef={currentRef}
           />
 
-          {/* Segments are backed by the same rule list the validator uses, so the
-              meter can never claim a password is stronger than it validates. */}
-          <div aria-hidden="true" className="mt-3 flex items-center gap-3">
-            <div className="flex flex-1 gap-1.5">
-              {PASSWORD_RULES.map((rule, index) => (
-                <span
-                  key={rule.id}
-                  className={`h-1 flex-1 rounded-full transition-colors duration-200 motion-reduce:transition-none ${
-                    index < strength ? "bg-rd-fresh" : "bg-rd-hair-strong"
-                  }`}
-                />
-              ))}
+          <div>
+            <PasswordField
+              id="new-password"
+              label="New password"
+              value={form.newPassword}
+              onChange={update("newPassword")}
+              error={errors.newPassword}
+              autoComplete="new-password"
+              inputRef={newRef}
+              describedBy="password-rules"
+            />
+
+            {/* Segments are backed by the same rule list the validator uses, so the
+                meter can never claim a password is stronger than it validates. */}
+            <div aria-hidden="true" className="mt-3 flex items-center gap-3">
+              <div className="flex flex-1 gap-1.5">
+                {PASSWORD_RULES.map((rule, index) => (
+                  <span
+                    key={rule.id}
+                    className={`h-1 flex-1 rounded-full transition-colors duration-200 motion-reduce:transition-none ${
+                      index < strength ? "bg-rd-fresh" : "bg-rd-hair-strong"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span
+                className={`w-12 flex-none text-right text-xs font-semibold ${
+                  strength === PASSWORD_RULES.length ? "text-rd-fresh" : "text-rd-muted"
+                }`}
+              >
+                {strengthLabel(strength, form.newPassword)}
+              </span>
             </div>
-            <span
-              className={`w-12 flex-none text-right text-xs font-semibold ${
-                strength === PASSWORD_RULES.length ? "text-rd-fresh" : "text-rd-muted"
-              }`}
-            >
-              {strengthLabel(strength, form.newPassword)}
-            </span>
+
+            <ul id="password-rules" className="mt-3 grid gap-1.5 sm:grid-cols-2">
+              {PASSWORD_RULES.map((rule) => {
+                const ok = rule.test(form.newPassword);
+                return (
+                  <li
+                    key={rule.id}
+                    className={`flex items-center gap-2 text-xs transition-colors duration-200 motion-reduce:transition-none ${
+                      ok ? "text-rd-fresh" : "text-rd-muted"
+                    }`}
+                  >
+                    {ok ? <CheckIcon size={14} /> : <DotIcon size={14} />}
+                    <span>{rule.label}</span>
+                    <span className="sr-only">{ok ? "requirement met" : "requirement not met"}</span>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
 
-          <ul id="password-rules" className="mt-3 grid gap-1.5 sm:grid-cols-2">
-            {PASSWORD_RULES.map((rule) => {
-              const ok = rule.test(form.newPassword);
-              return (
-                <li
-                  key={rule.id}
-                  className={`flex items-center gap-2 text-xs transition-colors duration-200 motion-reduce:transition-none ${
-                    ok ? "text-rd-fresh" : "text-rd-muted"
-                  }`}
-                >
-                  {ok ? <CheckIcon size={14} /> : <DotIcon size={14} />}
-                  <span>{rule.label}</span>
-                  <span className="sr-only">{ok ? "requirement met" : "requirement not met"}</span>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+          <PasswordField
+            id="confirm-password"
+            label="Confirm new password"
+            value={form.confirmPassword}
+            onChange={update("confirmPassword")}
+            error={errors.confirmPassword}
+            autoComplete="new-password"
+            inputRef={confirmRef}
+          />
 
-        <PasswordField
-          id="confirm-password"
-          label="Confirm new password"
-          value={form.confirmPassword}
-          onChange={update("confirmPassword")}
-          error={errors.confirmPassword}
-          autoComplete="new-password"
-          inputRef={confirmRef}
-        />
+          <StatusNote status={status} />
 
-        <StatusNote status={status} />
+          <DialogActions onCancel={onClose} submitLabel="Update password" />
+        </form>
+      </FormDialog>
 
-        <DialogActions onCancel={onClose} submitLabel="Update password" />
-      </form>
-    </FormDialog>
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Change password?"
+        description="Your current password will be replaced, and you’ll need to use the new one the next time you sign in."
+        confirmLabel="Update password"
+        cancelLabel="Cancel"
+        tone="danger"
+        onConfirm={handleConfirm}
+        onCancel={() => setConfirmOpen(false)}
+      />
+    </>
   );
 }
 
@@ -576,7 +615,7 @@ export default function AccountMenu() {
   const isDark = theme === "dark";
 
   return (
-    <div ref={rootRef} className="relative">
+    <div ref={rootRef} className="relative z-10">
       {/* The panel is capped and scrollable so a short viewport can't push it off
           the top of the sidebar, and its edge is hair-strong rather than hair —
           in light mode the popover and the sidebar behind it are both white, and
@@ -584,7 +623,7 @@ export default function AccountMenu() {
       {open && (
         <div
           id={panelId}
-          className="rd-pop rd-scroll-thin absolute bottom-full left-0 right-0 z-20 mb-2 max-h-[calc(100dvh-11rem)] overflow-y-auto overscroll-contain rounded-2xl border border-rd-hair-strong bg-rd-popover p-2 shadow-[var(--rd-card-shadow)]"
+          className="rd-pop rd-scroll-thin absolute bottom-full left-0 right-0 z-[80] mb-2 max-h-[calc(100dvh-11rem)] overflow-y-auto overscroll-contain rounded-2xl border border-rd-hair-strong bg-rd-popover p-2 shadow-[var(--rd-card-shadow)]"
         >
           {/* Identity reads as a card rather than another row, so the menu opens
               with a clear "this is you" block above the actions. */}

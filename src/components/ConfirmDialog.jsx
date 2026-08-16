@@ -81,7 +81,7 @@ export default function ConfirmDialog({
      viewport — so rendered in place, a dialog opened from the sidebar (which is
      backdrop-blurred and scrolls) would be trapped and clipped inside it. */
   return createPortal(
-    <div className="fixed inset-0 z-50 grid place-items-center p-5">
+    <div className="fixed inset-0 z-[90] grid place-items-center p-5">
       <div className="rd-scrim absolute inset-0 bg-black/50" onClick={onCancel} aria-hidden="true" />
 
       <div
