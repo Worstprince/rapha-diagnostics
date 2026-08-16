@@ -13,6 +13,7 @@ const ROLE_ROUTES = {
   Receptionist: "/dashboard/reception",
   "Medical Technologist": "/dashboard/medtech",
   Pathologist: "/dashboard/doctor",
+  Physician: "/dashboard/doctor",
 };
 
 const SKIN = "#f6dfd0";

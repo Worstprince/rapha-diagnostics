@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { NotebookPen as NotebookPenIcon } from "lucide-react";
 
 import AccountMenu from "@/components/AccountMenu";
+import { useCurrentUser } from "@/lib/session";
 import {
   ActivityIcon,
   CalendarCheckIcon,
@@ -211,12 +212,39 @@ function SectionNav({ sections, pathname, onNavigate }) {
   );
 }
 
+const normalizeRole = (value) => String(value ?? "").trim().toLowerCase();
+
+const ROLE_ACCESS = {
+  administrator: ["/dashboard/admin"],
+  receptionist: ["/dashboard/reception"],
+  "medical technologist": ["/dashboard/medtech"],
+  pathologist: ["/dashboard/doctor"],
+  physician: ["/dashboard/doctor"],
+  doctor: ["/dashboard/doctor"],
+};
+
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const user = useCurrentUser();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef(null);
   const closeButtonRef = useRef(null);
   const drawerRef = useRef(null);
+
+  useEffect(() => {
+    if (!user?.role || !pathname.startsWith("/dashboard") || pathname === "/dashboard/access-denied") return;
+
+    const roleKey = normalizeRole(user.role);
+    const allowedPaths = ROLE_ACCESS[roleKey] ?? [];
+    const isAllowed = allowedPaths.some(
+      (allowedPath) => pathname === allowedPath || pathname.startsWith(`${allowedPath}/`),
+    );
+
+    if (!isAllowed) {
+      router.replace("/dashboard/access-denied");
+    }
+  }, [user, pathname, router]);
 
   const sections = pathname.startsWith("/dashboard/admin") || pathname === "/dashboard"
     ? adminSections
