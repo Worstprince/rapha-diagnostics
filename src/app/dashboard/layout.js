@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { NotebookPen as NotebookPenIcon } from "lucide-react";
 
 import AccountMenu from "@/components/AccountMenu";
 import {
@@ -75,6 +76,11 @@ const doctorSections = [
         href: "/dashboard/doctor/visitation/history",
         label: "View Visitation History",
         Icon: CalendarCheckIcon,
+      },
+      {
+        href: "/dashboard/doctor/notes",
+        label: "Diagnostic Notes",
+        Icon: NotebookPenIcon,
       },
     ],
   },

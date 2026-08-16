@@ -20,6 +20,40 @@ function Field({ label, value }) {
 
 }
 
+export function LabSignatures({
+    doctorId,
+    doctorName,
+    medtechId,
+    medtechName,
+}) {
+    const doctorLabel = doctorName || (doctorId ? `Dr. ID ${doctorId}` : "Unassigned");
+    const medtechLabel = medtechName || (medtechId ? `MedTech ID ${medtechId}` : "Unassigned");
+
+    return (
+        <div className="grid grid-cols-2 gap-20 pt-10">
+
+            <div className="text-center">
+                <div className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-rd-muted">
+                    Pathologist
+                </div>
+                <div className="border-t border-current pt-2">
+                    {doctorLabel}
+                </div>
+            </div>
+
+            <div className="text-center">
+                <div className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-rd-muted">
+                    Medical Technologist
+                </div>
+                <div className="border-t border-current pt-2">
+                    {medtechLabel}
+                </div>
+            </div>
+
+        </div>
+    );
+}
+
 export default function LabReportHeader({ patient, title }) {
 
 

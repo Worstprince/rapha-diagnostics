@@ -198,12 +198,32 @@ export default function BillingDetailsPage() {
 
                     <div>
                         <p className="text-xs font-semibold uppercase tracking-wider text-rd-muted">
+                            Assigned Doctor
+                        </p>
+
+                        <p className="mt-1 font-medium text-rd-title">
+                            {visit.doctorName
+                                ? `Dr. ${visit.doctorName}`
+                                : "Unassigned"}
+                        </p>
+                    </div>
+
+
+                    <div>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-rd-muted">
                             Referring Doctor
                         </p>
 
                         <p className="mt-1 font-medium text-rd-title">
-                            {visit.referringDoctor || "Walk-in / none"}
+                            {visit.referringDoctorName ||
+                                "Walk-in / none"}
                         </p>
+
+                        {visit.referringDoctorClinic && (
+                            <p className="mt-1 text-sm text-rd-muted">
+                                {visit.referringDoctorClinic}
+                            </p>
+                        )}
                     </div>
 
                 </div>
