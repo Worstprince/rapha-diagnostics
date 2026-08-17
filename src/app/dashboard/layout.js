@@ -90,6 +90,14 @@ const doctorSections = [
 const medtechSections = [
   { label: "General", links: [overviewLink(ROLE_HOMES.medtech)] },
   {
+    label: "Patient List",
+    links: [
+      { href: "/dashboard/medtech/patients", label: "View Patients", Icon: UsersIcon },
+      { href: "/dashboard/medtech/visitation", label: "View Visitations", Icon: CalendarCheckIcon },
+      { href: "/dashboard/medtech/visitation/history", label: "View Visitation History", Icon: CalendarCheckIcon },
+    ],
+  },
+  {
     label: "Laboratory",
     links: [
       { href: "/dashboard/medtech/assignments", label: "Assignments", Icon: ClipboardIcon },
@@ -368,3 +376,4 @@ export default function DashboardLayout({ children }) {
     </div>
   );
 }
+
