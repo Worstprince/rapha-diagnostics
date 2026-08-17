@@ -58,63 +58,65 @@ export default function PregnancyTestForm({
                 PREGNANCY TEST
             </h2>
 
-            <table className="w-full border border-collapse text-center">
+            <div className="overflow-x-auto">
+                <table className="w-full border border-rd-hair-strong border-collapse text-center">
 
-                <thead>
+                    <thead>
 
-                    <tr>
+                        <tr>
 
-                        <th className="border p-3">
-                            Test
-                        </th>
+                            <th className="border border-rd-hair-strong p-3">
+                                Test
+                            </th>
 
-                        <th className="border p-3">
-                            Result
-                        </th>
+                            <th className="border border-rd-hair-strong p-3">
+                                Result
+                            </th>
 
-                    </tr>
+                        </tr>
 
-                </thead>
+                    </thead>
 
-                <tbody>
+                    <tbody>
 
-                    <tr>
+                        <tr>
 
-                        <td className="border p-6 font-bold">
-                            PT(HCG) SERUM
-                        </td>
+                            <td className="border border-rd-hair-strong p-6 font-bold">
+                                PT(HCG) SERUM
+                            </td>
 
-                        <td className="border p-6">
+                            <td className="border border-rd-hair-strong p-6">
 
-                            <select
-                                name="pregnancyResult"
-                                value={result.pregnancyResult}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded border bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
-                            >
+                                <select
+                                    name="pregnancyResult"
+                                    value={result.pregnancyResult}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    className="w-full rounded border border-rd-hair-strong bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
+                                >
 
-                                <option value="">
-                                    Select
-                                </option>
+                                    <option value="">
+                                        Select
+                                    </option>
 
-                                <option value="POSITIVE">
-                                    POSITIVE
-                                </option>
+                                    <option value="POSITIVE">
+                                        POSITIVE
+                                    </option>
 
-                                <option value="NEGATIVE">
-                                    NEGATIVE
-                                </option>
+                                    <option value="NEGATIVE">
+                                        NEGATIVE
+                                    </option>
 
-                            </select>
+                                </select>
 
-                        </td>
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                </tbody>
+                    </tbody>
 
-            </table>
+                </table>
+            </div>
 
             <LabSignatures
                 doctorId={doctorId}

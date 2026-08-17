@@ -70,63 +70,65 @@ export default function HepatitisForm({
                 HEPATITIS
             </h2>
 
-            <table className="mx-auto w-[460px] border-collapse border text-center">
+            <div className="overflow-x-auto">
+                <table className="mx-auto w-[460px] border-collapse border border-rd-hair-strong text-center">
 
-                <thead>
+                    <thead>
 
-                    <tr>
+                        <tr>
 
-                        <th className="border p-4">
-                            TEST
-                        </th>
+                            <th className="border border-rd-hair-strong p-4">
+                                TEST
+                            </th>
 
-                        <th className="border p-4">
-                            RESULT
-                        </th>
+                            <th className="border border-rd-hair-strong p-4">
+                                RESULT
+                            </th>
 
-                    </tr>
+                        </tr>
 
-                </thead>
+                    </thead>
 
-                <tbody>
+                    <tbody>
 
-                    <tr>
+                        <tr>
 
-                        <td className="border p-8 text-2xl font-bold">
-                            HBSAg
-                        </td>
+                            <td className="border border-rd-hair-strong p-8 text-2xl font-bold">
+                                HBSAg
+                            </td>
 
-                        <td className="border p-8">
+                            <td className="border border-rd-hair-strong p-8">
 
-                            <select
-                                name="hbsag"
-                                value={result.hbsag}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
-                            >
+                                <select
+                                    name="hbsag"
+                                    value={result.hbsag}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
+                                >
 
-                                <option value="">
-                                    Select
-                                </option>
+                                    <option value="">
+                                        Select
+                                    </option>
 
-                                <option value="REACTIVE">
-                                    REACTIVE
-                                </option>
+                                    <option value="REACTIVE">
+                                        REACTIVE
+                                    </option>
 
-                                <option value="NON REACTIVE">
-                                    NON REACTIVE
-                                </option>
+                                    <option value="NON REACTIVE">
+                                        NON REACTIVE
+                                    </option>
 
-                            </select>
+                                </select>
 
-                        </td>
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                </tbody>
+                    </tbody>
 
-            </table>
+                </table>
+            </div>
 
             <LabSignatures
                 doctorId={doctorId}

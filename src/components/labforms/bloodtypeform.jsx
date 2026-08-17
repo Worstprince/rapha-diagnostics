@@ -55,105 +55,107 @@ export default function BloodTypeForm({
                 title="HEMATOLOGY"
             />
 
-            <table className="w-full border border-collapse text-center">
+            <div className="overflow-x-auto">
+                <table className="w-full border border-rd-hair-strong border-collapse text-center">
 
-                <thead>
+                    <thead>
 
-                    <tr>
+                        <tr>
 
-                        <th className="border p-3">
-                            Blood Grouping
-                        </th>
+                            <th className="border border-rd-hair-strong p-3">
+                                Blood Grouping
+                            </th>
 
-                        <th className="border p-3">
-                            Result
-                        </th>
+                            <th className="border border-rd-hair-strong p-3">
+                                Result
+                            </th>
 
-                    </tr>
+                        </tr>
 
-                </thead>
+                    </thead>
 
-                <tbody>
+                    <tbody>
 
-                    <tr>
+                        <tr>
 
-                        <td className="border p-4">
-                            Blood Type
-                        </td>
+                            <td className="border border-rd-hair-strong p-4">
+                                Blood Type
+                            </td>
 
-                        <td className="border p-4">
+                            <td className="border border-rd-hair-strong p-4">
 
-                            <select
-                                name="bloodType"
-                                value={result.bloodType}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded border bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
-                            >
+                                <select
+                                    name="bloodType"
+                                    value={result.bloodType}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    className="w-full rounded border border-rd-hair-strong bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
+                                >
 
-                                <option value="">
-                                    Select
-                                </option>
+                                    <option value="">
+                                        Select
+                                    </option>
 
-                                <option value="A">
-                                    A
-                                </option>
+                                    <option value="A">
+                                        A
+                                    </option>
 
-                                <option value="B">
-                                    B
-                                </option>
+                                    <option value="B">
+                                        B
+                                    </option>
 
-                                <option value="AB">
-                                    AB
-                                </option>
+                                    <option value="AB">
+                                        AB
+                                    </option>
 
-                                <option value="O">
-                                    O
-                                </option>
+                                    <option value="O">
+                                        O
+                                    </option>
 
-                            </select>
+                                </select>
 
-                        </td>
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                    <tr>
+                        <tr>
 
-                        <td className="border p-4">
-                            RH Factor
-                        </td>
+                            <td className="border border-rd-hair-strong p-4">
+                                RH Factor
+                            </td>
 
-                        <td className="border p-4">
+                            <td className="border border-rd-hair-strong p-4">
 
-                            <select
-                                name="rhFactor"
-                                value={result.rhFactor}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded border bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
-                            >
+                                <select
+                                    name="rhFactor"
+                                    value={result.rhFactor}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    className="w-full rounded border border-rd-hair-strong bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
+                                >
 
-                                <option value="">
-                                    Select
-                                </option>
+                                    <option value="">
+                                        Select
+                                    </option>
 
-                                <option value="Positive">
-                                    Positive
-                                </option>
+                                    <option value="Positive">
+                                        Positive
+                                    </option>
 
-                                <option value="Negative">
-                                    Negative
-                                </option>
+                                    <option value="Negative">
+                                        Negative
+                                    </option>
 
-                            </select>
+                                </select>
 
-                        </td>
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                </tbody>
+                    </tbody>
 
-            </table>
+                </table>
+            </div>
 
             <LabSignatures
                 doctorId={doctorId}

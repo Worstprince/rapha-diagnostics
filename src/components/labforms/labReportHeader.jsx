@@ -20,6 +20,24 @@ function Field({ label, value }) {
 
 }
 
+function SignatureBlock({ name, role }) {
+    return (
+        <div className="text-center">
+
+            <div aria-hidden="true" className="h-10" />
+
+            <div className="pb-1 font-semibold">
+                {name}
+            </div>
+
+            <div className="border-t border-current pt-2 text-xs font-semibold uppercase tracking-[0.2em] text-rd-muted">
+                {role}
+            </div>
+
+        </div>
+    );
+}
+
 export function LabSignatures({
     doctorId,
     doctorName,
@@ -32,23 +50,9 @@ export function LabSignatures({
     return (
         <div className="grid grid-cols-2 gap-20 pt-10">
 
-            <div className="text-center">
-                <div className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-rd-muted">
-                    Pathologist
-                </div>
-                <div className="border-t border-current pt-2">
-                    {doctorLabel}
-                </div>
-            </div>
+            <SignatureBlock name={doctorLabel} role="Pathologist" />
 
-            <div className="text-center">
-                <div className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-rd-muted">
-                    Medical Technologist
-                </div>
-                <div className="border-t border-current pt-2">
-                    {medtechLabel}
-                </div>
-            </div>
+            <SignatureBlock name={medtechLabel} role="Medical Technologist" />
 
         </div>
     );
@@ -90,7 +94,7 @@ export default function LabReportHeader({ patient, title }) {
 
             </div>
 
-            <div className="grid grid-cols-1 gap-x-10 gap-y-2.5 border p-4 text-sm sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-x-10 gap-y-2.5 border border-rd-hair-strong p-4 text-sm sm:grid-cols-2">
 
                 <Field label="Name" value={patient.name} />
 

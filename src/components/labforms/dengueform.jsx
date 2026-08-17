@@ -62,91 +62,93 @@ export default function DengueForm({
                 DENGUE DUO
             </h2>
 
-            <table className="mx-auto w-[360px] border-collapse border text-center">
+            <div className="overflow-x-auto">
+                <table className="mx-auto w-[360px] border-collapse border border-rd-hair-strong text-center">
 
-                <tbody>
+                    <tbody>
 
-                    <tr>
+                        <tr>
 
-                        <td className="border p-6 font-bold">
-                            NS1
-                        </td>
+                            <td className="border border-rd-hair-strong p-6 font-bold">
+                                NS1
+                            </td>
 
-                        <td className="border p-6">
+                            <td className="border border-rd-hair-strong p-6">
 
-                            <select
-                                name="ns1"
-                                value={result.ns1}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
-                            >
+                                <select
+                                    name="ns1"
+                                    value={result.ns1}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
+                                >
 
-                                <option value="">Select</option>
-                                <option value="POSITIVE">POSITIVE</option>
-                                <option value="NEGATIVE">NEGATIVE</option>
+                                    <option value="">Select</option>
+                                    <option value="POSITIVE">POSITIVE</option>
+                                    <option value="NEGATIVE">NEGATIVE</option>
 
-                            </select>
+                                </select>
 
-                        </td>
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                    <tr>
+                        <tr>
 
-                        <td className="border p-6 font-bold">
-                            IgG
-                        </td>
+                            <td className="border border-rd-hair-strong p-6 font-bold">
+                                IgG
+                            </td>
 
-                        <td className="border p-6">
+                            <td className="border border-rd-hair-strong p-6">
 
-                            <select
-                                name="igg"
-                                value={result.igg}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
-                            >
+                                <select
+                                    name="igg"
+                                    value={result.igg}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
+                                >
 
-                                <option value="">Select</option>
-                                <option value="POSITIVE">POSITIVE</option>
-                                <option value="NEGATIVE">NEGATIVE</option>
+                                    <option value="">Select</option>
+                                    <option value="POSITIVE">POSITIVE</option>
+                                    <option value="NEGATIVE">NEGATIVE</option>
 
-                            </select>
+                                </select>
 
-                        </td>
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                    <tr>
+                        <tr>
 
-                        <td className="border p-6 font-bold">
-                            IgM
-                        </td>
+                            <td className="border border-rd-hair-strong p-6 font-bold">
+                                IgM
+                            </td>
 
-                        <td className="border p-6">
+                            <td className="border border-rd-hair-strong p-6">
 
-                            <select
-                                name="igm"
-                                value={result.igm}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
-                            >
+                                <select
+                                    name="igm"
+                                    value={result.igm}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
+                                >
 
-                                <option value="">Select</option>
-                                <option value="POSITIVE">POSITIVE</option>
-                                <option value="NEGATIVE">NEGATIVE</option>
+                                    <option value="">Select</option>
+                                    <option value="POSITIVE">POSITIVE</option>
+                                    <option value="NEGATIVE">NEGATIVE</option>
 
-                            </select>
+                                </select>
 
-                        </td>
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                </tbody>
+                    </tbody>
 
-            </table>
+                </table>
+            </div>
 
             <LabSignatures
                 doctorId={doctorId}
