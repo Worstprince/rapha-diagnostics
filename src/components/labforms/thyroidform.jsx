@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { REFERENCE_RANGES } from "./referenceRanges";
 import LabReportHeader, { LabSignatures } from "./labReportHeader";
+import ResultField from "./ResultField";
+
+const RANGES = REFERENCE_RANGES.thyroid;
 
 export default function ThyroidPanelForm({
     patient,
@@ -70,83 +74,87 @@ export default function ThyroidPanelForm({
                 THYROID PANEL
             </h2>
 
-            <table className="mx-auto w-full max-w-3xl border-collapse border border-current text-center">
+            <div className="overflow-x-auto">
+                <table className="mx-auto w-full max-w-3xl border-collapse border border-rd-hair-strong text-center">
 
-                <thead>
+                    <thead>
 
-                    <tr>
+                        <tr>
 
-                        <th className="border border-current p-2">
-                            TEST
-                        </th>
+                            <th className="border border-rd-hair-strong p-2">
+                                TEST
+                            </th>
 
-                        <th className="border border-current p-2">
-                            Result
-                        </th>
+                            <th className="border border-rd-hair-strong p-2">
+                                Result
+                            </th>
 
-                        <th className="border border-current p-2">
-                            Normal Values
-                        </th>
+                            <th className="border border-rd-hair-strong p-2">
+                                Normal Values
+                            </th>
 
-                    </tr>
+                        </tr>
 
-                </thead>
+                    </thead>
 
-                <tbody>
+                    <tbody>
 
-                    <tr>
+                        <tr>
 
-                        <td className="border border-current p-2">
-                            TSH
-                        </td>
+                            <td className="border border-rd-hair-strong p-2">
+                                TSH
+                            </td>
 
-                        <td className="border border-current p-2">
+                            <td className="border border-rd-hair-strong p-2">
 
-                            <input
-                                type="text"
-                                name="tsh"
-                                value={result.tsh}
-                                onChange={handleChange}
-                                readOnly={readOnly}
-                                className="w-full rounded bg-rd-field p-2 text-center"
-                            />
+                                <ResultField
+                                    name="tsh"
+                                    value={result.tsh}
+                                    onChange={handleChange}
+                                    readOnly={readOnly}
+                                    range={RANGES.tsh}
+                                    sex={patient?.sex}
+                                    className="text-center"
+                                />
 
-                        </td>
+                            </td>
 
-                        <td className="border border-current p-2">
-                            0.27-4.20 uIU/mL
-                        </td>
+                            <td className="border border-rd-hair-strong p-2">
+                                0.27-4.20 uIU/mL
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                    <tr>
+                        <tr>
 
-                        <td className="border border-current p-2">
-                            FT4
-                        </td>
+                            <td className="border border-rd-hair-strong p-2">
+                                FT4
+                            </td>
 
-                        <td className="border border-current p-2">
+                            <td className="border border-rd-hair-strong p-2">
 
-                            <input
-                                type="text"
-                                name="ft4"
-                                value={result.ft4}
-                                onChange={handleChange}
-                                readOnly={readOnly}
-                                className="w-full rounded bg-rd-field p-2 text-center"
-                            />
+                                <ResultField
+                                    name="ft4"
+                                    value={result.ft4}
+                                    onChange={handleChange}
+                                    readOnly={readOnly}
+                                    range={RANGES.ft4}
+                                    sex={patient?.sex}
+                                    className="text-center"
+                                />
 
-                        </td>
+                            </td>
 
-                        <td className="border border-current p-2">
-                            12.00-22.00 pmol/L
-                        </td>
+                            <td className="border border-rd-hair-strong p-2">
+                                12.00-22.00 pmol/L
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                </tbody>
+                    </tbody>
 
-            </table>
+                </table>
+            </div>
 
             <LabSignatures
                 doctorId={doctorId}

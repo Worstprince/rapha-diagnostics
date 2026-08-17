@@ -68,50 +68,52 @@ export default function SyphilisForm({
                 SYPHILIS
             </h2>
 
-            <table className="mx-auto w-full max-w-xl border-collapse border border-current text-center">
+            <div className="overflow-x-auto">
+                <table className="mx-auto w-full max-w-xl border-collapse border border-rd-hair-strong text-center">
 
-                <thead>
+                    <thead>
 
-                    <tr>
+                        <tr>
 
-                        <th className="border border-current p-2">
-                            TEST
-                        </th>
+                            <th className="border border-rd-hair-strong p-2">
+                                TEST
+                            </th>
 
-                        <th className="border border-current p-2">
-                            RESULT
-                        </th>
+                            <th className="border border-rd-hair-strong p-2">
+                                RESULT
+                            </th>
 
-                    </tr>
+                        </tr>
 
-                </thead>
+                    </thead>
 
-                <tbody>
+                    <tbody>
 
-                    <tr>
+                        <tr>
 
-                        <td className="border border-current p-4 font-bold">
-                            VDRL
-                        </td>
+                            <td className="border border-rd-hair-strong p-4 font-bold">
+                                VDRL
+                            </td>
 
-                        <td className="border border-current p-4">
+                            <td className="border border-rd-hair-strong p-4">
 
-                            <input
-                                type="text"
-                                name="vdrl"
-                                value={result.vdrl}
-                                onChange={handleChange}
-                                readOnly={readOnly}
-                                className="w-full rounded bg-rd-field p-2 text-center"
-                            />
+                                <input
+                                    type="text"
+                                    name="vdrl"
+                                    value={result.vdrl}
+                                    onChange={handleChange}
+                                    readOnly={readOnly}
+                                    className="w-full rounded bg-rd-field p-2 text-center"
+                                />
 
-                        </td>
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                </tbody>
+                    </tbody>
 
-            </table>
+                </table>
+            </div>
 
             <LabSignatures
                 doctorId={doctorId}

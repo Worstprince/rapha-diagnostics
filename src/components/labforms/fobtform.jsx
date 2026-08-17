@@ -58,63 +58,65 @@ export default function FOBTForm({
                 FECAL OCCULT BLOOD TEST
             </h2>
 
-            <table className="mx-auto w-[500px] border-collapse border text-center">
+            <div className="overflow-x-auto">
+                <table className="mx-auto w-[500px] border-collapse border border-rd-hair-strong text-center">
 
-                <thead>
+                    <thead>
 
-                    <tr>
+                        <tr>
 
-                        <th className="border p-4">
-                            TEST
-                        </th>
+                            <th className="border border-rd-hair-strong p-4">
+                                TEST
+                            </th>
 
-                        <th className="border p-4">
-                            RESULT
-                        </th>
+                            <th className="border border-rd-hair-strong p-4">
+                                RESULT
+                            </th>
 
-                    </tr>
+                        </tr>
 
-                </thead>
+                    </thead>
 
-                <tbody>
+                    <tbody>
 
-                    <tr>
+                        <tr>
 
-                        <td className="border p-8 font-bold">
-                            FOBT
-                        </td>
+                            <td className="border border-rd-hair-strong p-8 font-bold">
+                                FOBT
+                            </td>
 
-                        <td className="border p-8">
+                            <td className="border border-rd-hair-strong p-8">
 
-                            <select
-                                name="fobt"
-                                value={result.fobt}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
-                            >
+                                <select
+                                    name="fobt"
+                                    value={result.fobt}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
+                                >
 
-                                <option value="">
-                                    Select
-                                </option>
+                                    <option value="">
+                                        Select
+                                    </option>
 
-                                <option value="POSITIVE">
-                                    POSITIVE
-                                </option>
+                                    <option value="POSITIVE">
+                                        POSITIVE
+                                    </option>
 
-                                <option value="NEGATIVE">
-                                    NEGATIVE
-                                </option>
+                                    <option value="NEGATIVE">
+                                        NEGATIVE
+                                    </option>
 
-                            </select>
+                                </select>
 
-                        </td>
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                </tbody>
+                    </tbody>
 
-            </table>
+                </table>
+            </div>
 
 <LabSignatures
                 doctorId={doctorId}

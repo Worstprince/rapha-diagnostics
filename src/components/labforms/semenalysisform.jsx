@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { REFERENCE_RANGES } from "./referenceRanges";
 import LabReportHeader, { LabSignatures } from "./labReportHeader";
+import ResultField from "./ResultField";
+
+const RANGES = REFERENCE_RANGES.semenalysis;
 
 export default function SemenAnalysisForm({
     patient,
@@ -69,457 +73,462 @@ export default function SemenAnalysisForm({
                 title="SEMEN ANALYSIS"
             />
 
-            <table className="w-full border-collapse border border-current text-center">
+            <div className="overflow-x-auto">
+                <table className="w-full border-collapse border border-rd-hair-strong text-center">
 
-                <thead>
+                    <thead>
 
-                    <tr>
+                        <tr>
 
-                        <th
-                            colSpan="3"
-                            className="border border-current p-2 text-lg"
-                        >
-                            MACROSCOPIC
-                        </th>
+                            <th
+                                colSpan="3"
+                                className="border border-rd-hair-strong p-2 text-lg"
+                            >
+                                MACROSCOPIC
+                            </th>
 
-                        <th
-                            colSpan="2"
-                            className="border border-current p-2 text-lg"
-                        >
-                            MICROSCOPIC
-                        </th>
+                            <th
+                                colSpan="2"
+                                className="border border-rd-hair-strong p-2 text-lg"
+                            >
+                                MICROSCOPIC
+                            </th>
 
-                    </tr>
+                        </tr>
 
-                    <tr>
+                        <tr>
 
-                        <th className="border border-current p-2">
-                            Examination
-                        </th>
+                            <th className="border border-rd-hair-strong p-2">
+                                Examination
+                            </th>
 
-                        <th className="border border-current p-2">
-                            Result
-                        </th>
+                            <th className="border border-rd-hair-strong p-2">
+                                Result
+                            </th>
 
-                        <th className="border border-current p-2">
-                            NORMAL VALUE
-                        </th>
+                            <th className="border border-rd-hair-strong p-2">
+                                NORMAL VALUE
+                            </th>
 
-                        <th className="border border-current p-2">
-                            Examination
-                        </th>
+                            <th className="border border-rd-hair-strong p-2">
+                                Examination
+                            </th>
 
-                        <th className="border border-current p-2">
-                            Result
-                        </th>
+                            <th className="border border-rd-hair-strong p-2">
+                                Result
+                            </th>
 
-                    </tr>
+                        </tr>
 
-                </thead>
+                    </thead>
 
-                <tbody>
+                    <tbody>
 
-                    <tr>
+                        <tr>
 
-                        <td className="border border-current p-2 text-left">
-                            APPEARANCE
-                        </td>
+                            <td className="border border-rd-hair-strong p-2 text-left">
+                                APPEARANCE
+                            </td>
 
-                        <td className="border border-current p-2">
-
-                            <input
-                                type="text"
-                                name="appearance"
-                                value={result.appearance}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
-
-                        </td>
-
-                        <td className="border border-current p-2">
-                        </td>
-
-                        <td className="border border-current p-2 text-left">
-                            MORPHOLOGY
-                        </td>
-
-                        <td className="border border-current p-2">
-
-                            <input
-                                type="text"
-                                name="morphology"
-                                value={result.morphology}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
-
-                        </td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td className="border border-current p-2 text-left">
-                            VOLUME
-                        </td>
-
-                        <td className="border border-current p-2">
-
-                            <input
-                                type="text"
-                                name="volume"
-                                value={result.volume}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
-
-                        </td>
-
-                        <td className="border border-current p-2">
-                            2-5mL
-                        </td>
-
-                        <td className="border border-current p-2 text-left">
-                            MOTILITY
-                        </td>
-
-                        <td className="border border-current p-2">
-
-                            <input
-                                type="text"
-                                name="motility"
-                                value={result.motility}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
-
-                        </td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td className="border border-current p-2 text-left">
-                            pH
-                        </td>
-
-                        <td className="border border-current p-2">
-
-                            <input
-                                type="text"
-                                name="ph"
-                                value={result.ph}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
-
-                        </td>
-
-                        <td className="border border-current p-2">
-                            7.2-8.0
-                        </td>
-
-                        <td className="border border-current p-2 text-left">
-                            WBC
-                        </td>
-
-                        <td className="border border-current p-2">
-
-                            <input
-                                type="text"
-                                name="wbc"
-                                value={result.wbc}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
-
-                        </td>
-
-                    </tr>
-                    {/* VISCOSITY / RBC */}
-
-                    <tr>
-
-                        <td className="border border-current p-2 text-left">
-                            VISCOSITY
-                        </td>
-
-                        <td className="border border-current p-2">
-
-                            <input
-                                type="text"
-                                name="viscosity"
-                                value={result.viscosity}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
-
-                        </td>
-
-                        <td className="border border-current p-2">
-                            1-4
-                        </td>
-
-                        <td className="border border-current p-2 text-left">
-                            RBC
-                        </td>
-
-                        <td className="border border-current p-2">
-
-                            <input
-                                type="text"
-                                name="rbc"
-                                value={result.rbc}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
-
-                        </td>
-
-                    </tr>
-
-                    {/* OTHERS / MOTILITY + VIABILITY */}
-
-                    <tr>
-
-                        <td
-                            rowSpan="4"
-                            className="border border-current p-2 text-left align-top"
-                        >
-                            OTHERS:
-                        </td>
-
-                        <td
-                            rowSpan="4"
-                            colSpan="2"
-                            className="border border-current p-2 align-top"
-                        >
-
-                            <textarea
-                                name="others"
-                                value={result.others}
-                                onChange={handleChange}
-                                rows="7"
-                                disabled={readOnly}
-                                className="w-full resize-none rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
-
-                        </td>
-
-                        <td className="border border-current p-2 font-bold">
-                            MOTILITY
-                        </td>
-
-                        <td className="border border-current p-2 font-bold">
-                            VIABILITY
-                        </td>
-
-                    </tr>
-
-                    {/* 30 MINUTES */}
-
-                    <tr>
-
-                        <td className="border border-current p-2">
-
-                            <div className="flex items-center gap-2">
-
-                                <span>30mins</span>
+                            <td className="border border-rd-hair-strong p-2">
 
                                 <input
                                     type="text"
-                                    name="motility30min"
-                                    value={result.motility30min}
+                                    name="appearance"
+                                    value={result.appearance}
                                     onChange={handleChange}
                                     disabled={readOnly}
                                     className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                                 />
 
-                            </div>
+                            </td>
 
-                        </td>
+                            <td className="border border-rd-hair-strong p-2">
+                                Grayish-white
+                            </td>
 
-                        <td className="border border-current p-2">
+                            <td className="border border-rd-hair-strong p-2 text-left">
+                                MORPHOLOGY
+                            </td>
 
-                            <div className="flex items-center gap-2">
-
-                                <span>30mins</span>
+                            <td className="border border-rd-hair-strong p-2">
 
                                 <input
                                     type="text"
-                                    name="viability30min"
-                                    value={result.viability30min}
+                                    name="morphology"
+                                    value={result.morphology}
                                     onChange={handleChange}
                                     disabled={readOnly}
                                     className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                                 />
 
-                            </div>
+                            </td>
 
-                        </td>
+                        </tr>
 
-                    </tr>
+                        <tr>
 
-                    {/* 1 HOUR */}
+                            <td className="border border-rd-hair-strong p-2 text-left">
+                                VOLUME
+                            </td>
 
-                    <tr>
+                            <td className="border border-rd-hair-strong p-2">
 
-                        <td className="border border-current p-2">
+                                <ResultField
+                                    name="volume"
+                                    value={result.volume}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    range={RANGES.volume}
+                                    sex={patient?.sex}
+                                />
 
-                            <div className="flex items-center gap-2">
+                            </td>
 
-                                <span>1Hour</span>
+                            <td className="border border-rd-hair-strong p-2">
+                                2-5mL
+                            </td>
+
+                            <td className="border border-rd-hair-strong p-2 text-left">
+                                MOTILITY
+                            </td>
+
+                            <td className="border border-rd-hair-strong p-2">
 
                                 <input
                                     type="text"
-                                    name="motility1hr"
-                                    value={result.motility1hr}
+                                    name="motility"
+                                    value={result.motility}
                                     onChange={handleChange}
                                     disabled={readOnly}
                                     className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                                 />
 
-                            </div>
+                            </td>
 
-                        </td>
+                        </tr>
 
-                        <td className="border border-current p-2">
+                        <tr>
 
-                            <div className="flex items-center gap-2">
+                            <td className="border border-rd-hair-strong p-2 text-left">
+                                pH
+                            </td>
 
-                                <span>1Hour</span>
+                            <td className="border border-rd-hair-strong p-2">
+
+                                <ResultField
+                                    name="ph"
+                                    value={result.ph}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    range={RANGES.ph}
+                                    sex={patient?.sex}
+                                />
+
+                            </td>
+
+                            <td className="border border-rd-hair-strong p-2">
+                                7.2-8.0
+                            </td>
+
+                            <td className="border border-rd-hair-strong p-2 text-left">
+                                WBC
+                            </td>
+
+                            <td className="border border-rd-hair-strong p-2">
 
                                 <input
                                     type="text"
-                                    name="viability1hr"
-                                    value={result.viability1hr}
+                                    name="wbc"
+                                    value={result.wbc}
                                     onChange={handleChange}
                                     disabled={readOnly}
                                     className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                                 />
 
-                            </div>
+                            </td>
 
-                        </td>
+                        </tr>
+                        {/* VISCOSITY / RBC */}
 
-                    </tr>
+                        <tr>
 
-                    {/* 2 HOURS */}
+                            <td className="border border-rd-hair-strong p-2 text-left">
+                                VISCOSITY
+                            </td>
 
-                    <tr>
+                            <td className="border border-rd-hair-strong p-2">
 
-                        <td className="border border-current p-2">
+                                <ResultField
+                                    name="viscosity"
+                                    value={result.viscosity}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    range={RANGES.viscosity}
+                                    sex={patient?.sex}
+                                />
 
-                            <div className="flex items-center gap-2">
+                            </td>
 
-                                <span>2hours</span>
+                            <td className="border border-rd-hair-strong p-2">
+                                1-4
+                            </td>
+
+                            <td className="border border-rd-hair-strong p-2 text-left">
+                                RBC
+                            </td>
+
+                            <td className="border border-rd-hair-strong p-2">
 
                                 <input
                                     type="text"
-                                    name="motility2hr"
-                                    value={result.motility2hr}
+                                    name="rbc"
+                                    value={result.rbc}
                                     onChange={handleChange}
                                     disabled={readOnly}
                                     className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                                 />
 
-                            </div>
+                            </td>
 
-                        </td>
+                        </tr>
 
-                        <td className="border border-current p-2">
+                        {/* OTHERS / MOTILITY + VIABILITY */}
 
-                            <div className="flex items-center gap-2">
+                        <tr>
 
-                                <span>2hours</span>
+                            <td
+                                rowSpan="4"
+                                className="border border-rd-hair-strong p-2 text-left align-top"
+                            >
+                                OTHERS:
+                            </td>
 
-                                <input
-                                    type="text"
-                                    name="viability2hr"
-                                    value={result.viability2hr}
+                            <td
+                                rowSpan="4"
+                                colSpan="2"
+                                className="border border-rd-hair-strong p-2 align-top"
+                            >
+
+                                <textarea
+                                    name="others"
+                                    value={result.others}
                                     onChange={handleChange}
+                                    rows="7"
                                     disabled={readOnly}
-                                    className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
+                                    className="w-full resize-none rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
                                 />
 
-                            </div>
+                            </td>
 
-                        </td>
+                            <td className="border border-rd-hair-strong p-2 font-bold">
+                                MOTILITY
+                            </td>
 
-                    </tr>
+                            <td className="border border-rd-hair-strong p-2 font-bold">
+                                VIABILITY
+                            </td>
 
-                </tbody>
+                        </tr>
 
-            </table>
+                        {/* 30 MINUTES */}
+
+                        <tr>
+
+                            <td className="border border-rd-hair-strong p-2">
+
+                                <div className="flex items-center gap-2">
+
+                                    <span>30mins</span>
+
+                                    <input
+                                        type="text"
+                                        name="motility30min"
+                                        value={result.motility30min}
+                                        onChange={handleChange}
+                                        disabled={readOnly}
+                                        className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
+                                    />
+
+                                </div>
+
+                            </td>
+
+                            <td className="border border-rd-hair-strong p-2">
+
+                                <div className="flex items-center gap-2">
+
+                                    <span>30mins</span>
+
+                                    <input
+                                        type="text"
+                                        name="viability30min"
+                                        value={result.viability30min}
+                                        onChange={handleChange}
+                                        disabled={readOnly}
+                                        className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
+                                    />
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                        {/* 1 HOUR */}
+
+                        <tr>
+
+                            <td className="border border-rd-hair-strong p-2">
+
+                                <div className="flex items-center gap-2">
+
+                                    <span>1Hour</span>
+
+                                    <input
+                                        type="text"
+                                        name="motility1hr"
+                                        value={result.motility1hr}
+                                        onChange={handleChange}
+                                        disabled={readOnly}
+                                        className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
+                                    />
+
+                                </div>
+
+                            </td>
+
+                            <td className="border border-rd-hair-strong p-2">
+
+                                <div className="flex items-center gap-2">
+
+                                    <span>1Hour</span>
+
+                                    <input
+                                        type="text"
+                                        name="viability1hr"
+                                        value={result.viability1hr}
+                                        onChange={handleChange}
+                                        disabled={readOnly}
+                                        className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
+                                    />
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                        {/* 2 HOURS */}
+
+                        <tr>
+
+                            <td className="border border-rd-hair-strong p-2">
+
+                                <div className="flex items-center gap-2">
+
+                                    <span>2hours</span>
+
+                                    <input
+                                        type="text"
+                                        name="motility2hr"
+                                        value={result.motility2hr}
+                                        onChange={handleChange}
+                                        disabled={readOnly}
+                                        className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
+                                    />
+
+                                </div>
+
+                            </td>
+
+                            <td className="border border-rd-hair-strong p-2">
+
+                                <div className="flex items-center gap-2">
+
+                                    <span>2hours</span>
+
+                                    <input
+                                        type="text"
+                                        name="viability2hr"
+                                        value={result.viability2hr}
+                                        onChange={handleChange}
+                                        disabled={readOnly}
+                                        className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
+                                    />
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+            </div>
 
             {/* SPERM CONCENTRATION / COUNT */}
 
-            <table className="w-full border-collapse border border-current text-center">
+            <div className="overflow-x-auto">
+                <table className="w-full border-collapse border border-rd-hair-strong text-center">
 
-                <tbody>
+                    <tbody>
 
-                    <tr>
+                        <tr>
 
-                        <td className="border border-current p-2 text-left">
-                            SPERM CONCENTRATION/mL
-                        </td>
+                            <td className="border border-rd-hair-strong p-2 text-left">
+                                SPERM CONCENTRATION/mL
+                            </td>
 
-                        <td className="border border-current p-2">
+                            <td className="border border-rd-hair-strong p-2">
 
-                            <input
-                                type="text"
-                                name="spermConcentration"
-                                value={result.spermConcentration}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
+                                <ResultField
+                                    name="spermConcentration"
+                                    value={result.spermConcentration}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    range={RANGES.spermConcentration}
+                                    sex={patient?.sex}
+                                />
 
-                        </td>
+                            </td>
 
-                        <td className="border border-current p-2">
-                            &gt;20million/mL
-                        </td>
+                            <td className="border border-rd-hair-strong p-2">
+                                &gt;20million/mL
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                    <tr>
+                        <tr>
 
-                        <td className="border border-current p-2 text-left">
-                            SPERM COUNT/EJACULATE
-                        </td>
+                            <td className="border border-rd-hair-strong p-2 text-left">
+                                SPERM COUNT/EJACULATE
+                            </td>
 
-                        <td className="border border-current p-2">
+                            <td className="border border-rd-hair-strong p-2">
 
-                            <input
-                                type="text"
-                                name="spermCount"
-                                value={result.spermCount}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
+                                <ResultField
+                                    name="spermCount"
+                                    value={result.spermCount}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    range={RANGES.spermCount}
+                                    sex={patient?.sex}
+                                />
 
-                        </td>
+                            </td>
 
-                        <td className="border border-current p-2">
-                            &gt;40million/ejaculate
-                        </td>
+                            <td className="border border-rd-hair-strong p-2">
+                                &gt;40million/ejaculate
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                </tbody>
+                    </tbody>
 
-            </table>
+                </table>
+            </div>
 
             {/* SPERM MOTILITY GRADING */}
 

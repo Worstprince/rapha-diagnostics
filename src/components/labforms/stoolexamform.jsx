@@ -59,225 +59,227 @@ export default function StoolExamForm({
                 title="STOOL EXAM"
             />
 
-            <table className="w-full border-collapse border border-current text-center">
+            <div className="overflow-x-auto">
+                <table className="w-full border-collapse border border-rd-hair-strong text-center">
 
-                <tbody>
+                    <tbody>
 
-                    {/* COLOR / CONSISTENCY */}
+                        {/* COLOR / CONSISTENCY */}
 
-                    <tr>
+                        <tr>
 
-                        <td className="w-[15%] border border-current p-2 text-left">
-                            Color:
-                        </td>
+                            <td className="w-[15%] border border-rd-hair-strong p-2 text-left">
+                                Color:
+                            </td>
 
-                        <td className="w-[35%] border border-current p-2">
+                            <td className="w-[35%] border border-rd-hair-strong p-2">
 
-                            <input
-                                type="text"
-                                name="color"
-                                value={result.color}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 text-center disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
+                                <input
+                                    type="text"
+                                    name="color"
+                                    value={result.color}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-rd-field p-2 text-center disabled:cursor-not-allowed disabled:bg-rd-raised"
+                                />
 
-                        </td>
+                            </td>
 
-                        <td className="w-[15%] border border-current p-2 text-left">
-                            Consistency:
-                        </td>
+                            <td className="w-[15%] border border-rd-hair-strong p-2 text-left">
+                                Consistency:
+                            </td>
 
-                        <td className="w-[35%] border border-current p-2">
+                            <td className="w-[35%] border border-rd-hair-strong p-2">
 
-                            <input
-                                type="text"
-                                name="consistency"
-                                value={result.consistency}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 text-center disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
+                                <input
+                                    type="text"
+                                    name="consistency"
+                                    value={result.consistency}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-rd-field p-2 text-center disabled:cursor-not-allowed disabled:bg-rd-raised"
+                                />
 
-                        </td>
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                    {/* PARASITIC OVA / BACTERIA */}
+                        {/* PARASITIC OVA / BACTERIA */}
 
-                    <tr>
+                        <tr>
 
-                        <td className="border border-current p-2 text-left">
-                            Parasitic Ova:
-                        </td>
+                            <td className="border border-rd-hair-strong p-2 text-left">
+                                Parasitic Ova:
+                            </td>
 
-                        <td className="border border-current p-2">
+                            <td className="border border-rd-hair-strong p-2">
 
-                            <input
-                                type="text"
-                                name="parasiticOva"
-                                value={result.parasiticOva}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 text-center disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
+                                <input
+                                    type="text"
+                                    name="parasiticOva"
+                                    value={result.parasiticOva}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-rd-field p-2 text-center disabled:cursor-not-allowed disabled:bg-rd-raised"
+                                />
 
-                        </td>
+                            </td>
 
-                        <td className="border border-current p-2 text-left">
-                            Bacteria:
-                        </td>
+                            <td className="border border-rd-hair-strong p-2 text-left">
+                                Bacteria:
+                            </td>
 
-                        <td className="border border-current p-2">
+                            <td className="border border-rd-hair-strong p-2">
 
-                            <input
-                                type="text"
-                                name="bacteria"
-                                value={result.bacteria}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 text-center disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
+                                <input
+                                    type="text"
+                                    name="bacteria"
+                                    value={result.bacteria}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-rd-field p-2 text-center disabled:cursor-not-allowed disabled:bg-rd-raised"
+                                />
 
-                        </td>
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                    {/* PUSS CELLS / FAT GLOBULES */}
+                        {/* PUSS CELLS / FAT GLOBULES */}
 
-                    <tr>
+                        <tr>
 
-                        <td className="border border-current p-2 text-left">
-                            Puss Cells:
-                        </td>
+                            <td className="border border-rd-hair-strong p-2 text-left">
+                                Puss Cells:
+                            </td>
 
-                        <td className="border border-current p-2">
+                            <td className="border border-rd-hair-strong p-2">
 
-                            <input
-                                type="text"
-                                name="pussCells"
-                                value={result.pussCells}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
+                                <input
+                                    type="text"
+                                    name="pussCells"
+                                    value={result.pussCells}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
+                                />
 
-                        </td>
+                            </td>
 
-                        <td className="border border-current p-2 text-left">
-                            Fat Globules:
-                        </td>
+                            <td className="border border-rd-hair-strong p-2 text-left">
+                                Fat Globules:
+                            </td>
 
-                        <td className="border border-current p-2">
+                            <td className="border border-rd-hair-strong p-2">
 
-                            <input
-                                type="text"
-                                name="fatGlobules"
-                                value={result.fatGlobules}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
+                                <input
+                                    type="text"
+                                    name="fatGlobules"
+                                    value={result.fatGlobules}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
+                                />
 
-                        </td>
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                    {/* RBC / OTHERS */}
+                        {/* RBC / OTHERS */}
 
-                    <tr>
+                        <tr>
 
-                        <td className="border border-current p-2 text-left">
-                            Rbc:
-                        </td>
+                            <td className="border border-rd-hair-strong p-2 text-left">
+                                Rbc:
+                            </td>
 
-                        <td className="border border-current p-2">
+                            <td className="border border-rd-hair-strong p-2">
 
-                            <input
-                                type="text"
-                                name="rbc"
-                                value={result.rbc}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
+                                <input
+                                    type="text"
+                                    name="rbc"
+                                    value={result.rbc}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
+                                />
 
-                        </td>
+                            </td>
 
-                        <td
-                            rowSpan="3"
-                            className="border border-current p-2 text-left align-top"
-                        >
-                            Others:
-                        </td>
+                            <td
+                                rowSpan="3"
+                                className="border border-rd-hair-strong p-2 text-left align-top"
+                            >
+                                Others:
+                            </td>
 
-                        <td
-                            rowSpan="3"
-                            className="border border-current p-2 align-top"
-                        >
+                            <td
+                                rowSpan="3"
+                                className="border border-rd-hair-strong p-2 align-top"
+                            >
 
-                            <textarea
-                                name="others"
-                                value={result.others}
-                                onChange={handleChange}
-                                rows="6"
-                                disabled={readOnly}
-                                className="w-full resize-none rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
+                                <textarea
+                                    name="others"
+                                    value={result.others}
+                                    onChange={handleChange}
+                                    rows="6"
+                                    disabled={readOnly}
+                                    className="w-full resize-none rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
+                                />
 
-                        </td>
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                    {/* OCCULT BLOOD */}
+                        {/* OCCULT BLOOD */}
 
-                    <tr>
+                        <tr>
 
-                        <td className="border border-current p-2 text-left">
-                            Occult Blood:
-                        </td>
+                            <td className="border border-rd-hair-strong p-2 text-left">
+                                Occult Blood:
+                            </td>
 
-                        <td className="border border-current p-2">
+                            <td className="border border-rd-hair-strong p-2">
 
-                            <input
-                                type="text"
-                                name="occultBlood"
-                                value={result.occultBlood}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
+                                <input
+                                    type="text"
+                                    name="occultBlood"
+                                    value={result.occultBlood}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
+                                />
 
-                        </td>
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                    {/* FECALYSIS NO. */}
+                        {/* FECALYSIS NO. */}
 
-                    <tr>
+                        <tr>
 
-                        <td className="border border-current p-2 text-left">
-                            Fecalysis No.:
-                        </td>
+                            <td className="border border-rd-hair-strong p-2 text-left">
+                                Fecalysis No.:
+                            </td>
 
-                        <td className="border border-current p-2">
+                            <td className="border border-rd-hair-strong p-2">
 
-                            <input
-                                type="text"
-                                name="fecalysisNo"
-                                value={result.fecalysisNo}
-                                onChange={handleChange}
-                                disabled={readOnly}
-                                className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
-                            />
+                                <input
+                                    type="text"
+                                    name="fecalysisNo"
+                                    value={result.fecalysisNo}
+                                    onChange={handleChange}
+                                    disabled={readOnly}
+                                    className="w-full rounded bg-rd-field p-2 disabled:cursor-not-allowed disabled:bg-rd-raised"
+                                />
 
-                        </td>
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                </tbody>
+                    </tbody>
 
-            </table>
+                </table>
+            </div>
 
             <LabSignatures
                 doctorId={doctorId}

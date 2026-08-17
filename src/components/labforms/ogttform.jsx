@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { REFERENCE_RANGES } from "./referenceRanges";
 import LabReportHeader, { LabSignatures } from "./labReportHeader";
+import ResultField from "./ResultField";
+
+const RANGES = REFERENCE_RANGES.ogtt;
 
 export default function OGTTForm({
     patient,
@@ -60,105 +64,110 @@ export default function OGTTForm({
                 ORAL GLUCOSE TOLERANCE TEST
             </h2>
 
-            <table className="w-full border border-collapse text-center">
+            <div className="overflow-x-auto">
+                <table className="w-full border border-rd-hair-strong border-collapse text-center">
 
-                <thead>
+                    <thead>
 
-                    <tr>
+                        <tr>
 
-                        <th className="border p-3">
-                            Test
-                        </th>
+                            <th className="border border-rd-hair-strong p-3">
+                                Test
+                            </th>
 
-                        <th className="border p-3">
-                            Result
-                        </th>
+                            <th className="border border-rd-hair-strong p-3">
+                                Result
+                            </th>
 
-                        <th className="border p-3">
-                            Normal Values
-                        </th>
+                            <th className="border border-rd-hair-strong p-3">
+                                Normal Values
+                            </th>
 
-                    </tr>
+                        </tr>
 
-                </thead>
+                    </thead>
 
-                <tbody>
+                    <tbody>
 
-                    <tr>
+                        <tr>
 
-                        <td className="border p-3 font-semibold">
-                            FBS
-                        </td>
+                            <td className="border border-rd-hair-strong p-3 font-semibold">
+                                FBS
+                            </td>
 
-                        <td className="border p-3">
+                            <td className="border border-rd-hair-strong p-3">
 
-                            <input
-                                name="fbs"
-                                value={result.fbs}
-                                onChange={handleChange}
-                                readOnly={readOnly}
-                                className="w-full rounded bg-rd-field p-2"
-                            />
+                                <ResultField
+                                    name="fbs"
+                                    value={result.fbs}
+                                    onChange={handleChange}
+                                    readOnly={readOnly}
+                                    range={RANGES.fbs}
+                                    sex={patient?.sex}
+                                />
 
-                        </td>
+                            </td>
 
-                        <td className="border p-3">
-                            3.89 - 5.83 mmol/L
-                        </td>
+                            <td className="border border-rd-hair-strong p-3">
+                                3.89 - 5.83 mmol/L
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                    <tr>
+                        <tr>
 
-                        <td className="border p-3 font-semibold">
-                            1st Hour
-                        </td>
+                            <td className="border border-rd-hair-strong p-3 font-semibold">
+                                1st Hour
+                            </td>
 
-                        <td className="border p-3">
+                            <td className="border border-rd-hair-strong p-3">
 
-                            <input
-                                name="firstHour"
-                                value={result.firstHour}
-                                onChange={handleChange}
-                                readOnly={readOnly}
-                                className="w-full rounded bg-rd-field p-2"
-                            />
+                                <ResultField
+                                    name="firstHour"
+                                    value={result.firstHour}
+                                    onChange={handleChange}
+                                    readOnly={readOnly}
+                                    range={RANGES.firstHour}
+                                    sex={patient?.sex}
+                                />
 
-                        </td>
+                            </td>
 
-                        <td className="border p-3">
-                            Less than 11.1 mmol/L
-                        </td>
+                            <td className="border border-rd-hair-strong p-3">
+                                Less than 11.1 mmol/L
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                    <tr>
+                        <tr>
 
-                        <td className="border p-3 font-semibold">
-                            2nd Hour
-                        </td>
+                            <td className="border border-rd-hair-strong p-3 font-semibold">
+                                2nd Hour
+                            </td>
 
-                        <td className="border p-3">
+                            <td className="border border-rd-hair-strong p-3">
 
-                            <input
-                                name="secondHour"
-                                value={result.secondHour}
-                                onChange={handleChange}
-                                readOnly={readOnly}
-                                className="w-full rounded bg-rd-field p-2"
-                            />
+                                <ResultField
+                                    name="secondHour"
+                                    value={result.secondHour}
+                                    onChange={handleChange}
+                                    readOnly={readOnly}
+                                    range={RANGES.secondHour}
+                                    sex={patient?.sex}
+                                />
 
-                        </td>
+                            </td>
 
-                        <td className="border p-3">
-                            Less than 7.8 mmol/L
-                        </td>
+                            <td className="border border-rd-hair-strong p-3">
+                                Less than 7.8 mmol/L
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                </tbody>
+                    </tbody>
 
-            </table>
+                </table>
+            </div>
 
             <LabSignatures
                 doctorId={doctorId}
