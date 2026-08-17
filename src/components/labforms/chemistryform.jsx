@@ -15,8 +15,12 @@ export default function ChemistryForm({
     readOnly = false,
     doctorId,
     doctorName,
+    doctorLicense,
+    doctorExtension,
     medtechId,
     medtechName,
+    medtechLicense,
+    medtechExtension,
 }) {
 
 const [result, setResult] = useState({
@@ -63,7 +67,7 @@ function handleSubmit(e) {
 
         <form
             onSubmit={handleSubmit}
-            className="space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
+            className="print-result space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
         >
 
             <LabReportHeader
@@ -390,8 +394,12 @@ function handleSubmit(e) {
 <LabSignatures
                         doctorId={doctorId}
                         doctorName={doctorName}
+                        doctorLicense={doctorLicense}
+                        doctorExtension={doctorExtension}
                         medtechId={medtechId}
                         medtechName={medtechName}
+                        medtechLicense={medtechLicense}
+                        medtechExtension={medtechExtension}
                     />
 
             {!readOnly && (

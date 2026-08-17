@@ -166,8 +166,12 @@ async function fetchTest() {
         status: data.test.status,
         doctorId: data.test.doctorId,
         doctorName: data.test.doctorName,
+        doctorLicense: data.test.doctorLicense,
+        doctorExtension: data.test.doctorExtension,
         medtechId: data.test.medtechId,
         medtechName: data.test.medtechName,
+        medtechLicense: data.test.medtechLicense,
+        medtechExtension: data.test.medtechExtension,
         medtechid: data.test.medtechId
     });
 
@@ -246,8 +250,12 @@ async function fetchTest() {
                     onSubmit={handleSubmit}
                     doctorId={test.doctorId}
                     doctorName={test.doctorName}
+                    doctorLicense={test.doctorLicense}
+                    doctorExtension={test.doctorExtension}
                     medtechId={test.medtechId}
                     medtechName={test.medtechName}
+                    medtechLicense={test.medtechLicense}
+                    medtechExtension={test.medtechExtension}
                 />
 
             </div>

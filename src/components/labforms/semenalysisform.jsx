@@ -15,8 +15,12 @@ export default function SemenAnalysisForm({
     hasExistingResult = false,
     doctorId,
     doctorName,
+    doctorLicense,
+    doctorExtension,
     medtechId,
     medtechName,
+    medtechLicense,
+    medtechExtension,
 }) {
 
     const [result, setResult] = useState({
@@ -44,6 +48,8 @@ export default function SemenAnalysisForm({
 
     function handleChange(e) {
 
+        if (readOnly) return;
+
         const { name, value } = e.target;
 
         setResult(prev => ({
@@ -57,6 +63,8 @@ export default function SemenAnalysisForm({
 
         e.preventDefault();
 
+        if (readOnly) return;
+
         onSubmit(result, hasExistingResult);
 
     }
@@ -65,7 +73,7 @@ export default function SemenAnalysisForm({
 
         <form
             onSubmit={handleSubmit}
-            className="space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
+            className="print-result space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
         >
 
             <LabReportHeader
@@ -563,8 +571,12 @@ export default function SemenAnalysisForm({
 <LabSignatures
                         doctorId={doctorId}
                         doctorName={doctorName}
+                        doctorLicense={doctorLicense}
+                        doctorExtension={doctorExtension}
                         medtechId={medtechId}
                         medtechName={medtechName}
+                        medtechLicense={medtechLicense}
+                        medtechExtension={medtechExtension}
                     />
 
             {!readOnly && (

@@ -15,8 +15,12 @@ export default function HematologyResult({
     hasExistingResult = false,
     doctorId,
     doctorName,
+    doctorLicense,
+    doctorExtension,
     medtechId,
     medtechName,
+    medtechLicense,
+    medtechExtension,
 }) {
 
 const [result, setResult] = useState({
@@ -72,7 +76,7 @@ function handleSubmit(e) {
 
         <form
             onSubmit={handleSubmit}
-            className="space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
+            className="print-result space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
         >
 
             <LabReportHeader
@@ -82,28 +86,28 @@ function handleSubmit(e) {
 
             {/* Results */}
 
-            <div className="grid lg:grid-cols-2 gap-6">
+            <div className="grid gap-6 lg:grid-cols-2 print:grid-cols-2 print:gap-2">
 
                 {/* LEFT */}
 
-                <div className="rounded-xl border border-rd-hair-strong overflow-hidden">
+                <div>
 
                     <div className="overflow-x-auto">
-                        <table className="w-full">
+                        <table className="w-full border-collapse border border-rd-hair-strong">
 
                             <thead>
 
                                 <tr className="bg-rd-sunken">
 
-                                    <th className="p-3 text-left text-rd-title">
+                                    <th className="border border-rd-hair-strong p-2 text-left text-rd-title">
                                         Test
                                     </th>
 
-                                    <th className="text-rd-title">
+                                    <th className="border border-rd-hair-strong p-2 text-rd-title">
                                         Result
                                     </th>
 
-                                    <th className="text-rd-title">
+                                    <th className="border border-rd-hair-strong p-2 text-rd-title">
                                         Normal Value
                                     </th>
 
@@ -128,14 +132,13 @@ function handleSubmit(e) {
 
                                     <tr
                                         key={item[0]}
-                                        className="border-t border-rd-hair-strong"
                                     >
 
-                                        <td className="p-2 text-rd-title">
+                                        <td className="border border-rd-hair-strong p-2 text-rd-title">
                                             {item[1]}
                                         </td>
 
-                                        <td className="p-2">
+                                        <td className="border border-rd-hair-strong p-2">
 
                                             <ResultField
                                                 name={item[0]}
@@ -148,7 +151,7 @@ function handleSubmit(e) {
 
                                         </td>
 
-                                        <td className="p-2 text-rd-muted whitespace-pre-line">
+                                        <td className="border border-rd-hair-strong p-2 text-rd-muted whitespace-pre-line">
                                             {item[2]}
                                         </td>
 
@@ -165,24 +168,24 @@ function handleSubmit(e) {
 
                 {/* RIGHT */}
 
-                <div className="rounded-xl border border-rd-hair-strong overflow-hidden">
+                <div>
 
                     <div className="overflow-x-auto">
-                        <table className="w-full">
+                        <table className="w-full border-collapse border border-rd-hair-strong">
 
                             <thead>
 
                                 <tr className="bg-rd-sunken">
 
-                                    <th className="p-3 text-left text-rd-title">
+                                    <th className="border border-rd-hair-strong p-2 text-left text-rd-title">
                                         Leukocytes
                                     </th>
 
-                                    <th className="text-rd-title">
+                                    <th className="border border-rd-hair-strong p-2 text-rd-title">
                                         Result
                                     </th>
 
-                                    <th className="text-rd-title">
+                                    <th className="border border-rd-hair-strong p-2 text-rd-title">
                                         Normal
                                     </th>
 
@@ -208,14 +211,13 @@ function handleSubmit(e) {
 
                                     <tr
                                         key={item[0]}
-                                        className="border-t border-rd-hair-strong"
                                     >
 
-                                        <td className="p-2 text-rd-title">
+                                        <td className="border border-rd-hair-strong p-2 text-rd-title">
                                             {item[1]}
                                         </td>
 
-                                        <td className="p-2">
+                                        <td className="border border-rd-hair-strong p-2">
 
                                             <ResultField
                                                 name={item[0]}
@@ -228,7 +230,7 @@ function handleSubmit(e) {
 
                                         </td>
 
-                                        <td className="p-2 text-rd-muted">
+                                        <td className="border border-rd-hair-strong p-2 text-rd-muted">
                                             {item[2]}
                                         </td>
 
@@ -250,8 +252,12 @@ function handleSubmit(e) {
             <LabSignatures
                 doctorId={doctorId}
                 doctorName={doctorName}
+                doctorLicense={doctorLicense}
+                doctorExtension={doctorExtension}
                 medtechId={medtechId}
                 medtechName={medtechName}
+                medtechLicense={medtechLicense}
+                medtechExtension={medtechExtension}
             />
 
             {!readOnly && (

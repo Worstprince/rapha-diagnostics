@@ -16,7 +16,11 @@ export async function GET(request, { params }) {
                 t.name,
                 v.doctorid,
                 CONCAT(docui.fname, ' ', docui.lname) AS doctorname,
-                CONCAT(mtui.fname, ' ', mtui.lname) AS medtechname
+                docui.license_no AS doctorlicense,
+                docui.extension  AS doctorextension,
+                CONCAT(mtui.fname, ' ', mtui.lname) AS medtechname,
+                mtui.license_no AS medtechlicense,
+                mtui.extension  AS medtechextension
             FROM tblpatienttests pt
             INNER JOIN tbltests t
                 ON pt.testid = t.id
@@ -116,8 +120,12 @@ export async function GET(request, { params }) {
                 name: assignment.name,
                 doctorid: assignment.doctorid ?? null,
                 doctorName: assignment.doctorname || null,
+                doctorLicense: assignment.doctorlicense || null,
+                doctorExtension: assignment.doctorextension || null,
                 medtechid: assignment.medtechid ?? null,
-                medtechName: assignment.medtechname || null
+                medtechName: assignment.medtechname || null,
+                medtechLicense: assignment.medtechlicense || null,
+                medtechExtension: assignment.medtechextension || null
             },
 
             result

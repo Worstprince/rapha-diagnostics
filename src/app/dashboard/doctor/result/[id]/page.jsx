@@ -250,8 +250,12 @@ async function approveResult() {
                     readOnly={true}
                     doctorId={test.doctorid}
                     doctorName={test.doctorName}
+                    doctorLicense={test.doctorLicense}
+                    doctorExtension={test.doctorExtension}
                     medtechId={test.medtechid}
                     medtechName={test.medtechName}
+                    medtechLicense={test.medtechLicense}
+                    medtechExtension={test.medtechExtension}
                 />
 
             </div>

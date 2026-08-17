@@ -11,8 +11,12 @@ export default function SyphilisForm({
     onSubmit,
     doctorId,
     doctorName,
+    doctorLicense,
+    doctorExtension,
     medtechId,
     medtechName,
+    medtechLicense,
+    medtechExtension,
 }) {
 
     const [result, setResult] = useState({
@@ -32,6 +36,8 @@ export default function SyphilisForm({
     }, [initialData]);
 
     function handleChange(e) {
+
+        if (readOnly) return;
 
         const { name, value } = e.target;
 
@@ -56,7 +62,7 @@ export default function SyphilisForm({
 
         <form
             onSubmit={handleSubmit}
-            className="space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
+            className="print-result space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
         >
 
             <LabReportHeader
@@ -118,8 +124,12 @@ export default function SyphilisForm({
             <LabSignatures
                 doctorId={doctorId}
                 doctorName={doctorName}
+                doctorLicense={doctorLicense}
+                doctorExtension={doctorExtension}
                 medtechId={medtechId}
                 medtechName={medtechName}
+                medtechLicense={medtechLicense}
+                medtechExtension={medtechExtension}
             />
 
             {!readOnly && (

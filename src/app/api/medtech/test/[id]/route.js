@@ -14,12 +14,16 @@ export async function GET(request, { params }) {
                 v.id AS visitid,
                 v.doctorid,
                 CONCAT(docui.fname, ' ', docui.lname) AS doctorname,
+                docui.license_no AS doctorlicense,
+                docui.extension  AS doctorextension,
                 pt.id,
                 pt.testid,
                 pt.visitid,
                 pt.status,
                 pt.medtechid,
                 CONCAT(mtui.fname, ' ', mtui.lname) AS medtechname,
+                mtui.license_no AS medtechlicense,
+                mtui.extension  AS medtechextension,
 
                 p.id AS patientid,
                 CONCAT(p.fname,' ',p.lname) AS patientname,
@@ -77,8 +81,12 @@ export async function GET(request, { params }) {
                 ...assignment,
                 doctorId: assignment.doctorid ?? null,
                 doctorName: assignment.doctorname || null,
+                doctorLicense: assignment.doctorlicense || null,
+                doctorExtension: assignment.doctorextension || null,
                 medtechId: assignment.medtechid ?? null,
-                medtechName: assignment.medtechname || null
+                medtechName: assignment.medtechname || null,
+                medtechLicense: assignment.medtechlicense || null,
+                medtechExtension: assignment.medtechextension || null
             },
             result
         });

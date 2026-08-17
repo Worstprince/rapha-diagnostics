@@ -11,8 +11,12 @@ export default function FOBTForm({
     hasExistingResult = false,
     doctorId,
     doctorName,
+    doctorLicense,
+    doctorExtension,
     medtechId,
     medtechName,
+    medtechLicense,
+    medtechExtension,
 }) {
 
     const [result, setResult] = useState({
@@ -46,12 +50,12 @@ export default function FOBTForm({
 
         <form
             onSubmit={handleSubmit}
-            className="space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
+            className="print-result space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
         >
 
             <LabReportHeader
                 patient={patient}
-                title=""
+                title="IMMUNOLOGY/SEROLOGY"
             />
 
             <h2 className="text-center text-3xl font-bold">
@@ -121,8 +125,12 @@ export default function FOBTForm({
 <LabSignatures
                 doctorId={doctorId}
                 doctorName={doctorName}
+                doctorLicense={doctorLicense}
+                doctorExtension={doctorExtension}
                 medtechId={medtechId}
                 medtechName={medtechName}
+                medtechLicense={medtechLicense}
+                medtechExtension={medtechExtension}
             />
 
             {!readOnly && (

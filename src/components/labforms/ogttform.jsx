@@ -15,8 +15,12 @@ export default function OGTTForm({
     hasExistingResult = false,
     doctorId,
     doctorName,
+    doctorLicense,
+    doctorExtension,
     medtechId,
     medtechName,
+    medtechLicense,
+    medtechExtension,
 }) {
 
     const [result, setResult] = useState({
@@ -52,7 +56,7 @@ export default function OGTTForm({
 
         <form
             onSubmit={handleSubmit}
-            className="space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
+            className="print-result space-y-8 rounded-2xl border border-rd-hair bg-rd-card p-8"
         >
 
             <LabReportHeader
@@ -172,8 +176,12 @@ export default function OGTTForm({
             <LabSignatures
                 doctorId={doctorId}
                 doctorName={doctorName}
+                doctorLicense={doctorLicense}
+                doctorExtension={doctorExtension}
                 medtechId={medtechId}
                 medtechName={medtechName}
+                medtechLicense={medtechLicense}
+                medtechExtension={medtechExtension}
             />
 
             {!readOnly && (
