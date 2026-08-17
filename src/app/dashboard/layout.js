@@ -92,7 +92,22 @@ const medtechSections = [
   {
     label: "Laboratory",
     links: [
-      { href: "/dashboard/medtech/assignments", label: "Assignments", Icon: ClipboardIcon },
+      { href: "/dashboard/medtech/assignments", label: "Assignments", Icon: ClipboardIcon },            
+      {
+        href: "/dashboard/medtech/patients",
+        label: "View Patients",
+        Icon: UsersIcon,
+      },
+      {
+        href: "/dashboard/medtech/visitation",
+        label: "View Visitations",
+        Icon: CalendarCheckIcon,
+      },
+      {
+        href: "/dashboard/medtech/visitation/history",
+        label: "View Visitation History",
+        Icon: CalendarCheckIcon,
+      },
     ],
   },
 ];

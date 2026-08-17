@@ -30,10 +30,15 @@ export async function GET(request, { params }) {
                 pt.id,
                 tt.name,
                 pt.status,
-                pt.medtechid
+                pt.medtechid,
+                CONCAT(ui.fname, ' ', ui.lname) as medtechname
             FROM tblpatienttests pt
             INNER JOIN tbltests tt
             ON tt.id = pt.testid
+            LEFT JOIN tblusers u
+            ON u.id = pt.medtechid
+            LEFT JOIN tbluserinfo ui
+            ON ui.userid = u.id
             WHERE pt.visitid = ?;
             `, [id]
         );

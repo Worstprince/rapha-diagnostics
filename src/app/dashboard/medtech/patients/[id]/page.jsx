@@ -7,6 +7,6 @@ export default function DoctorPatientPage() {
 
     const { id } = useParams();
 
-    return <PatientDetails patientId={id} role="doctor" />;
+    return <PatientDetails patientId={id} role="medtech" />;
 
 }

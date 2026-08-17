@@ -1,12 +1,12 @@
 import PatientsList from "@/components/patient/patientList";
 
-export default function DoctorPatientsPage() {
+export default function MedtechPatientsPage() {
 
     return (
         <PatientsList
             apiEndpoint="/api/doctor/patients"
-            recordPath="/dashboard/doctor/patients"
-            roleLabel="Doctor"
+            recordPath="/dashboard/medtech/patients"
+            roleLabel="Medtech"
         />
     );
 
