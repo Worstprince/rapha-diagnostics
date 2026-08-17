@@ -2,12 +2,12 @@
 
 import VisitationQueue from "@/components/visitations/visitqueue";
 
-export default function DoctorVisitationPage() {
+export default function MedtechVisitationPage() {
     return (
         <VisitationQueue
-            role="doctor"
+            role="medtech"
             title="Patient Visitations"
-            subtitle="Review visitations that still require test approval."
+            subtitle="Review visitations that still require test processing."
         />
     );
 }
