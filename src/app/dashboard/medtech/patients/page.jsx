@@ -5,7 +5,7 @@ export default function MedtechPatientsPage() {
     return (
         <PatientsList
             apiEndpoint="/api/doctor/patients"
-            recordPath="/dashboard/doctor/patients"
+            recordPath="/dashboard/medtech/patients"
             roleLabel="Medtech"
         />
     );
