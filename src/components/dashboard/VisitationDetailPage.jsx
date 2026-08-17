@@ -166,10 +166,14 @@ export default function VisitationDetailPage({ basePath = "/dashboard/doctor", r
                     </td>
                     <td className={td}><Pill value={test.status} /></td>
                     <td className={`${td} text-right`}>
-                      <Link href={`${basePath}/visitation/${id}`} className={rowAction}>
-                        View
-                        <ChevronRightIcon size={16} />
-                      </Link>
+                      {(test.status === "Done" || test.status === "Approved") ? (
+                        <Link href={`/dashboard/doctor/result/${test.id}`} className={rowAction}>
+                          View Result
+                          <ChevronRightIcon size={16} />
+                        </Link>
+                      ) : (
+                        <span className="text-rd-muted">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}
