@@ -20,6 +20,7 @@ const RESULT_TABLES = {
     17: "test_antihbsresult",
     18: "test_hemresult",
     19: "test_fbsresult",
+    20: "test_hivresult",
 };
 
 export default async function getTestResult(testId, visitId) {

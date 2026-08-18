@@ -36,9 +36,11 @@ import antihav from "@/components/labforms/antihav";
 import rbs from "@/components/labforms/rbsform";
 import antihbs from "@/components/labforms/antihbs";
 import fbsform from "@/components/labforms/fbsform";
+import hivform from "@/components/labforms/hivform";
 
 
 import { useCurrentUser } from "@/lib/session";
+import { HandGrabIcon } from "lucide-react";
 const forms = {
 
     1: bloodtypeform,
@@ -60,6 +62,7 @@ const forms = {
     17: antihbs,
     18: hemform,
     19: fbsform,
+    20: hivform,
 };
 
 export default function TestPage() {

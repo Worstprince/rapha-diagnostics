@@ -516,6 +516,23 @@ export async function POST(request) {
 
             break;
 
+        case 20: // hiv
+
+            await saveTestResult({
+
+                table: "test_hivresult",
+
+                visitId,
+
+                data: {
+                    hiv: result.hiv,
+                    date: new Date()
+                }
+
+            });
+
+            break;
+
 
     default:
 

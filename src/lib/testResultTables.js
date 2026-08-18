@@ -412,6 +412,16 @@ export const TEST_RESULT_TABLES = {
       }
     ]
   },
+
+  hiv: {
+    table: "test_fbsresult",
+    fields: [
+      {
+        column: "hiv",
+        label: "HIV",
+      }
+    ]
+  },
 };
 
 // Matches a test name from tbltests (e.g. "Blood Type", "bloodtype") to a

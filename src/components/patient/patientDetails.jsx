@@ -283,6 +283,14 @@ const TESTS = [
             { value: "glucose", label: "Glucose" },
         ],
     },
+
+    {
+        id: 20,
+        name: "Human Immunodeficiency Virus",
+        fields: [
+            { value: "hiv", label: "HIV" },
+        ],
+    },
 ];
 
 const TABS = [

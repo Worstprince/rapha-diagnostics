@@ -188,6 +188,10 @@ const RESULT_FIELDS = {
 
     19: [
         "glucose"
+    ],
+
+    20: [
+        "hiv"
     ]
 
 };
