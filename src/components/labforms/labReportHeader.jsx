@@ -158,17 +158,19 @@ export default function LabReportHeader({ patient, title }) {
             </div>
 
             {title && (
-                <h2
-                    className="rd-report-band relative py-0.5 text-center font-serif text-xl font-bold uppercase tracking-[0.06em] text-[var(--rd-band-ink)] sm:text-2xl print:py-0 print:text-[17px] print:leading-snug"
-                    style={{ "--rd-band-hue": BAND_COLORS[title] ?? DEFAULT_BAND }}
-                >
+                <h2 className="rd-report-band relative py-0.5 text-center font-serif text-xl font-bold uppercase tracking-[0.06em] sm:text-2xl print:py-0 print:text-[17px] print:leading-snug">
 
                     <svg
                         aria-hidden="true"
                         className="absolute inset-0 h-full w-full"
                         preserveAspectRatio="none"
                     >
-                        <rect width="100%" height="100%" fill="var(--rd-band)" />
+                        <rect
+                            className="rd-band-fill"
+                            width="100%"
+                            height="100%"
+                            fill={BAND_COLORS[title] ?? DEFAULT_BAND}
+                        />
                     </svg>
 
                     <span className="relative">{title}</span>
