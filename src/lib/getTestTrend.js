@@ -150,6 +150,11 @@ const RESULT_FIELDS = {
         "vdrl"
     ],
 
+    14: [
+        "igg",
+        "igm"
+    ],
+
     18: [
         "rbs",
         "creatinine",

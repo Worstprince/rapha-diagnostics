@@ -396,6 +396,24 @@ export async function POST(request) {
 
             break;
 
+        case 14: // HBSAG and VDRL
+
+            await saveTestResult({
+
+                table: "test_hbsagvdrlresult",
+
+                visitId,
+
+                data: {
+                    igg: result.igg,
+                    igm: result.igm,
+                    date: new Date()
+                }
+
+            });
+
+            break;
+
         case 18: // Chemistry
 
             await saveTestResult({

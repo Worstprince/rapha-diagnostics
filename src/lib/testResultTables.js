@@ -304,6 +304,20 @@ export const TEST_RESULT_TABLES = {
       },
     ],
   },
+  hbsagvdrl: {
+    table: "test_hbsagvdrlresult",
+    fields: [
+      {
+        column: "igg",
+        label: "IgG Result"
+      },
+      {
+        column: "igm",
+        label: "IgM Result",
+        isCritical: isPositiveResult,
+      },
+    ],
+  },
   hem: {
     table: "test_hemresult",
     fields: [

@@ -14,6 +14,7 @@ const RESULT_TABLES = {
     11: "test_thyroidexamresult",
     12: "test_urinalysisresult",
     13: "test_vdrlresult",
+    14: "test_hbsagvdrlresult",
     18: "test_hemresult"
 };
 

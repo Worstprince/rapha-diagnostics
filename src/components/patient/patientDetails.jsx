@@ -221,6 +221,15 @@ const TESTS = [
     },
 
     {
+        id: 14,
+        name: "HBSAg and VDRL",
+        fields: [
+            { value: "igg", label: "IgG Result" },
+            { value: "igM", label: "IgM Result" },
+        ],
+    },
+
+    {
         id: 18,
         name: "HEM",
         fields: [
