@@ -402,6 +402,15 @@ export const TEST_RESULT_TABLES = {
       { column: "hba1c", label: "HbA1c" },
       { column: "bun", label: "BUN" },
     ],
+  },  
+  fbs: {
+    table: "test_fbsresult",
+    fields: [
+      {
+        column: "glucose",
+        label: "Glucose",
+      }
+    ]
   },
 };
 

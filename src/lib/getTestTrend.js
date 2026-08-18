@@ -184,6 +184,10 @@ const RESULT_FIELDS = {
         "indirectBilirubin",
         "hba1c",
         "bun"
+    ],
+
+    19: [
+        "glucose"
     ]
 
 };

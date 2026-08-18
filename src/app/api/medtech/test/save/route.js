@@ -468,7 +468,6 @@ export async function POST(request) {
 
             break;
 
-
         case 18: // Chemistry
 
             await saveTestResult({
@@ -499,6 +498,25 @@ export async function POST(request) {
 
             break;
     
+                
+        case 19: // fbs
+
+            await saveTestResult({
+
+                table: "test_fbsresult",
+
+                visitId,
+
+                data: {
+                    glucose: result.glucose,
+                    date: new Date()
+                }
+
+            });
+
+            break;
+
+
     default:
 
             return NextResponse.json(

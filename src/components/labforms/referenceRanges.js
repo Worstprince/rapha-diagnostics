@@ -68,7 +68,12 @@ export const REFERENCE_RANGES = {
   rbs: {
     siUnit: { min: 3.4, max: 6.7 },
     conventionalUnit: { min: 60.0, max: 120.0 }
+  },
+
+  fbs: {
+    glucose: { min:4.38, max: 6.05}
   }
+
 };
 
 function normalizeSex(sex) {

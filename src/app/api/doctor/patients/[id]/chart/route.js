@@ -19,7 +19,8 @@ const RESULT_TABLES = {
     15: "test_antihavresult",
     16: "test_rbsresult",
     17: "test_antihbsresult",
-    18: "test_hemresult"
+    18: "test_hemresult",
+    19: "test_fbsresult",
 };
 
 export async function GET(request, { params }) {

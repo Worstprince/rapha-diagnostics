@@ -35,6 +35,7 @@ import hbsagvdrl from "@/components/labforms/hbsagvdrlform";
 import antihav from "@/components/labforms/antihav";
 import rbs from "@/components/labforms/rbsform";
 import antihbs from "@/components/labforms/antihbs";
+import fbsform from "@/components/labforms/fbsform";
 
 
 import { useCurrentUser } from "@/lib/session";
@@ -57,7 +58,8 @@ const forms = {
     15: antihav,
     16: rbs,
     17: antihbs,
-    18: hemform
+    18: hemform,
+    19: fbsform,
 };
 
 export default function TestPage() {

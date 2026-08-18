@@ -274,7 +274,15 @@ const TESTS = [
             { value: "hba1c", label: "HbA1c" },
             { value: "bun", label: "BUN" },
         ],
-    }
+    },
+
+    {
+        id: 19,
+        name: "Fasting Blood Sugar",
+        fields: [
+            { value: "glucose", label: "Glucose" },
+        ],
+    },
 ];
 
 const TABS = [
