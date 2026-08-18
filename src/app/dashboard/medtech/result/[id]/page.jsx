@@ -2,6 +2,6 @@
 
 import LabResultPage from "@/components/labResult";
 
-export default function DoctorResultPage() {
+export default function MedtechResultPage() {
     return <LabResultPage/>;
 }
