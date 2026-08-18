@@ -21,6 +21,7 @@ import {
   PenLine,
   ChevronDown,
   ChevronUp,
+  Trash2,
 } from "lucide-react";
 
 const MOCK_QUICK_PHRASES = [
@@ -125,7 +126,7 @@ function TestSummaryCard({ test }) {
   );
 }
 
-export default function NotesEditor({ visit }) {
+export default function NotesEditor({ visit, currentUserId }) {
   const router = useRouter();
 
   const {
@@ -193,6 +194,13 @@ export default function NotesEditor({ visit }) {
   const [localAttachmentCount, setLocalAttachmentCount] = useState(attachmentCount);
   const fileInputRef = useRef(null);
 
+  const [deletingCommentId, setDeletingCommentId] = useState(null);
+  const [deletingAttachmentId, setDeletingAttachmentId] = useState(null);
+
+  // Removal is gated on note status directly (not `isLocked`), since it must
+  // stay blocked even while a finalized note is unlocked for an amendment.
+  const removalLocked = status === "Finalized";
+
   const toggleComments = useCallback(async () => {
     const next = !commentsOpen;
     setCommentsOpen(next);
@@ -250,6 +258,46 @@ export default function NotesEditor({ visit }) {
       }
     }
   }, [attachmentsOpen, attachments, id]);
+
+  const handleDeleteComment = useCallback(
+    async (commentId) => {
+      if (!window.confirm("Remove this comment? This can't be undone.")) return;
+      setDeletingCommentId(commentId);
+      try {
+        const res = await fetch(`/api/doctor/notes/${id}/comments/${commentId}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) throw new Error("Failed to remove comment");
+        setComments((prev) => prev.filter((c) => c.id !== commentId));
+        setLocalCommentCount((c) => Math.max(0, c - 1));
+      } catch (err) {
+        console.error("Failed to remove comment:", err);
+      } finally {
+        setDeletingCommentId(null);
+      }
+    },
+    [id]
+  );
+
+  const handleDeleteAttachment = useCallback(
+    async (attachmentId) => {
+      if (!window.confirm("Remove this attachment? This can't be undone.")) return;
+      setDeletingAttachmentId(attachmentId);
+      try {
+        const res = await fetch(`/api/doctor/notes/${id}/attachments/${attachmentId}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) throw new Error("Failed to remove attachment");
+        setAttachments((prev) => prev.filter((a) => a.id !== attachmentId));
+        setLocalAttachmentCount((c) => Math.max(0, c - 1));
+      } catch (err) {
+        console.error("Failed to remove attachment:", err);
+      } finally {
+        setDeletingAttachmentId(null);
+      }
+    },
+    [id]
+  );
 
   const handleFileSelected = useCallback(
     async (e) => {
@@ -609,9 +657,23 @@ export default function NotesEditor({ visit }) {
                     )}
                     {comments?.map((c) => (
                       <div key={c.id} className="text-[13px]">
-                        <div className="flex items-baseline gap-2">
-                          <span className="font-medium text-slate-200">{c.authorName}</span>
-                          <span className="text-xs text-slate-500">{c.createdAt}</span>
+                        <div className="flex items-baseline justify-between gap-2">
+                          <div className="flex items-baseline gap-2">
+                            <span className="font-medium text-slate-200">{c.authorName}</span>
+                            <span className="text-xs text-slate-500">{c.createdAt}</span>
+                          </div>
+                          {c.authorId === currentUserId && !removalLocked && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteComment(c.id)}
+                              disabled={deletingCommentId === c.id}
+                              aria-label="Remove comment"
+                              title="Remove comment"
+                              className="text-slate-600 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          )}
                         </div>
                         <p className="mt-0.5 text-slate-300">{c.comment}</p>
                       </div>
@@ -651,20 +713,37 @@ export default function NotesEditor({ visit }) {
                       <p className="text-xs text-slate-500">No attachments yet.</p>
                     )}
                     {attachments?.map((a) => (
-                      <a
+                      <div
                         key={a.id}
-                        href={`/api/doctor/notes/${id}/attachments/${a.id}`}
                         className="flex items-center justify-between rounded-md border border-white/5 px-3 py-2 text-[13px] hover:bg-white/5"
                       >
-                        <span className="flex items-center gap-2 text-slate-200">
+                        
+                          <a href={`/api/doctor/notes/${id}/attachments/${a.id}`}
+                          className="flex flex-1 items-center gap-2 text-slate-200"
+                        >
                           <Paperclip size={13} className="text-slate-500" aria-hidden="true" />
                           {a.filename}
-                        </span>
-                        <span className="text-xs text-slate-500">
-                          {formatFileSize(a.filesize)} · {a.uploadedByName} · {a.uploadedAt}
-                        </span>
-                      </a>
+                        </a>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-slate-500">
+                            {formatFileSize(a.filesize)} · {a.uploadedByName} · {a.uploadedAt}
+                          </span>
+                          {a.uploadedById === currentUserId && !removalLocked && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteAttachment(a.id)}
+                              disabled={deletingAttachmentId === a.id}
+                              aria-label="Remove attachment"
+                              title="Remove attachment"
+                              className="text-slate-600 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     ))}
+                    
                   </div>
                 )}
                 <div className="mt-3">
