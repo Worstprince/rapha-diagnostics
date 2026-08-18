@@ -18,7 +18,7 @@ import {
 import Toast from "@/components/Toast";
 
 import bloodtypeform from "@/components/labforms/bloodtypeform";
-import chemistryform from "@/components/labforms/chemistryform";
+import chemistryform from "@/components/labforms/hba1c";
 import hematology from "@/components/labforms/hematology";
 import dengueform from "@/components/labforms/dengueform";
 import fobtform from "@/components/labforms/fobtform";

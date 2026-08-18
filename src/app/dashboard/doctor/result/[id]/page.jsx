@@ -18,7 +18,7 @@ import {
 } from "../../_ui";
 
 import BloodTypeForm from "@/components/labforms/bloodtypeform";
-import ChemistryForm from "@/components/labforms/chemistryform";
+import ChemistryForm from "@/components/labforms/hba1c";
 import DengueForm from "@/components/labforms/dengueform";
 import FOBTForm from "@/components/labforms/fobtform";
 import HBSAGForm from "@/components/labforms/hbsagform";

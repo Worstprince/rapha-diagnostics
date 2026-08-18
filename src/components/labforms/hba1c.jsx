@@ -7,7 +7,7 @@ import ResultField from "./ResultField";
 
 const RANGES = REFERENCE_RANGES.chemistry;
 
-export default function ChemistryForm({
+export default function hba1cform({
     patient,
     onSubmit,
     initialData = {},
