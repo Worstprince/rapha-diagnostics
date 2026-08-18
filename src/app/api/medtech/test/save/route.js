@@ -51,7 +51,7 @@ export async function POST(request) {
 
             await saveTestResult({
 
-                table: "test_chemistryresult",
+                table: "test_hba1cresult",
 
                 visitId,
 
@@ -389,6 +389,36 @@ export async function POST(request) {
 
                 data: {
                     vdrl: result.vdrl,
+                    date: new Date()
+                }
+
+            });
+
+            break;
+
+        case 18: // Chemistry
+
+            await saveTestResult({
+
+                table: "test_hemresult",
+
+                visitId,
+
+                data: {
+                    rbs: result.rbs,
+                    creatinine: result.creatinine,
+                    uricAcid: result.uricAcid,
+                    totalCholesterol: result.totalCholesterol,
+                    triglycerides: result.triglycerides,
+                    hdlCholesterol: result.hdlCholesterol,
+                    ldlCholesterol: result.ldlCholesterol,
+                    sgot: result.sgot,
+                    sgpt: result.sgpt,
+                    totalBilirubin: result.totalBilirubin,
+                    directBilirubin: result.directBilirubin,
+                    indirectBilirubin: result.indirectBilirubin,
+                    hba1c: result.hba1c,
+                    bun: result.bun,
                     date: new Date()
                 }
 

@@ -48,7 +48,7 @@ const TESTS = [
 
     {
         id: 2,
-        name: "Chemistry",
+        name: "HBA1C",
         fields: [
             { value: "glucose", label: "Glucose" },
             { value: "creatinine", label: "Creatinine" },
@@ -219,6 +219,27 @@ const TESTS = [
             { value: "vdrl", label: "VDRL Result" },
         ],
     },
+
+    {
+        id: 18,
+        name: "HEM",
+        fields: [
+            { value: "rbs", label: "rbs" },
+            { value: "creatinine", label: "Creatinine" },
+            { value: "uricAcid", label: "Uric Acid" },
+            { value: "totalCholesterol", label: "Total Cholesterol" },
+            { value: "triglycerides", label: "Triglycerides" },
+            { value: "hdlCholesterol", label: "HDL Cholesterol" },
+            { value: "ldlCholesterol", label: "LDL Cholesterol" },
+            { value: "sgot", label: "SGOT" },
+            { value: "sgpt", label: "SGPT" },
+            { value: "totalBilirubin", label: "Total Bilirubin" },
+            { value: "directBilirubin", label: "Direct Bilirubin" },
+            { value: "indirectBilirubin", label: "Indirect Bilirubin" },
+            { value: "hba1c", label: "HbA1c" },
+            { value: "bun", label: "BUN" },
+        ],
+    }
 ];
 
 const TABS = [

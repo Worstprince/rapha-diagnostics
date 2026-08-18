@@ -7,7 +7,7 @@ import ResultField from "./ResultField";
 
 const RANGES = REFERENCE_RANGES.hba1c;
 
-export default function hba1cform({
+export default function hemform({
     patient,
     onSubmit,
     initialData = {},
@@ -24,7 +24,7 @@ export default function hba1cform({
 }) {
 
 const [result, setResult] = useState({
-    glucose: initialData?.glucose ?? "",
+    rbs: initialData?.rbs ?? "",
     creatinine: initialData?.creatinine ?? "",
     uricAcid: initialData?.uricAcid ?? "",
     totalCholesterol: initialData?.totalCholesterol ?? "",
@@ -114,15 +114,15 @@ function handleSubmit(e) {
 
             <tr>
 
-                <td className="border border-rd-hair-strong p-2">Glucose</td>
+                <td className="border border-rd-hair-strong p-2">RBS</td>
 
                 <td className="border border-rd-hair-strong p-2">
                     <ResultField
-                        name="glucose"
-                        value={result.glucose}
+                        name="rbs"
+                        value={result.rbs}
                         onChange={handleChange}
                         readOnly={readOnly}
-                        range={RANGES.glucose}
+                        range={RANGES.rbs}
                         sex={patient?.sex}
                     />
                 </td>

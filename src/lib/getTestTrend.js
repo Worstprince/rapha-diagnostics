@@ -2,7 +2,7 @@ import db from "@/lib/db";
 
 const RESULT_TABLES = {
     1: "test_bloodtyperesult",
-    2: "test_chemistryresult",
+    2: "test_hba1cresult",
     3: "test_dengueresult",
     4: "test_fobtresult",
     5: "test_hbsagresult",
@@ -13,7 +13,8 @@ const RESULT_TABLES = {
     10: "test_stoolexamresult",
     11: "test_thyroidexamresult",
     12: "test_urinalysisresult",
-    13: "test_vdrlresult"
+    13: "test_vdrlresult",
+    18: "test_hemresult"
 };
 
 const RESULT_FIELDS = {
@@ -147,6 +148,23 @@ const RESULT_FIELDS = {
 
     13: [
         "vdrl"
+    ],
+
+    18: [
+        "rbs",
+        "creatinine",
+        "uricAcid",
+        "totalCholesterol",
+        "triglycerides",
+        "hdlCholesterol",
+        "ldlCholesterol",
+        "sgot",
+        "sgpt",
+        "totalBilirubin",
+        "directBilirubin",
+        "indirectBilirubin",
+        "hba1c",
+        "bun"
     ]
 
 };

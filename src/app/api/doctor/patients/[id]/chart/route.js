@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 const RESULT_TABLES = {
     1: "test_bloodtyperesult",
-    2: "test_chemistryresult",
+    2: "test_hba1cresult",
     3: "test_dengueresult",
     4: "test_fobtresult",
     5: "test_hbsagresult",

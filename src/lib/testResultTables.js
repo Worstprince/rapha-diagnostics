@@ -52,8 +52,8 @@ export const TEST_RESULT_TABLES = {
       { column: "rhFactor", label: "RH Factor" },
     ],
   },
-  chemistry: {
-    table: "test_chemistryresult",
+  hba1c: {
+    table: "test_hba1cresult",
     fields: [
       {
         column: "glucose",
@@ -302,6 +302,51 @@ export const TEST_RESULT_TABLES = {
         // Reactive VDRL indicates likely syphilis infection
         isCritical: isPositiveResult,
       },
+    ],
+  },
+  hem: {
+    table: "test_hemresult",
+    fields: [
+      {
+        column: "rbs",
+        label: "RBS",
+        // Normal: 4.38-6.05 mmol/L. Severe hypo/hyperglycemia (mmol/L).
+        isCritical: (v) => {
+          const n = Number(v);
+          if (n < 2.8) return "low";
+          if (n > 25.0) return "high";
+          return false;
+        },
+      },
+      { column: "creatinine", label: "Creatinine" },
+      { column: "uricAcid", label: "Uric Acid" },
+      { column: "totalCholesterol", label: "Total Cholesterol" },
+      {
+        column: "triglycerides",
+        label: "Triglycerides",
+        // >11.3 mmol/L (~1000 mg/dL) carries a recognized acute
+        // pancreatitis risk — well above the sheet's "elevated" cutoff.
+        isCritical: (v) => (Number(v) > 11.3 ? "high" : false),
+      },
+      { column: "hdlCholesterol", label: "HDL Cholesterol" },
+      { column: "ldlCholesterol", label: "LDL Cholesterol" },
+      {
+        column: "sgot",
+        label: "SGOT",
+        // Normal up to ~66.5 U/L (M) / 41 U/L (F). Markedly elevated
+        // transaminases suggest acute hepatic injury regardless of sex.
+        isCritical: (v) => (Number(v) > 1000 ? "high" : false),
+      },
+      {
+        column: "sgpt",
+        label: "SGPT",
+        isCritical: (v) => (Number(v) > 1000 ? "high" : false),
+      },
+      { column: "totalBilirubin", label: "Total Bilirubin" },
+      { column: "directBilirubin", label: "Direct Bilirubin" },
+      { column: "indirectBilirubin", label: "Indirect Bilirubin" },
+      { column: "hba1c", label: "HbA1c" },
+      { column: "bun", label: "BUN" },
     ],
   },
 };

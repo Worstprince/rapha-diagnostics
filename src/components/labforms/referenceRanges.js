@@ -22,8 +22,9 @@ export const REFERENCE_RANGES = {
     rdw: { min: 11, max: 15 },
   },
 
-  chemistry: {
+  hba1c: {
     glucose: { min: 4.38, max: 6.05 },
+    rbs: { min: 4.38, max: 6.05 },
     creatinine: { M: { min: 70, max: 120 }, F: { min: 53, max: 106 } },
     uricAcid: { M: { min: 200, max: 420 }, F: { min: 140, max: 340 } },
 
@@ -60,7 +61,7 @@ export const REFERENCE_RANGES = {
 
     spermConcentration: { min: 20 },
     spermCount: { min: 40 },
-  },
+  }
 };
 
 function normalizeSex(sex) {
