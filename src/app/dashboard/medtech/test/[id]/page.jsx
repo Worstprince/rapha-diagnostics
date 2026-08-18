@@ -40,6 +40,7 @@ import hivform from "@/components/labforms/hivform";
 import psaform from "@/components/labforms/psaform";
 import typhidot from "@/components/labforms/typhidot";
 import electrolyte from "@/components/labforms/electrolyte";
+import hbsagpthcg from "@/components/labforms/hbsagandpthcg";
 
 
 import { useCurrentUser } from "@/lib/session";
@@ -68,7 +69,8 @@ const forms = {
     20: hivform,
     21: psaform,
     22: typhidot,
-    23: electrolyte
+    23: electrolyte,
+    24: hbsagpthcg
 };
 
 export default function TestPage() {

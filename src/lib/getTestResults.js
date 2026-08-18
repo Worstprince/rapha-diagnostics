@@ -24,6 +24,7 @@ const RESULT_TABLES = {
     21: "test_psaresult",
     22: "test_typhidotresult",
     23: "test_electrolyteresult",
+    24: "test_hbsagpthcgresult"
 };
 
 export default async function getTestResult(testId, visitId) {

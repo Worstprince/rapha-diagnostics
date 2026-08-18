@@ -204,6 +204,10 @@ const RESULT_FIELDS = {
         "potassium",
         "calcium",
         "magnesium",
+    ],
+    24: [
+        "hbsag",
+        "pthcg",
     ]
 
 };

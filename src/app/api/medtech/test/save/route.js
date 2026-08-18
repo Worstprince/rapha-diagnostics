@@ -585,7 +585,23 @@ export async function POST(request) {
             });
 
             break;
+        case 24: // hbsaga and pthcg
 
+            await saveTestResult({
+
+                table: "test_hbsagpthcgresult",
+
+                visitId,
+
+                data: {
+                    hbsag: result.hbsag,
+                    pthcg: result.pthcg,
+                    date: new Date()
+                }
+
+            });
+
+            break;
 
     default:
 

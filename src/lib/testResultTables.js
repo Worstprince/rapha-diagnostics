@@ -452,6 +452,14 @@ export const TEST_RESULT_TABLES = {
       { column: "magnesium", label: "Magnesium" },
     ]
   },
+
+  hbsagpthcg: {
+    table: "test_hbsagpthcgresult",
+    fields: [
+      { column: "hbsag", label: "HBSAg" },
+      { column: "pthcg", label: "PT(HCG)" },
+    ]
+  },
 };
 
 // Matches a test name from tbltests (e.g. "Blood Type", "bloodtype") to a

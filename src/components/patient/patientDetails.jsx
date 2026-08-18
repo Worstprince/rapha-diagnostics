@@ -318,6 +318,15 @@ const TESTS = [
             { value: "magnesium", label: "Magnesium" },
         ],
     },
+
+    {
+        id: 24,
+        name: "HBSAg & PT(HCG)",
+        fields: [
+            { value: "hbsag", label: "HBSAg" },
+            { value: "pthcg", label: "PT(HCG)" },
+        ],
+    }
 ];
 
 const TABS = [
