@@ -32,39 +32,27 @@ import urinalysisexam from "@/components/labforms/urinalysisform";
 import vdrlexam from "@/components/labforms/vdrlform";
 import hemform from "@/components/labforms/hemform";
 import hbsagvdrl from "@/components/labforms/hbsagvdrlform";
+import antihav from "@/components/labforms/antihav";
 
 
 import { useCurrentUser } from "@/lib/session";
 const forms = {
 
     1: bloodtypeform,
-
     2: chemistryform,
-
     3: dengueform,
-
     4: fobtform,
-
     5: hbsagform,
-
     6: hematology,
-
     7: ogttform,
-
     8: pregnancyform,
-
-    9: semenalysisform,
-    
+    9: semenalysisform,    
     10: stoolexam,
-
     11: thyroidexam,
-
     12: urinalysisexam,
-
     13: vdrlexam,
-
     14: hbsagvdrl,
-
+    15: antihav,
     18: hemform
 };
 

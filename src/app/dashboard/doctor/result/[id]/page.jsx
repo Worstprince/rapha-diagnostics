@@ -32,6 +32,7 @@ import thyroid from "@/components/labforms/thyroidform";
 import vdrl from "@/components/labforms/vdrlform";
 import hbsagvdrl from "@/components/labforms/hbsagvdrlform";
 import hem from "@/components/labforms/hemform";
+import antihav from "@/components/labforms/antihav";
 
 const forms = {
 
@@ -49,6 +50,7 @@ const forms = {
     12: UrinalysisForm,
     13: vdrl,
     14: hbsagvdrl,
+    15: antihav,
     18: hem,
 
 };

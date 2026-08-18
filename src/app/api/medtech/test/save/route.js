@@ -335,7 +335,6 @@ export async function POST(request) {
             await saveTestResult({
 
                 table: "test_thyroidexamresult",
-
                 visitId,
 
                 data: {
@@ -409,6 +408,23 @@ export async function POST(request) {
                 data: {
                     igg: result.igg,
                     igm: result.igm,
+                    date: new Date()
+                }
+
+            });
+
+            break;
+
+        case 15: //ANTI HAV
+
+            await saveTestResult({
+
+                table: "test_antihavresult",
+
+                visitId,
+
+                data: {
+                    antihav: result.antihav,
                     date: new Date()
                 }
 

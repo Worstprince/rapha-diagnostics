@@ -230,6 +230,14 @@ const TESTS = [
     },
 
     {
+        id: 15,
+        name: "Anti HAV",
+        fields: [
+            { value: "antihav", label: "Anti HAV Result" },
+        ],
+    },
+
+    {
         id: 18,
         name: "HEM",
         fields: [

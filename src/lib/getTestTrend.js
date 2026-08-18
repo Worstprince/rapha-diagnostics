@@ -155,6 +155,10 @@ const RESULT_FIELDS = {
         "igm"
     ],
 
+    15: [
+        "antihav"
+    ],
+
     18: [
         "rbs",
         "creatinine",

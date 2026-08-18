@@ -320,6 +320,16 @@ export const TEST_RESULT_TABLES = {
       },
     ],
   },
+  antihav: {
+    table: "test_antihavresult",
+    fields: [
+      {
+        column: "antihav",
+        label: "Anti HAV",
+        isCritical: isPositiveResult,
+      }
+    ]
+  },
   hem: {
     table: "test_hemresult",
     fields: [
