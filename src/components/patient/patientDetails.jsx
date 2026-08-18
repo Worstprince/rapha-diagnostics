@@ -299,6 +299,14 @@ const TESTS = [
             { value: "psa", label: "PSA" },
         ],
     },
+
+    {
+        id: 22,
+        name: "TYPHIDOT IgG,IgM",
+        fields: [
+            { value: "typhidot", label: "Typhidot" },
+        ],
+    },
 ];
 
 const TABS = [

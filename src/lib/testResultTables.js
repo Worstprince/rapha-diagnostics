@@ -432,6 +432,16 @@ export const TEST_RESULT_TABLES = {
       }
     ]
   },
+
+  typhidot: {
+    table: "test_typhidotresult",
+    fields: [
+      {
+        column: "typhidot",
+        label: "Typhidot",
+      }
+    ]
+  },
 };
 
 // Matches a test name from tbltests (e.g. "Blood Type", "bloodtype") to a

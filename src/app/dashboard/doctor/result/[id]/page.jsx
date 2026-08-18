@@ -38,6 +38,7 @@ import antihbs from "@/components/labforms/antihbs";
 import fbsform from "@/components/labforms/fbsform";
 import hivform from "@/components/labforms/hivform";
 import psaform from "@/components/labforms/psaform";
+import typhidot from "@/components/labforms/typhidot";
 
 const forms = {
 
@@ -62,6 +63,7 @@ const forms = {
     19: fbsform,
     20: hivform,
     21: psaform,
+    22: typhidot
 
 };
 

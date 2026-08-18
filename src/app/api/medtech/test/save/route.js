@@ -549,6 +549,23 @@ export async function POST(request) {
 
             break;
 
+        case 22: // typhidot
+
+            await saveTestResult({
+
+                table: "test_typhidotresult",
+
+                visitId,
+
+                data: {
+                    typhidot: result.typhidot,
+                    date: new Date()
+                }
+
+            });
+
+            break;
+
 
     default:
 

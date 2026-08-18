@@ -22,6 +22,7 @@ const RESULT_TABLES = {
     19: "test_fbsresult",
     20: "test_hivresult",
     21: "test_psaresult",
+    22: "test_typhidotresult",
 };
 
 export default async function getTestResult(testId, visitId) {

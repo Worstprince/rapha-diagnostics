@@ -195,6 +195,9 @@ const RESULT_FIELDS = {
     ],
     21: [
         "psa"
+    ],
+    22: [
+        "typhidot"
     ]
 
 };
