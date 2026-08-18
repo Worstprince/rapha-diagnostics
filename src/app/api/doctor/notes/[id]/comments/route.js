@@ -1,5 +1,5 @@
 
-
+// app/api/doctor/notes/[id]/comments/route.js
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/serverSession";
 import getVisitComments from "@/lib/getVisitComments";

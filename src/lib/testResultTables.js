@@ -235,7 +235,7 @@ export const TEST_RESULT_TABLES = {
     ],
   },
   stoolanalysis: {
-    table: "test_stoolanalysisresult",
+    table: "test_stoolexamresult",
     fields: [
       { column: "color", label: "Color" },
       { column: "parasiticOva", label: "Parasitic Ova" },
@@ -254,7 +254,7 @@ export const TEST_RESULT_TABLES = {
     ],
   },
   thyroid: {
-    table: "test_thyroidresult",
+    table: "test_thyroidexamresult",
     fields: [
       {
         column: "tsh",
