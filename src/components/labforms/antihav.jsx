@@ -20,7 +20,7 @@ export default function HepatitisForm({
 }) {
 
     const [result, setResult] = useState({
-        antiHAV: initialData?.antiHAV ?? ""
+        antihav: initialData?.antihav ?? ""
     });
 
     function handleChange(e) {
@@ -93,8 +93,8 @@ export default function HepatitisForm({
                             <td className="border border-rd-hair-strong p-4">
 
                                 <select
-                                    name="antiHAV"
-                                    value={result.antiHAV}
+                                    name="antihav"
+                                    value={result.antihav}
                                     onChange={handleChange}
                                     disabled={readOnly}
                                     className="w-full rounded border border-rd-hair-strong bg-rd-field p-2 disabled:cursor-not-allowed disabled:opacity-100"
