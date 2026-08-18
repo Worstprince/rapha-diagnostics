@@ -24,6 +24,7 @@ const RESULT_TABLES = {
     20: "test_hivresult",
     21: "test_psaresult",
     22: "test_typhidotresult",
+    23: "test_electrolyteresult",
 };
 
 export async function GET(request, { params }) {

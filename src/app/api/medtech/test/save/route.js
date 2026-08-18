@@ -564,6 +564,26 @@ export async function POST(request) {
 
             });
 
+            break;        
+        
+        case 23: // electrolyte
+
+            await saveTestResult({
+
+                table: "test_electrolyteresult",
+
+                visitId,
+
+                data: {
+                    sodium: result.sodium,
+                    potassium: result.potassium,
+                    calcium: result.calcium,
+                    magnesium: result.magnesium,
+                    date: new Date()
+                }
+
+            });
+
             break;
 
 

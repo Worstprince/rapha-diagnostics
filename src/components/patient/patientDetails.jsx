@@ -307,6 +307,17 @@ const TESTS = [
             { value: "typhidot", label: "Typhidot" },
         ],
     },
+
+    {
+        id: 23,
+        name: "Electrolyte Serum",
+        fields: [
+            { value: "sodium", label: "Sodium" },
+            { value: "potassium", label: "Potassium" },
+            { value: "calcium", label: "Calcium" },
+            { value: "magnesium", label: "Magnesium" },
+        ],
+    },
 ];
 
 const TABS = [

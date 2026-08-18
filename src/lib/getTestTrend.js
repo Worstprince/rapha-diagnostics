@@ -198,6 +198,12 @@ const RESULT_FIELDS = {
     ],
     22: [
         "typhidot"
+    ],
+    23: [
+        "sodium",
+        "potassium",
+        "calcium",
+        "magnesium",
     ]
 
 };

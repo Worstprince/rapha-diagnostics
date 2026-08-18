@@ -442,6 +442,16 @@ export const TEST_RESULT_TABLES = {
       }
     ]
   },
+
+  electrolyte: {
+    table: "test_electrolyteresult",
+    fields: [
+      { column: "sodium", label: "Sodium" },
+      { column: "potassium", label: "Potassium" },
+      { column: "calcium", label: "Calcium" },
+      { column: "magnesium", label: "Magnesium" },
+    ]
+  },
 };
 
 // Matches a test name from tbltests (e.g. "Blood Type", "bloodtype") to a
