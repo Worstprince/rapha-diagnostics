@@ -238,6 +238,15 @@ const TESTS = [
     },
 
     {
+        id: 16,
+        name: "Random Blood Sugar",
+        fields: [
+            { value: "siUnit", label: "S.I Unit" },
+            { value: "conventionalUnit", label: "Conventional Unit" },
+        ],
+    },
+
+    {
         id: 18,
         name: "HEM",
         fields: [

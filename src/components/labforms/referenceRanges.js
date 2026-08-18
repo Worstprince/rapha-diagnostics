@@ -63,6 +63,11 @@ export const REFERENCE_RANGES = {
 
     spermConcentration: { min: 20 },
     spermCount: { min: 40 },
+  },
+
+  rbs: {
+    siUnit: { min: 3.4, max: 6.7 },
+    conventionalUnit: { min: 60.0, max: 120.0 }
   }
 };
 

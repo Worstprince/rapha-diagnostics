@@ -16,6 +16,7 @@ const RESULT_TABLES = {
     13: "test_vdrlresult",
     14: "test_hbsagvdrlresult",
     15: "test_antihavresult",
+    16: "test_rbsresult",
     18: "test_hemresult"
 };
 

@@ -432,6 +432,25 @@ export async function POST(request) {
 
             break;
 
+        case 16: // RBS
+
+            await saveTestResult({
+
+                table: "test_rbsresult",
+
+                visitId,
+
+                data: {
+                    siUnit: result.siUnit,
+                    conventionalUnit: result.conventionalUnit,
+                    date: new Date()
+                }
+
+            });
+
+            break;
+
+
         case 18: // Chemistry
 
             await saveTestResult({

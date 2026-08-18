@@ -159,6 +159,11 @@ const RESULT_FIELDS = {
         "antihav"
     ],
 
+    16: [
+        "siUnit",
+        "conventionalUnit"
+    ],
+
     18: [
         "rbs",
         "creatinine",

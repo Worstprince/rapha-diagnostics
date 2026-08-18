@@ -330,6 +330,19 @@ export const TEST_RESULT_TABLES = {
       }
     ]
   },
+  rbs: {
+    table: "test_rbsresult",
+    fields: [
+      {
+        column: "siUnit",
+        label: "S.I Unit",
+      },
+      {
+        column: "conventionalUnit",
+        label: "Conventional Unit",
+      },
+    ]
+  },
   hem: {
     table: "test_hemresult",
     fields: [

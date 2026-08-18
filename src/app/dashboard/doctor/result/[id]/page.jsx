@@ -33,6 +33,7 @@ import vdrl from "@/components/labforms/vdrlform";
 import hbsagvdrl from "@/components/labforms/hbsagvdrlform";
 import hem from "@/components/labforms/hemform";
 import antihav from "@/components/labforms/antihav";
+import rbs from "@/components/labforms/rbsform";
 
 const forms = {
 
@@ -51,6 +52,7 @@ const forms = {
     13: vdrl,
     14: hbsagvdrl,
     15: antihav,
+    16: rbs,
     18: hem,
 
 };
