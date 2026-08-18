@@ -270,6 +270,8 @@ export const TEST_RESULT_TABLES = {
         },
       },
       { column: "ft4", label: "FT4" },
+      { column: "t3", label: "t3" },
+      { column: "t4", label: "t4" },
     ],
   },
   urinalysis: {

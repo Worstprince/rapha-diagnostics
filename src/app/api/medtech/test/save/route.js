@@ -320,7 +320,7 @@ export async function POST(request) {
         
         case 11: // Thyroid Panel
 
-            if (!result.tsh || !result.ft4) {
+            if (!result.tsh || !result.ft4 || !result.t3 || !result.t4) {
                 return NextResponse.json(
                     {
                         success: false,
@@ -341,6 +341,8 @@ export async function POST(request) {
                 data: {
                     tsh: result.tsh,
                     ft4: result.ft4,
+                    t3: result.t3,
+                    t4: result.t4,
                     date: new Date()
                 }
 

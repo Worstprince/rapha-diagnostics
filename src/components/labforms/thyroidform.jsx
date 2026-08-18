@@ -25,7 +25,9 @@ export default function ThyroidPanelForm({
 
     const [result, setResult] = useState({
         tsh: "",
-        ft4: ""
+        ft4: "",
+        t3: "",
+        t4: ""
     });
 
     useEffect(() => {
@@ -34,7 +36,9 @@ export default function ThyroidPanelForm({
 
             setResult({
                 tsh: initialData?.tsh ?? "",
-                ft4: initialData?.ft4 ?? ""
+                ft4: initialData?.ft4 ?? "",
+                t3: initialData?.t3 ?? "",
+                t4: initialData?.t4 ?? ""
             });
 
         }
@@ -81,6 +85,7 @@ export default function ThyroidPanelForm({
             </h2>
 
             <div className="overflow-x-auto">
+
                 <table className="mx-auto w-full max-w-3xl border-collapse border border-rd-hair-strong text-center">
 
                     <thead>
@@ -157,9 +162,62 @@ export default function ThyroidPanelForm({
 
                         </tr>
 
+                        <tr>
+
+                            <td className="border border-rd-hair-strong p-2">
+                                T3
+                            </td>
+
+                            <td className="border border-rd-hair-strong p-2">
+
+                                <ResultField
+                                    name="t3"
+                                    value={result.t3}
+                                    onChange={handleChange}
+                                    readOnly={readOnly}
+                                    range={RANGES.t3}
+                                    sex={patient?.sex}
+                                    className="text-center"
+                                />
+
+                            </td>
+
+                            <td className="border border-rd-hair-strong p-2">
+                                1.30-3.10nmol.L	
+                            </td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td className="border border-rd-hair-strong p-2">
+                                T4
+                            </td>
+
+                            <td className="border border-rd-hair-strong p-2">
+
+                                <ResultField
+                                    name="t4"
+                                    value={result.t4}
+                                    onChange={handleChange}
+                                    readOnly={readOnly}
+                                    range={RANGES.t4}
+                                    sex={patient?.sex}
+                                    className="text-center"
+                                />
+
+                            </td>
+
+                            <td className="border border-rd-hair-strong p-2">
+                                59.00-154.00nmol/L	
+                            </td>
+
+                        </tr>
+
                     </tbody>
 
                 </table>
+
             </div>
 
             <LabSignatures
@@ -181,7 +239,9 @@ export default function ThyroidPanelForm({
                         type="submit"
                         className="rd-btn rd-press rd-focus"
                     >
-                        {hasExistingResult  ? "Update Result" : "Save Result"}
+                        {hasExistingResult
+                            ? "Update Result"
+                            : "Save Result"}
                     </button>
 
                 </div>

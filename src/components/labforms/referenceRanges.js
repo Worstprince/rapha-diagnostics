@@ -46,6 +46,8 @@ export const REFERENCE_RANGES = {
   thyroid: {
     tsh: { min: 0.27, max: 4.2 },
     ft4: { min: 12.0, max: 22.0 },
+    t3: { min: 1.30, max: 3.10 },
+    t4: { min: 59.0, max: 154.0 },
   },
 
   ogtt: {
