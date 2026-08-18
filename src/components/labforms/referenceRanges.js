@@ -72,6 +72,10 @@ export const REFERENCE_RANGES = {
 
   fbs: {
     glucose: { min:4.38, max: 6.05}
+  },
+
+  psa: {
+    psa: { max: 4}
   }
 
 };

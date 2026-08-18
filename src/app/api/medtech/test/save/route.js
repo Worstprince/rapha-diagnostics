@@ -468,7 +468,7 @@ export async function POST(request) {
 
             break;
 
-        case 18: // Chemistry
+        case 18: // hem
 
             await saveTestResult({
 
@@ -497,8 +497,7 @@ export async function POST(request) {
             });
 
             break;
-    
-                
+     
         case 19: // fbs
 
             await saveTestResult({
@@ -526,6 +525,23 @@ export async function POST(request) {
 
                 data: {
                     hiv: result.hiv,
+                    date: new Date()
+                }
+
+            });
+
+            break;
+
+        case 21: // psa
+
+            await saveTestResult({
+
+                table: "test_psaresult",
+
+                visitId,
+
+                data: {
+                    psa: result.psa,
                     date: new Date()
                 }
 

@@ -414,11 +414,21 @@ export const TEST_RESULT_TABLES = {
   },
 
   hiv: {
-    table: "test_fbsresult",
+    table: "test_hivresult",
     fields: [
       {
         column: "hiv",
         label: "HIV",
+      }
+    ]
+  },
+
+  psa: {
+    table: "test_psaresult",
+    fields: [
+      {
+        column: "psa",
+        label: "PSA",
       }
     ]
   },

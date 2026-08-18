@@ -37,6 +37,7 @@ import rbs from "@/components/labforms/rbsform";
 import antihbs from "@/components/labforms/antihbs";
 import fbsform from "@/components/labforms/fbsform";
 import hivform from "@/components/labforms/hivform";
+import psaform from "@/components/labforms/psaform";
 
 const forms = {
 
@@ -60,6 +61,7 @@ const forms = {
     18: hem,
     19: fbsform,
     20: hivform,
+    21: psaform,
 
 };
 

@@ -22,6 +22,7 @@ const RESULT_TABLES = {
     18: "test_hemresult",
     19: "test_fbsresult",
     20: "test_hivresult",
+    21: "test_psaresult",
 };
 
 export async function GET(request, { params }) {

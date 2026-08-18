@@ -192,6 +192,9 @@ const RESULT_FIELDS = {
 
     20: [
         "hiv"
+    ],
+    21: [
+        "psa"
     ]
 
 };

@@ -278,7 +278,7 @@ const TESTS = [
 
     {
         id: 19,
-        name: "Fasting Blood Sugar",
+        name: "Fasting Blood Sugar (FBS)",
         fields: [
             { value: "glucose", label: "Glucose" },
         ],
@@ -286,9 +286,17 @@ const TESTS = [
 
     {
         id: 20,
-        name: "Human Immunodeficiency Virus",
+        name: "Human Immunodeficiency Virus (HIV)",
         fields: [
             { value: "hiv", label: "HIV" },
+        ],
+    },
+
+    {
+        id: 21,
+        name: "Prostate-Specific Antigen (PSA)",
+        fields: [
+            { value: "psa", label: "PSA" },
         ],
     },
 ];
