@@ -1,7 +1,4 @@
 // app/api/doctor/notes/[id]/finalize/route.js
-//
-// Note: if you're on Next.js 15+, `params` is a Promise and needs
-// `const { id } = await params;` instead of destructuring directly.
 
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/serverSession";

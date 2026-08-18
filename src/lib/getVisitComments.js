@@ -1,11 +1,11 @@
-
+// src/lib/getVisitComments.js
 
 import db from "@/lib/db";
 
 export default async function getVisitComments(visitId) {
     const [rows] = await db.query(
         `
-        SELECT c.id, c.comment, c.created_at, u.username AS authorName
+        SELECT c.id, c.comment, c.created_at, c.authorid, u.username AS authorName
         FROM tblvisitnotecomments AS c
         INNER JOIN tblusers AS u
             ON u.id = c.authorid
@@ -18,6 +18,7 @@ export default async function getVisitComments(visitId) {
     return rows.map((r) => ({
         id: r.id,
         comment: r.comment,
+        authorId: r.authorid,
         authorName: r.authorName,
         createdAt: new Date(r.created_at).toLocaleString("en-US", {
             dateStyle: "medium",
