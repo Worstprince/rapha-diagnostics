@@ -449,6 +449,24 @@ export async function POST(request) {
             });
 
             break;
+        
+        case 17: // antihbs
+
+            await saveTestResult({
+
+                table: "test_antihbsresult",
+
+                visitId,
+
+                data: {
+                    antiHBS: result.antiHBS,
+                    value: result.value,
+                    date: new Date()
+                }
+
+            });
+
+            break;
 
 
         case 18: // Chemistry

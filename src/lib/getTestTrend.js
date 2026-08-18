@@ -164,6 +164,11 @@ const RESULT_FIELDS = {
         "conventionalUnit"
     ],
 
+    17: [
+        "antiHBS",
+        "value"
+    ],
+
     18: [
         "rbs",
         "creatinine",

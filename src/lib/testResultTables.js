@@ -343,6 +343,21 @@ export const TEST_RESULT_TABLES = {
       },
     ]
   },
+
+  antihbs: {
+    table: "test_antihbsresult",
+    fields: [
+      {
+        column: "antihbs",
+        label: "Anti HBS",
+      },
+      {
+        column: "value",
+        label: "Value",
+      },
+    ]
+  },
+
   hem: {
     table: "test_hemresult",
     fields: [

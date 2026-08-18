@@ -34,6 +34,7 @@ import hemform from "@/components/labforms/hemform";
 import hbsagvdrl from "@/components/labforms/hbsagvdrlform";
 import antihav from "@/components/labforms/antihav";
 import rbs from "@/components/labforms/rbsform";
+import antihbs from "@/components/labforms/antihbs";
 
 
 import { useCurrentUser } from "@/lib/session";
@@ -55,6 +56,7 @@ const forms = {
     14: hbsagvdrl,
     15: antihav,
     16: rbs,
+    17: antihbs,
     18: hemform
 };
 

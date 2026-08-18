@@ -247,6 +247,15 @@ const TESTS = [
     },
 
     {
+        id: 17,
+        name: "Anti Hepatitis B Surface Antibody",
+        fields: [
+            { value: "antiHBS", label: "Anti HBS" },
+            { value: "value", label: "Value" },
+        ],
+    },
+
+    {
         id: 18,
         name: "HEM",
         fields: [
