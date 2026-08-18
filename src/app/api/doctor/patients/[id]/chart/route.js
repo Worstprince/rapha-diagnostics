@@ -14,7 +14,8 @@ const RESULT_TABLES = {
     10: "test_stoolexamresult",
     11: "test_thyroidexamresult",
     12: "test_urinalysisresult",
-    13: "test_vdrlresult"
+    13: "test_vdrlresult",
+    18: "test_hemresult"
 };
 
 export async function GET(request, { params }) {
