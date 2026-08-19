@@ -23,11 +23,38 @@ const ROLE_HOME = {
   doctor: "/dashboard/doctor",
 };
 
-// jose needs the secret as a Uint8Array, not a raw string.
+if (!process.env.SESSION_SECRET) {
+  // Fail loudly at build/boot rather than silently accepting bad tokens.
+  throw new Error("SESSION_SECRET is not set");
+}
 const secretKey = new TextEncoder().encode(process.env.SESSION_SECRET);
 
+// Collapse "//", strip trailing slash, and resolve any decoded "." / ".." segments
+// so a path like /dashboard/admin/../reception can't slip past the string checks.
+function normalizePath(pathname) {
+  let decoded;
+  try {
+    decoded = decodeURIComponent(pathname);
+  } catch {
+    decoded = pathname;
+  }
+  const segments = decoded.split("/").reduce((acc, seg) => {
+    if (seg === "" || seg === ".") return acc;
+    if (seg === "..") { acc.pop(); return acc; }
+    acc.push(seg);
+    return acc;
+  }, []);
+  return "/" + segments.join("/");
+}
+
+function redirectNoStore(url, request) {
+  const response = NextResponse.redirect(new URL(url, request.url));
+  response.headers.set("Cache-Control", "no-store");
+  return response;
+}
+
 export async function middleware(request) {
-  const { pathname } = request.nextUrl;
+  const pathname = normalizePath(request.nextUrl.pathname);
 
   if (
     pathname.startsWith("/_next") ||
@@ -43,14 +70,14 @@ export async function middleware(request) {
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
 
   if (!token) {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
+    return redirectNoStore("/auth/login", request);
   }
 
   try {
     const { payload: user } = await jwtVerify(token, secretKey);
 
     if (!user?.role) {
-      const response = NextResponse.redirect(new URL("/auth/login", request.url));
+      const response = redirectNoStore("/auth/login", request);
       response.cookies.delete(SESSION_COOKIE_NAME);
       return response;
     }
@@ -64,14 +91,17 @@ export async function middleware(request) {
     if (!isAllowed && pathname.startsWith("/dashboard")) {
       const home = ROLE_HOME[roleKey] ?? "/auth/login";
       if (pathname === "/dashboard") {
-        return NextResponse.redirect(new URL(home, request.url));
+        return redirectNoStore(home, request);
       }
-      return NextResponse.redirect(new URL("/dashboard/access-denied", request.url));
+      return redirectNoStore("/dashboard/access-denied", request);
     }
 
-    return NextResponse.next();
+    // Authenticated dashboard responses shouldn't be cached/shared.
+    const response = NextResponse.next();
+    response.headers.set("Cache-Control", "no-store");
+    return response;
   } catch {
-    const response = NextResponse.redirect(new URL("/auth/login", request.url));
+    const response = redirectNoStore("/auth/login", request);
     response.cookies.delete(SESSION_COOKIE_NAME);
     return response;
   }
