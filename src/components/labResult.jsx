@@ -106,7 +106,7 @@ const reportSkin = [
 ].join(" ");
 
 
-export default function LabResultPage() {
+export default function LabResultPage({basePath = "/dashboard/doctor"}) {
 
     const currentUser = useCurrentUser();
     const { id } = useParams();
@@ -257,14 +257,14 @@ export default function LabResultPage() {
             <div className="no-print rd-panel flex flex-none flex-wrap items-center gap-x-4 gap-y-3 p-4">
 
                 <Link
-                    href={`/dashboard/doctor/visitation/${test.visitid}`}
+                    href={`${basePath}/visitation/${test.visitid}`}
                     className={backLink}
                 >
 
                     <ArrowLeftIcon size={16} />
 
                     Back to request
-
+                
                 </Link>
 
 
