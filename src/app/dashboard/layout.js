@@ -26,9 +26,6 @@ const ROLE_HOMES = {
   medtech: "/dashboard/medtech",
 };
 
-/* Which dashboards front the drawn mark rather than the flat nav tile. */
-const ANIMATED_MARK_HOMES = [ROLE_HOMES.admin, ROLE_HOMES.doctor, ROLE_HOMES.medtech];
-
 function overviewLink(href) {
   return { href, label: "Overview", Icon: GridIcon };
 }
@@ -118,37 +115,12 @@ const medtechSections = [
 
 const baseSections = [];
 
-function BrandMark() {
-  return (
-    <svg viewBox="0 0 48 48" width="36" height="36" aria-hidden="true" className="flex-none">
-      <defs>
-        <linearGradient id="rd-nav-mk" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#67e8f9" />
-          <stop offset="0.55" stopColor="#22b8e6" />
-          <stop offset="1" stopColor="#2563c9" />
-        </linearGradient>
-      </defs>
-      <rect x="2" y="2" width="44" height="44" rx="14" fill="url(#rd-nav-mk)" />
-      <path
-        d="M7 26 H15 L18 26 L21 15 L26 34 L29 23 L31 26 H41"
-        fill="none"
-        stroke="#ffffff"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-/* The nav tile is the mark by default; the sections listed in
-   ANIMATED_MARK_HOMES get the drawn version with its orbiting trails instead.
-   Scoped to the section rather than a single page so the lockup does not swap
-   out from under someone who clicks into a sub-page. */
-function Wordmark({ animated = false }) {
+/* One lockup for every dashboard. The drawn mark carries its own colour
+   token, so it inverts with the theme without anything here having to know. */
+function Wordmark() {
   return (
     <div className="flex items-center gap-3">
-      {animated ? <AnimatedMark size={44} className="rd-mark -my-1" /> : <BrandMark />}
+      <AnimatedMark size={44} className="rd-mark -my-1" />
       <div className="leading-none">
         <p className="text-base font-extrabold tracking-tight text-rd-title">Rapha</p>
         <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-rd-muted">
@@ -248,9 +220,6 @@ const ROLE_ACCESS = {
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
-  const showAnimatedMark = ANIMATED_MARK_HOMES.some(
-    (home) => pathname === home || pathname.startsWith(`${home}/`),
-  );
   const router = useRouter();
   const user = useCurrentUser();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -329,7 +298,7 @@ export default function DashboardLayout({ children }) {
         {/* Flush bar on mobile; a floating panel once there's room to inset it. */}
         <aside className="no-print border-b border-rd-hair bg-rd-card backdrop-blur-xl lg:sticky lg:top-4 lg:flex lg:h-[calc(100dvh-2rem)] lg:w-72 lg:flex-none lg:flex-col lg:rounded-2xl lg:border lg:shadow-[var(--rd-card-shadow)]">
           <div className="flex items-center justify-between gap-3 p-5 lg:p-4">
-            <Wordmark animated={showAnimatedMark} />
+            <Wordmark />
             <button
               ref={menuButtonRef}
               type="button"
@@ -366,7 +335,7 @@ export default function DashboardLayout({ children }) {
               className="rd-drawer absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col border-r border-rd-hair bg-rd-card backdrop-blur-xl"
             >
               <div className="flex items-center justify-between gap-3 p-5">
-                <Wordmark animated={showAnimatedMark} />
+                <Wordmark />
                 <button
                   ref={closeButtonRef}
                   type="button"
