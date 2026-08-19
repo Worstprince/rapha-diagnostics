@@ -26,6 +26,9 @@ const ROLE_HOMES = {
   medtech: "/dashboard/medtech",
 };
 
+/* Which dashboards front the drawn mark rather than the flat nav tile. */
+const ANIMATED_MARK_HOMES = [ROLE_HOMES.admin, ROLE_HOMES.doctor];
+
 function overviewLink(href) {
   return { href, label: "Overview", Icon: GridIcon };
 }
@@ -138,10 +141,10 @@ function BrandMark() {
   );
 }
 
-/* The nav tile is the mark everywhere except the admin section, where the
-   drawn version with its orbiting trails takes over. Scoped to the section
-   rather than the single overview page so the lockup does not swap out from
-   under an admin who clicks into Activity Log. */
+/* The nav tile is the mark by default; the sections listed in
+   ANIMATED_MARK_HOMES get the drawn version with its orbiting trails instead.
+   Scoped to the section rather than a single page so the lockup does not swap
+   out from under someone who clicks into a sub-page. */
 function Wordmark({ animated = false }) {
   return (
     <div className="flex items-center gap-3">
@@ -245,7 +248,9 @@ const ROLE_ACCESS = {
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
-  const isAdminArea = pathname.startsWith(ROLE_HOMES.admin);
+  const showAnimatedMark = ANIMATED_MARK_HOMES.some(
+    (home) => pathname === home || pathname.startsWith(`${home}/`),
+  );
   const router = useRouter();
   const user = useCurrentUser();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -324,7 +329,7 @@ export default function DashboardLayout({ children }) {
         {/* Flush bar on mobile; a floating panel once there's room to inset it. */}
         <aside className="no-print border-b border-rd-hair bg-rd-card backdrop-blur-xl lg:sticky lg:top-4 lg:flex lg:h-[calc(100dvh-2rem)] lg:w-72 lg:flex-none lg:flex-col lg:rounded-2xl lg:border lg:shadow-[var(--rd-card-shadow)]">
           <div className="flex items-center justify-between gap-3 p-5 lg:p-4">
-            <Wordmark animated={isAdminArea} />
+            <Wordmark animated={showAnimatedMark} />
             <button
               ref={menuButtonRef}
               type="button"
@@ -361,7 +366,7 @@ export default function DashboardLayout({ children }) {
               className="rd-drawer absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col border-r border-rd-hair bg-rd-card backdrop-blur-xl"
             >
               <div className="flex items-center justify-between gap-3 p-5">
-                <Wordmark animated={isAdminArea} />
+                <Wordmark animated={showAnimatedMark} />
                 <button
                   ref={closeButtonRef}
                   type="button"
