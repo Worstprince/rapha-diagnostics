@@ -76,6 +76,13 @@ export const REFERENCE_RANGES = {
 
   psa: {
     psa: { max: 4}
+  },
+
+  electrolyte: {
+    sodium: { min: 136, max: 145 },
+    potassium: { min: 3.5, max: 5.5 },
+    calcium: { min: 2.10, max: 2.70 },
+    magnesium: { min: 1.7 , max: 2.2 }
   }
 
 };

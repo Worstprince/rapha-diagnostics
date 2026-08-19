@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 import LabReportHeader, { LabSignatures } from "./labReportHeader";
+import { REFERENCE_RANGES } from "./referenceRanges";
+import ResultField from "./ResultField";
+
+const RANGES = REFERENCE_RANGES.rbs;
 
 export default function RBSForm({
     patient,
@@ -142,26 +146,23 @@ export default function RBSForm({
 
                             <td className="border border-rd-hair-strong p-4">
 
-                                <input
-                                    type="text"
+                                <ResultField
                                     name="siUnit"
                                     value={result.siUnit}
                                     onChange={handleChange}
                                     readOnly={readOnly}
-                                    className="w-full rounded bg-rd-field p-2 text-center"
+                                    range={RANGES.siUnit}
                                 />
-
                             </td>
 
                             <td className="border border-rd-hair-strong p-4">
 
-                                <input
-                                    type="text"
+                                <ResultField
                                     name="conventionalUnit"
                                     value={result.conventionalUnit}
                                     onChange={handleChange}
                                     readOnly={readOnly}
-                                    className="w-full rounded bg-rd-field p-2 text-center"
+                                    range={RANGES.conventionalUnit}
                                 />
 
                             </td>

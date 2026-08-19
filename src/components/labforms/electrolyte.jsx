@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 import LabReportHeader, { LabSignatures } from "./labReportHeader";
+import { REFERENCE_RANGES } from "./referenceRanges";
+import ResultField from "./ResultField";
+
+const RANGES = REFERENCE_RANGES.electrolyte;
 
 export default function ElectrolytesForm({
     patient,
@@ -116,14 +120,12 @@ export default function ElectrolytesForm({
 
                                 <div className="flex items-center justify-center gap-1">
 
-                                    <input
-                                        type="text"
+                                    <ResultField
                                         name="sodium"
                                         value={result.sodium}
                                         onChange={handleChange}
                                         readOnly={readOnly}
-                                        placeholder="0.0"
-                                        className="w-full rounded bg-rd-field p-2 text-center"
+                                        range={RANGES.sodium}
                                     />
 
                                     <span className="whitespace-nowrap text-sm text-rd-muted">
@@ -150,14 +152,13 @@ export default function ElectrolytesForm({
 
                                 <div className="flex items-center justify-center gap-1">
 
-                                    <input
-                                        type="text"
+
+                                    <ResultField
                                         name="potassium"
                                         value={result.potassium}
                                         onChange={handleChange}
                                         readOnly={readOnly}
-                                        placeholder="0.00"
-                                        className="w-full rounded bg-rd-field p-2 text-center"
+                                        range={RANGES.potassium}
                                     />
 
                                     <span className="whitespace-nowrap text-sm text-rd-muted">
@@ -184,14 +185,13 @@ export default function ElectrolytesForm({
 
                                 <div className="flex items-center justify-center gap-1">
 
-                                    <input
-                                        type="text"
+
+                                    <ResultField
                                         name="calcium"
                                         value={result.calcium}
                                         onChange={handleChange}
                                         readOnly={readOnly}
-                                        placeholder="0.00"
-                                        className="w-full rounded bg-rd-field p-2 text-center"
+                                        range={RANGES.calcium}
                                     />
 
                                     <span className="whitespace-nowrap text-sm text-rd-muted">
@@ -218,14 +218,13 @@ export default function ElectrolytesForm({
 
                                 <div className="flex items-center justify-center gap-1">
 
-                                    <input
-                                        type="text"
+
+                                    <ResultField
                                         name="magnesium"
                                         value={result.magnesium}
                                         onChange={handleChange}
                                         readOnly={readOnly}
-                                        placeholder="0.00"
-                                        className="w-full rounded bg-rd-field p-2 text-center"
+                                        range={RANGES.magnesium}
                                     />
 
                                     <span className="whitespace-nowrap text-sm text-rd-muted">
