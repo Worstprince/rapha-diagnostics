@@ -581,6 +581,7 @@ function InfoCard({
 export default function PatientDetails({
     patientId,
     role,
+    basePath = "/dashboard/doctor"
 }) {
 
     const [patient, setPatient] = useState(null);
@@ -932,10 +933,7 @@ export default function PatientDetails({
     ----------------------------------------------------- */
 
     const backToPatients = (
-        <Link
-            href="/dashboard/doctor/patients"
-            className={backLink}
-        >
+        <Link href={`${basePath}/patients`} className={backLink}>
             <ArrowLeftIcon size={16} />
             Back to patients
         </Link>
