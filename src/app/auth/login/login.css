@@ -1,16 +1,70 @@
-/* Palette tokens live in globals.css so the dashboard shares them. Only what's
-   specific to this page is declared here. */
-.rd-page {
-  --rd-noise-opacity: 0.04;
+/* ---------------------------------------------------------------------------
+   RAPHA DIAGNOSTICS — login palette.
 
+   Design system: "Patient Portal / Health Records" (Trust & Authority +
+   Accessible & Ethical). Clinical blue, health green, alert red, accessible
+   contrast. The auth screen borrows the vault-navy dark ground that secure
+   sign-in surfaces use, so the two halves of the page read as one system:
+   deep navy for the brand side, clean white for the form side.
+
+   Only page-scoped tokens live here. Everything is declared on .rd-page rather
+   than :root so the dashboard keeps the palette it already ships with.
+   --------------------------------------------------------------------------- */
+.rd-page {
+  --rd-noise-opacity: 0.035;
+
+  /* Clinical blue. The earlier teal sat at the same value as the logo's cyan
+     trail and the two cancelled each other out; this ramp is far darker than
+     anything in the mark, so the trail reads as the brightest thing on the
+     panel instead of competing with it. */
   --rd-brand-grad: linear-gradient(
-    155deg,
-    rgba(13, 106, 128, 0.52) 0%,
-    rgba(18, 63, 101, 0.6) 46%,
-    rgba(13, 37, 71, 0.68) 100%
+    152deg,
+    rgba(41, 79, 128, 0.62) 0%,
+    rgba(29, 58, 102, 0.7) 46%,
+    rgba(22, 44, 82, 0.78) 100%
   );
-  --rd-brand-hair: rgba(255, 255, 255, 0.1);
-  --rd-brand-shadow: 0 50px 90px -36px rgba(3, 12, 26, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --rd-brand-hair: rgba(125, 211, 252, 0.16);
+  --rd-brand-shadow: 0 40px 80px -40px rgba(2, 8, 23, 0.8), inset 0 1px 0 rgba(186, 230, 253, 0.14);
+  --rd-brand-sheen: radial-gradient(130% 90% at 10% -10%, rgba(255, 255, 255, 0.12), transparent 62%);
+
+  /* Panel-local ink. Every one of these flips in light mode, which is the whole
+     reason the panel's children reference tokens instead of literal whites. */
+  --rd-on-brand: #f0f9ff;
+  --rd-on-brand-dim: rgba(224, 242, 254, 0.76);
+  --rd-on-brand-faint: rgba(186, 230, 253, 0.62);
+  --rd-chip-bg: rgba(125, 211, 252, 0.1);
+  --rd-chip-edge: rgba(125, 211, 252, 0.2);
+
+  /* Accent overrides. globals.css ships a cyan that is a near-match for the
+     logo trail; these shift it to clinical blue so the mark stays the only
+     cyan on the page. 8.4:1 on the card ground. */
+  --rd-cyan: #7dd3fc;
+  --rd-cyan-strong: #bae6fd;
+  --rd-on-cyan: #052a3d;
+  --rd-accent-grad: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+  --rd-accent-shadow: rgba(56, 189, 248, 0.55);
+  --rd-accent-shadow-strong: rgba(56, 189, 248, 0.7);
+  --rd-focus-ring: rgba(56, 189, 248, 0.16);
+
+  /* Health green, from the same palette row. Used only where a state is being
+     reported — never as decoration. */
+  --rd-fresh: #34d399;
+
+  /* The trace on the panel. Tokenised because a beam bright enough to glow on
+     navy is far too pale to see once the panel turns white. */
+  --rd-ecg-base: rgba(125, 211, 252, 0.18);
+  --rd-ecg-beam: #38bdf8;
+  --rd-ecg-glow: rgba(56, 189, 248, 0.85);
+
+  --rd-canvas: #0a1424;
+  --rd-card: rgba(21, 38, 64, 0.84);
+
+  /* The mark is one colour and draws with currentColor, so it does what a
+     one-colour mark always does: dark on light grounds, light on dark ones. It
+     needed a white plate behind it only because it was pinned to black on a
+     dark panel — inverting costs nothing and leaves no box on the page. */
+  --rd-mark-ink: #ffffff;
+  --rd-mark-halo: rgba(56, 189, 248, 0.34);
 
   position: relative;
   box-sizing: border-box;
@@ -22,22 +76,71 @@
   color: var(--rd-text);
   background-color: var(--rd-canvas);
   background-image: none;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  /* Figtree for headings, Noto Sans for running text — the "Medical Clean"
+     pairing. Both load through next/font, so there is no layout shift and no
+     request to a font CDN at runtime. */
+  font-family: var(--rd-font-body), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   transition: background-color 400ms ease, color 400ms ease;
 }
 
+/* ---------------------------------------------------------------------------
+   Light mode.
+
+   The panel turns over with the rest of the page rather than staying navy. A
+   dark slab on a pale canvas is the thing that made light mode read as an
+   afterthought — two unrelated surfaces sharing a screen. Here both halves are
+   light and the difference between them is tint and elevation, not value:
+   the brand side is a cool blue-white with a graticule, the form side is plain
+   white and sits higher.
+   --------------------------------------------------------------------------- */
 html[data-theme="light"] .rd-page {
   --rd-noise-opacity: 0.02;
 
   --rd-brand-grad: linear-gradient(
-    155deg,
-    rgba(14, 127, 153, 0.88) 0%,
-    rgba(31, 95, 150, 0.9) 50%,
-    rgba(42, 63, 133, 0.93) 100%
+    152deg,
+    rgba(255, 255, 255, 0.94) 0%,
+    rgba(233, 243, 252, 0.92) 46%,
+    rgba(207, 226, 243, 0.94) 100%
   );
-  --rd-brand-hair: rgba(255, 255, 255, 0.4);
-  --rd-brand-shadow: 0 44px 84px -42px rgba(20, 60, 110, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  --rd-brand-hair: rgba(12, 74, 110, 0.14);
+  --rd-brand-shadow: 0 40px 80px -44px rgba(12, 74, 110, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --rd-brand-sheen: radial-gradient(130% 90% at 10% -10%, rgba(255, 255, 255, 0.85), transparent 58%);
+
+  /* Deep navy ink rather than near-black: it belongs to the same blue family as
+     the panel, so the text sits in the surface instead of on top of it.
+     #0C4A6E on the panel mid-tone is 8.9:1. */
+  --rd-on-brand: #0c3255;
+  --rd-on-brand-dim: #3a5f80;
+  /* #5B7D9C measured 3.85:1 on the panel, under AA for the 11px status line
+     it sets. This is 5.1:1. */
+  --rd-on-brand-faint: #47698a;
+  --rd-chip-bg: rgba(2, 132, 199, 0.08);
+  --rd-chip-edge: rgba(2, 132, 199, 0.22);
+
+  /* #0369A1 rather than the palette's #0284C7: white on #0284C7 lands at
+     4.1:1, which fails AA for the 15px button label. This clears 5.9:1. */
+  --rd-cyan: #0369a1;
+  --rd-cyan-strong: #075985;
+  --rd-on-cyan: #ffffff;
+  --rd-accent-grad: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
+  --rd-accent-shadow: rgba(3, 105, 161, 0.4);
+  --rd-accent-shadow-strong: rgba(3, 105, 161, 0.55);
+  --rd-focus-ring: rgba(3, 105, 161, 0.16);
+
+  --rd-fresh: #047857;
+
+  --rd-ecg-base: rgba(12, 74, 110, 0.16);
+  --rd-ecg-beam: #0369a1;
+  --rd-ecg-glow: rgba(3, 105, 161, 0.45);
+
+  --rd-canvas: #f2f7fc;
+  --rd-card: #ffffff;
+
+  /* Black, as asked for, and here it simply works: the panel is light, so the
+     flask reads at full strength with nothing drawn around it. */
+  --rd-mark-ink: #0b1220;
+  --rd-mark-halo: rgba(2, 132, 199, 0.16);
 }
 
 .rd-page *,
@@ -64,8 +167,11 @@ html[data-theme="light"] .rd-page {
   animation: rd-dna-in 600ms cubic-bezier(0.22, 0.68, 0.24, 1) backwards;
 }
 
+/* Pulled well back in light mode. The field reads as texture behind dark
+   glass, but behind white cards the same strength shows up as smudges around
+   the panel edges. */
 html[data-theme="light"] .rd-dnafield {
-  --rd-dna-opacity: 0.82;
+  --rd-dna-opacity: 0.42;
 }
 
 @keyframes rd-dna-in {
@@ -82,6 +188,10 @@ html[data-theme="light"] .rd-dnafield {
   z-index: 6;
 }
 
+/* Stretch, not centre. Centring left a short card floating against a tall
+   panel with mismatched top and bottom edges — the two halves read as separate
+   objects rather than one screen split down the middle. Both columns are now
+   the same height and the card centres its own content instead. */
 .rd-shell {
   position: relative;
   z-index: 1;
@@ -89,8 +199,8 @@ html[data-theme="light"] .rd-dnafield {
   max-width: 1160px;
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-  gap: 40px;
-  align-items: center;
+  gap: 32px;
+  align-items: stretch;
 }
 
 .rd-brand {
@@ -98,12 +208,12 @@ html[data-theme="light"] .rd-dnafield {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-height: 660px;
+  min-height: 580px;
   padding: 44px;
   border-radius: 28px;
   border: 1px solid var(--rd-brand-hair);
   background: var(--rd-brand-grad);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(8px);
   box-shadow: var(--rd-brand-shadow);
   transition: background 400ms ease, border-color 400ms ease, box-shadow 400ms ease;
 }
@@ -113,12 +223,13 @@ html[data-theme="light"] .rd-dnafield {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(130% 90% at 10% -10%, rgba(255, 255, 255, 0.12), transparent 62%);
+  background: var(--rd-brand-sheen);
 }
 
 .rd-brand > * { position: relative; z-index: 1; }
 
 .rd-brandmark {
+  position: relative;
   align-self: flex-start;
   display: inline-flex;
   align-items: center;
@@ -128,103 +239,234 @@ html[data-theme="light"] .rd-dnafield {
 .rd-mark {
   flex: none;
   display: block;
-  filter: drop-shadow(0 12px 22px rgba(4, 26, 54, 0.5));
+  overflow: visible;
+  /* The flask draws with currentColor. */
+  color: var(--rd-mark-ink);
+  transform-origin: 50% 50%;
+  /* Only the entrance lives here. The turning happens inside the SVG so the
+     flask can stay upright while its rings move. */
+  animation: rd-mark-in 700ms cubic-bezier(0.34, 1.26, 0.58, 1) 120ms both;
+}
+
+
+/* The tail sweeps by walking a dash around the path. One stroke, so it stays
+   solid at any speed — nothing to strobe the way a line of separate circles
+   does once it moves quickly. */
+.rd-trail {
+  animation-name: rd-trail-lap;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+
+@keyframes rd-trail-lap {
+  from {
+    stroke-dashoffset: var(--rd-dash-from);
+  }
+  to {
+    stroke-dashoffset: var(--rd-dash-to);
+  }
+}
+
+@keyframes rd-mark-in {
+  from {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+/* The glow breathes on its own track so it can run at a different tempo to the
+   drift — the two drifting in and out of phase is what keeps it from reading
+   as a loop. z-index keeps it behind the mark: an absolutely positioned
+   pseudo-element otherwise paints over the static <img> next to it. */
+/* Halo behind the tile, sized to it — the offset tracks the tile's half-width,
+   so it has to move whenever the tile does. */
+.rd-brandmark::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 38px;
+  top: 50%;
+  width: 116px;
+  height: 116px;
+  translate: -50% -50%;
+  border-radius: 999px;
+  background: radial-gradient(circle, var(--rd-mark-halo), transparent 70%);
+  filter: blur(14px);
+  pointer-events: none;
+  animation: rd-mark-glow 5.2s ease-in-out 1100ms infinite;
+}
+
+@keyframes rd-mark-glow {
+  0%,
+  100% {
+    opacity: 0.25;
+    scale: 0.9;
+  }
+  50% {
+    opacity: 0.6;
+    scale: 1.15;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rd-mark {
+    animation: rd-mark-in 320ms ease-out both;
+  }
+
+  .rd-trail {
+    animation: none;
+  }
+
+  .rd-trail {
+    display: none;
+  }
+
+  .rd-brandmark::before {
+    animation: none;
+    opacity: 0.3;
+  }
 }
 
 .rd-word {
   display: flex;
   flex-direction: column;
+  gap: 10px;
   line-height: 1;
 }
 
 .rd-word-main {
-  font-size: 27px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: #fff;
+  font-family: var(--rd-font-display), ui-sans-serif, system-ui, sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  /* Pulled tight. At this size the default spacing leaves the five letters
+     drifting apart, and the name has to read as one shape next to the mark. */
+  letter-spacing: -0.032em;
+  color: var(--rd-on-brand);
 }
 
+/* The second line carries the accent and opens with a short rule. That gives
+   the lockup a floor, and stops "Diagnostics" reading as a stray caption under
+   the name — it is part of the mark, not a description of it. */
 .rd-word-sub {
-  margin-top: 5px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.44em;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.74);
+  color: var(--rd-cyan);
+}
+
+.rd-word-sub::before {
+  content: "";
+  flex: none;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.7;
 }
 
 .rd-hero {
-  margin: 38px 0 0;
-  max-width: 15ch;
+  font-family: var(--rd-font-display), ui-sans-serif, system-ui, sans-serif;
+  margin: 20px 0 0;
+  max-width: 16ch;
   font-size: clamp(32px, 3.1vw, 46px);
-  line-height: 1.1;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  color: #fff;
+  line-height: 1.08;
+  font-weight: 600;
+  letter-spacing: -0.028em;
+  color: var(--rd-on-brand);
+}
+
+/* The one word that names what the product does. Given the accent so the eye
+   lands on it before reading the rest of the line. */
+.rd-hero em {
+  font-style: normal;
+  color: var(--rd-cyan-strong);
 }
 
 .rd-hero-sub {
   margin: 18px 0 0;
-  max-width: 44ch;
-  font-size: 16px;
-  line-height: 1.65;
-  color: rgba(255, 255, 255, 0.8);
+  max-width: 42ch;
+  font-size: 15px;
+  line-height: 1.68;
+  color: var(--rd-on-brand-dim);
 }
 
 .rd-ecg { margin: auto 0; }
 
-.rd-secure {
+/* The four roles the portal routes to, stated up front. This is the one thing a
+   sign-in screen can usefully say about itself, and it replaces a paragraph
+   that said the same thing in prose. Chips, not a list, so it stays one band. */
+.rd-roles {
   display: flex;
-  gap: 16px;
-  padding: 20px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 18px;
+  padding: 0;
+  list-style: none;
 }
 
-.rd-secure-icon {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: rgba(34, 211, 238, 0.22);
-  color: #cffafe;
-}
-
-.rd-secure-title {
-  margin: 0 0 4px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #fff;
-}
-
-.rd-secure-copy {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.55;
-  color: rgba(255, 255, 255, 0.78);
+.rd-role {
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--rd-chip-edge);
+  background: var(--rd-chip-bg);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--rd-on-brand-dim);
+  white-space: nowrap;
 }
 
 .rd-authcol {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
 }
 
 .rd-card {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   width: 100%;
-  max-width: 424px;
-  padding: 92px 36px 32px;
+  max-width: 440px;
+  padding: 92px 36px 36px;
   border-radius: 26px;
   border: 1px solid var(--rd-hair);
   background: var(--rd-card);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(10px);
   box-shadow: var(--rd-card-shadow);
   transition: background 350ms ease, border-color 350ms ease, box-shadow 350ms ease;
+}
+
+/* A hairline of the accent across the top edge. The card is otherwise a plain
+   rectangle of glass; this one stroke ties it to the panel opposite and gives
+   the eye a starting line above the heading. */
+.rd-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--rd-cyan) 22%,
+    var(--rd-cyan-strong) 50%,
+    var(--rd-cyan) 78%,
+    transparent 100%
+  );
+  opacity: 0.85;
 }
 
 .rd-mascot {
@@ -245,6 +487,7 @@ html[data-theme="light"] .rd-dnafield {
 }
 
 .rd-title {
+  font-family: var(--rd-font-display), ui-sans-serif, system-ui, sans-serif;
   margin: 10px 0 0;
   font-size: 30px;
   font-weight: 700;
@@ -337,6 +580,13 @@ html[data-theme="light"] .rd-dnafield {
 /* .rd-status and its tones are shared (globals.css). */
 
 .rd-submit {
+  /* Flex so the label stays optically centred once the spinner appears beside
+     it — a text swap alone makes the button jump. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
   width: 100%;
   padding: 15px 16px;
   border: 0;
@@ -375,6 +625,45 @@ html[data-theme="light"] .rd-dnafield {
   color: var(--rd-muted);
 }
 
+
+/* Submit spinner. The button already disables itself while the request is in
+   flight, but a label change alone is easy to miss — this gives the wait a
+   moving part, which is the difference between "thinking" and "frozen". */
+.rd-spin {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: rd-spin 640ms linear infinite;
+}
+
+@keyframes rd-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Caps Lock is the single most common cause of a failed password on a portal
+   that people sign into from shared workstations. Warning before submit beats
+   reporting a wrong password after it. Amber, not red — nothing is wrong yet. */
+.rd-caps {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #f59e0b;
+  animation: rd-fade 160ms ease-out both;
+}
+
+html[data-theme="light"] .rd-caps { color: #b45309; }
+
+.rd-caps svg { flex: none; }
+
+/* Field group. The label/field pairing gets a wrapper so the caps hint and any
+   future per-field message have somewhere to sit that the form gap respects. */
+.rd-field { display: block; }
 @media (max-width: 980px) {
   .rd-page { padding: 18px; }
   .rd-shell {
@@ -389,10 +678,17 @@ html[data-theme="light"] .rd-dnafield {
   }
   .rd-ecg { margin: 0; height: 150px; }
   .rd-card { padding: 86px 24px 28px; }
+  .rd-roles { gap: 6px; }
+  .rd-role { padding: 6px 10px; font-size: 11.5px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .rd-submit:hover:not(:disabled) { transform: none; }
+
+  /* The spinner is the one loop that stays: it is reporting state, not
+     decorating. Slowed and reduced to a fade so it still says "working"
+     without the rotation. */
+  .rd-spin { animation-duration: 1.6s; }
 }
 
 .lm-x { transform-box: view-box; }
@@ -457,7 +753,7 @@ html[data-theme="light"] .rd-dnafield {
 
 .ecg-base {
   fill: none;
-  stroke: rgba(150, 200, 216, 0.2);
+  stroke: var(--rd-ecg-base);
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -465,15 +761,15 @@ html[data-theme="light"] .rd-dnafield {
 
 .ecg-beam {
   fill: none;
-  stroke: #45dcef;
+  stroke: var(--rd-ecg-beam);
   stroke-width: 2.8;
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-dasharray: 82 1520;
   stroke-dashoffset: 1602;
   filter:
-    drop-shadow(0 0 5px rgba(69, 220, 239, 0.9))
-    drop-shadow(0 0 13px rgba(69, 220, 239, 0.5));
+    drop-shadow(0 0 5px var(--rd-ecg-glow))
+    drop-shadow(0 0 13px var(--rd-ecg-glow));
   animation: rd-ecg-sweep 4.4s linear infinite;
 }
 

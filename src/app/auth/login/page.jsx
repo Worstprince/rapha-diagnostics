@@ -2,11 +2,30 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Figtree, Noto_Sans } from "next/font/google";
 
 import ThemeToggle from "@/components/ThemeToggle";
 import { useTheme } from "@/lib/theme";
 
 import "./login.css";
+
+/* "Medical Clean" pairing: Figtree carries the headings, Noto Sans the running
+   text. Loaded through next/font so the files are self-hosted and the metrics
+   are known up front — no CDN request at runtime and no shift when they land.
+   Exposed as CSS variables because the styling all lives in login.css. */
+const display = Figtree({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--rd-font-display",
+  display: "swap",
+});
+
+const body = Noto_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--rd-font-body",
+  display: "swap",
+});
 
 const ROLE_ROUTES = {
   Administrator: "/dashboard/admin",
@@ -15,6 +34,17 @@ const ROLE_ROUTES = {
   Pathologist: "/dashboard/doctor",
   Physician: "/dashboard/doctor",
 };
+
+/* Named off the route map so the panel cannot advertise a role the app no
+   longer routes anywhere. Display order is intake → bench → sign-out → admin,
+   which is the order a specimen actually passes through. */
+const STAFF_ROLES = [
+  "Reception",
+  "Medical Technologist",
+  "Pathologist",
+  "Physician",
+  "Administrator",
+];
 
 const SKIN = "#f6dfd0";
 const SKIN_SHADE = "#ecc2ac";
@@ -548,16 +578,19 @@ const DNA_DOT_R = 9.5;
 const DNA_FOCUS_STEPS = 6;
 const DNA_STATIC_ANGLE = 1.15;
 
-const DNA_PILL_HUES = ["#e11d48", "#2563eb"];
+/* Two strands, so the helix still reads as two things rather than a rope. Both
+   sit in the blue family now: the rose that used to pair with the blue was the
+   loudest colour on a page whose logo already owns three hues. */
+const DNA_PILL_HUES = ["#0284c7", "#6366f1"];
 
 const DNA_THEME = {
   dark: {
-    core: "#22d3ee",
-    accent: "#f472b6",
+    core: "#38bdf8",
+    accent: "#818cf8",
     shellHi: "#ffffff",
     shellLo: "#9fb3cc",
     rim: "rgba(255,255,255,0.34)",
-    haze: "#e11d48",
+    haze: "#1d4ed8",
     hazeBlend: "lighter",
     hazeAlpha: 0.2,
     glow: 1,
@@ -566,18 +599,21 @@ const DNA_THEME = {
     alphaSpan: 0.5,
   },
   light: {
-    core: "#0e7490",
-    accent: "#be185d",
+    /* Darker and weaker than the dark set across the board. On a pale canvas
+       the field is behind white cards rather than glowing through dark glass,
+       so anything at full strength shows as grubby smudges around the panels. */
+    core: "#0369a1",
+    accent: "#4f46e5",
     shellHi: "#f4f8fd",
-    shellLo: "#64748b",
-    rim: "rgba(23,49,84,0.32)",
-    haze: "#f43f5e",
+    shellLo: "#7c8ba1",
+    rim: "rgba(12,74,110,0.26)",
+    haze: "#3b82f6",
     hazeBlend: "source-over",
-    hazeAlpha: 0.2,
+    hazeAlpha: 0.14,
     glow: 0.42,
-    pillAlpha: 0.32,
-    alphaBase: 0.55,
-    alphaSpan: 0.42,
+    pillAlpha: 0.26,
+    alphaBase: 0.42,
+    alphaSpan: 0.34,
   },
 };
 
@@ -973,6 +1009,16 @@ export default function LoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [status, setStatus] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  /* Shared workstations plus an obscured field is exactly where Caps Lock costs
+     people a login attempt. getModifierState reports it from any key event, so
+     the hint can appear before the form is ever submitted. */
+  const [capsOn, setCapsOn] = useState(false);
+
+  const readCapsLock = useCallback((event) => {
+    if (typeof event.getModifierState === "function") {
+      setCapsOn(event.getModifierState("CapsLock"));
+    }
+  }, []);
 
   const router = useRouter();
   const mascot = useLoginMascot();
@@ -1025,7 +1071,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="rd-page">
+    <main className={`rd-page ${display.variable} ${body.variable}`}>
       <DnaField theme={theme} />
 
       <ThemeToggle theme={theme} onToggle={toggleTheme} />
@@ -1040,33 +1086,30 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <h1 className="rd-hero">Welcome back to your care operations hub.</h1>
+          <h1 className="rd-hero">
+            Every result, <em>traceable</em> end to end.
+          </h1>
           <p className="rd-hero-sub">
-            Manage appointments, results, and workflow handoffs with a calm and dependable
-            experience.
+            From specimen intake to verified report — one record, one chain of custody, visible to
+            everyone who needs it.
           </p>
 
           <EcgLine className="rd-ecg" />
 
-          <div className="rd-secure">
-            <span className="rd-secure-icon">
-              <ShieldIcon />
-            </span>
-            <div>
-              <p className="rd-secure-title">Secure access</p>
-              <p className="rd-secure-copy">
-                Role-based sign-in for administrators, clinicians, medtech staff, and reception
-                teams.
-              </p>
-            </div>
-          </div>
+          <ul className="rd-roles">
+            {STAFF_ROLES.map((role) => (
+              <li key={role} className="rd-role">
+                {role}
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section className="rd-authcol">
           <div className="rd-card">
             <LoginMascot state={mascot.state} caret={mascot.caret} className="rd-mascot" />
 
-            <p className="rd-eyebrow">Portal access</p>
+            <p className="rd-eyebrow">Staff sign-in</p>
             <h2 className="rd-title">Sign in</h2>
             <p className="rd-lede">Use your work email or username and password to continue.</p>
 
@@ -1105,6 +1148,8 @@ export default function LoginPage() {
                     placeholder="Enter your password"
                     className="rd-input"
                     {...mascot.passwordBindings}
+                    onKeyDown={readCapsLock}
+                    onKeyUp={readCapsLock}
                   />
 
                   <button
@@ -1116,9 +1161,20 @@ export default function LoginPage() {
                     aria-label={mascot.showPassword ? "Hide password" : "Show password"}
                     aria-pressed={mascot.showPassword}
                   >
-                    <EyeIcon off={mascot.showPassword} />
+                    {/* The glyph reports the state of the field, not the action of
+                        the button: struck through while the password is hidden, open
+                        once it is showing. The action stays on the aria-label, which
+                        is where a screen reader looks for it. */}
+                    <EyeIcon off={!mascot.showPassword} />
                   </button>
                 </div>
+
+                {capsOn ? (
+                  <p className="rd-caps" role="status">
+                    <CapsIcon />
+                    Caps Lock is on
+                  </p>
+                ) : null}
               </div>
 
               <div className="rd-row">
@@ -1141,6 +1197,7 @@ export default function LoginPage() {
               ) : null}
 
               <button type="submit" className="rd-submit" disabled={submitting}>
+                {submitting ? <span className="rd-spin" aria-hidden="true" /> : null}
                 {submitting ? "Signing in…" : "Continue to dashboard"}
               </button>
             </form>
@@ -1153,55 +1210,257 @@ export default function LoginPage() {
   );
 }
 
+/* The mark drawn as vectors so the rings can turn while the flask stays put —
+   a flat scan can only ever spin as one piece. Each ring keeps its own tilt and
+   turns at its own rate, the way the background helix does. `at` is where that
+   ring's ball sits on its ellipse, in degrees. */
+/* One lap length for all three, so they travel at the same rate. The phases are
+   a sixth of a lap apart (60deg, 120deg): with the tilts 60deg apart as well,
+   that spacing keeps the balls at least 97 units from one another at every
+   point of the cycle, so they never run into each other. Unequal speeds are
+   what made them drift together and collide. */
+/* Orange takes the steep near-vertical ring and green the shallow one, as the
+   mark has them.
+
+   Unequal laps so no two move together, but in an exact ratio (1 : 1.33 : 2) so
+   the pattern closes every 18s. That matters: a closed pattern can be checked
+   in full, whereas arbitrary ratios drift forever and will eventually put two
+   heads in the same place — which is what the earlier 4.2/5.9/7.3 did.
+
+   These phases were solved for over the whole 12s period. The heads never come
+   within 18.3 units of each other, which is why the trail tops out at 17 wide:
+   below that gap, two trails cannot overlap.
+
+   Speed is set by scaling laps and phases together by the same factor — that
+   leaves the ratio, and so the separation, untouched. Scaling only the laps
+   would break the phasing and put them back into collision. */
+const ORBITS = [
+  { key: "cyan", tilt: 22, lap: 3, phase: 0 },
+  { key: "amber", tilt: 82, lap: 4, phase: 3.167 },
+  { key: "lime", tilt: 142, lap: 6, phase: 2 },
+];
+
+/* Wide orbits around the whole mark, as the logo has them — the balls travel
+   outside the flask, not within it. Centred on the flask body. */
+const OCX = 100;
+const OCY = 104;
+const RX = 82;
+const RY = 30;
+
 function BrandMark() {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
+
   return (
-    <svg viewBox="0 0 48 48" width="46" height="46" className="rd-mark" aria-hidden="true">
+    <svg
+      viewBox="0 0 200 200"
+      width={76}
+      height={76}
+      className="rd-mark"
+      role="img"
+      aria-label="Rapha Diagnostics"
+    >
       <defs>
-        <linearGradient id={`${uid}-mk`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#67e8f9" />
-          <stop offset="0.55" stopColor="#22b8e6" />
-          <stop offset="1" stopColor="#2563c9" />
-        </linearGradient>
+        <radialGradient id={`${uid}-b-cyan`} cx="34%" cy="30%">
+          <stop offset="0" stopColor="#a5eeff" />
+          <stop offset="1" stopColor="#1583c4" />
+        </radialGradient>
+        <radialGradient id={`${uid}-b-lime`} cx="34%" cy="30%">
+          <stop offset="0" stopColor="#dcfa9a" />
+          <stop offset="1" stopColor="#4e9c1d" />
+        </radialGradient>
+        <radialGradient id={`${uid}-b-amber`} cx="34%" cy="30%">
+          <stop offset="0" stopColor="#ffd9a3" />
+          <stop offset="1" stopColor="#dd6a08" />
+        </radialGradient>
+
+        {/* Half-planes either side of an orbit's major axis. */}
+        <clipPath id={`${uid}-far`}>
+          <rect x={OCX - 200} y={OCY - 200} width="400" height="200" />
+        </clipPath>
+        <clipPath id={`${uid}-near`}>
+          <rect x={OCX - 200} y={OCY} width="400" height="200" />
+        </clipPath>
       </defs>
-      <rect x="2" y="2" width="44" height="44" rx="14" fill={`url(#${uid}-mk)`} />
-      <path
-        d="M7 26 H15 L18 26 L21 15 L26 34 L29 23 L31 26 H41"
+
+      {/* Far half of each orbit: behind the glass. */}
+      {ORBITS.map((o) => (
+        <Orbiters key={o.key} uid={uid} orbit={o} half="far" />
+      ))}
+
+      {/* Flask, upright and unmoving — the trails sweep around it. */}
+      <g
         fill="none"
-        stroke="#ffffff"
-        strokeWidth="2.6"
+        stroke="currentColor"
+        strokeWidth="8"
         strokeLinecap="round"
         strokeLinejoin="round"
-      />
+      >
+        {/* Squat and broad, as the mark is: a short throat over a base three and
+            a half times the neck's width. The earlier version was too tall and
+            narrow, which pushed the seal down into the point of the cone. */}
+        <path d="M74 24 H126" />
+        <path d="M84 26 V64 L44 140 a6 6 0 0 0 5 10 H151 a6 6 0 0 0 5-10 L116 64 V26" />
+      </g>
+
+      {/* The seal: a hexagram with a lighter rim, crossed by a dark band that
+          carries the name in Hebrew — רפא, rapha, "he heals". Two triangles
+          rather than one star path so they overlap the way the mark's do. */}
+      <g
+        fill="#1b3a9c"
+        stroke="#6c8dea"
+        strokeWidth="2.2"
+        strokeLinejoin="round"
+      >
+        <path d="M100 82 L119 115 H81 Z" />
+        <path d="M100 126 L81 93 H119 Z" />
+      </g>
+
+      <rect x="82" y="99" width="36" height="11" rx="1" fill="#0a1024" />
+
+      <text
+        x="100"
+        y="107.6"
+        textAnchor="middle"
+        fontSize="9"
+        fontFamily="'Segoe UI', 'Arial Hebrew', 'Times New Roman', serif"
+        fill="#f2f6ff"
+      >
+        רפא
+      </text>
+
+      {/* Near half: in front of the glass. */}
+      {ORBITS.map((o) => (
+        <Orbiters key={o.key} uid={uid} orbit={o} half="near" />
+      ))}
     </svg>
   );
 }
 
+/* One ball plus its trail, riding the ring's own ellipse.
 
-function ShieldIcon() {
+   Depth is faked three ways at once, all keyed to the same cycle: the ball
+   swells and brightens through the near half and shrinks through the far half,
+   and the whole group is drawn twice — once under the flask, once over it —
+   with the two swapping visibility at the halfway point. That swap is what puts
+   the ball genuinely behind the bottle for half of every lap. */
+/* The tail is a stroked arc of the orbit itself, not a queue of circles. A row
+   of circles can only ever look like a row of circles — this is one continuous
+   stroke, so it reads as a solid streak however fast it moves.
+
+   Taper comes from stacking a few arcs: the long thin one underneath, the short
+   fat one on top, all ending at the same point. Widest last so the head is
+   thickest. */
+/* A comet tail built from many thin arcs rather than a few thick ones. Four
+   chunky layers leave a visible shoulder wherever one ends; at this count the
+   steps fall below a pixel and the taper reads as one smooth shape.
+
+   t runs 0 at the tip to 1 at the head. Length falls off linearly so the tip
+   reaches furthest back, while width and opacity ramp on curves — the powers
+   are what stop the tail looking like a wedge and give it the pinched, drawn-out
+   profile a comet actually has. */
+const TAIL_STEPS = 26;
+const TAIL = Array.from({ length: TAIL_STEPS }, (_, i) => {
+  const t = i / (TAIL_STEPS - 1);
+  return {
+    len: 0.02 + 0.44 * (1 - t),
+    w: 1.5 + 15.5 * t ** 1.6,
+    o: 0.05 + 0.95 * t ** 2.2,
+  };
+});
+
+function ellipsePath(cx, cy, rx, ry) {
+  // sweep flag 1 = clockwise
+  return `M ${cx - rx},${cy} a ${rx},${ry} 0 1,1 ${rx * 2},0 a ${rx},${ry} 0 1,1 ${-rx * 2},0`;
+}
+
+// Ramanujan's approximation — accurate enough to set dash lengths against.
+function ellipsePerimeter(rx, ry) {
+  const h = (rx - ry) ** 2 / (rx + ry) ** 2;
+  return Math.PI * (rx + ry) * (1 + (3 * h) / (10 + Math.sqrt(4 - 3 * h)));
+}
+
+function Orbiters({ uid, orbit, half }) {
+  const path = ellipsePath(OCX, OCY, RX, RY);
+  const per = ellipsePerimeter(RX, RY);
+  const delay = `${(-orbit.phase).toFixed(3)}s`;
+
+  /* The clip is resolved in this group's own space, i.e. after the tilt, so a
+     single pair of half-planes split every orbit along its major axis however
+     it is rotated. Far half draws before the flask, near half after — that is
+     what makes a trail disappear behind the glass and come back out. */
   return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 3l7 4v5c0 4.4-2.8 7.6-7 9-4.2-1.4-7-4.6-7-9V7l7-4Z" />
-      <path d="M9.5 12.2l1.7 1.7 3.3-3.5" />
-    </svg>
+    <g
+      transform={`rotate(${orbit.tilt} ${OCX} ${OCY})`}
+      clipPath={`url(#${uid}-${half})`}
+    >
+      {TAIL.map((t, i) => {
+        const len = per * t.len;
+        return (
+          <path
+            key={i}
+            d={path}
+            className="rd-trail"
+            fill="none"
+            stroke={`url(#${uid}-b-${orbit.key})`}
+            strokeWidth={t.w}
+            strokeLinecap="round"
+            opacity={t.o}
+            style={{
+              strokeDasharray: `${len} ${per - len}`,
+              /* Each arc ENDS at the head: offsetting by its own length puts
+                 its leading edge in the same place regardless of how long it
+                 is, so all four taper back from one point. */
+              "--rd-dash-from": len,
+              "--rd-dash-to": len - per,
+              animationDuration: `${orbit.lap}s`,
+              animationDelay: delay,
+            }}
+          />
+        );
+      })}
+
+    </g>
   );
 }
 
+
+/* Both states share one eye. The struck-through version used to be built from
+   its own set of arcs, and the numbers were wrong: the outline did not close,
+   the halves sat at different heights, and the slash ran the full diagonal of
+   the viewBox so it shot well past the eye at both ends. Drawing the slash over
+   the exact almond the open state uses means the two can no longer disagree —
+   toggling swaps one line in and out, and nothing else moves.
+
+   The iris is dropped when struck. Keeping it puts three strokes through the
+   middle of a 20px glyph, which at this size fills in as a smudge.
+
+   `off` means the eye is shut — i.e. the password is hidden. */
 function EyeIcon({ off }) {
   return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
-      {off ? (
-        <>
-          <path d="M3 3l18 18" />
-          <path d="M10.6 5.2A9.6 9.6 0 0 1 12 5c5 0 9 4.5 9 7a11 11 0 0 1-2.5 3.6M6.6 6.7C4.2 8.2 3 10.4 3 12c0 2.5 4 7 9 7a9.7 9.7 0 0 0 4.2-.9" />
-          <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
-        </>
-      ) : (
-        <>
-          <path d="M3 12s3.5-7 9-7 9 7 9 7-3.5 7-9 7-9-7-9-7Z" />
-          <circle cx="12" cy="12" r="3" />
-        </>
-      )}
+    <svg
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M3 12s3.5-7 9-7 9 7 9 7-3.5 7-9 7-9-7-9-7Z" />
+      {off ? <path d="M4.5 4.5l15 15" /> : <circle cx="12" cy="12" r="3" />}
+    </svg>
+  );
+}
+/* An upward chevron over a bar — the standard Caps Lock glyph. Paired with the
+   words "Caps Lock is on" rather than standing alone, so the warning does not
+   depend on recognising the icon or on seeing the amber. */
+function CapsIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 4 5 11h4v4h6v-4h4L12 4Z" />
+      <path d="M9 19h6" />
     </svg>
   );
 }
