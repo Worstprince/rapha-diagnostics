@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 import LabReportHeader, { LabSignatures } from "./labReportHeader";
+import { REFERENCE_RANGES } from "./referenceRanges";
+import ResultField from "./ResultField";
+
+const RANGES = REFERENCE_RANGES.psa;
 
 export default function PSAForm({
     patient,
@@ -110,14 +114,12 @@ export default function PSAForm({
 
                                 <div className="flex items-center justify-center gap-1">
 
-                                    <input
-                                        type="text"
+                                    <ResultField
                                         name="psa"
                                         value={result.psa}
                                         onChange={handleChange}
                                         readOnly={readOnly}
-                                        placeholder="0.00"
-                                        className="w-full rounded bg-rd-field p-2 text-center"
+                                        range={RANGES.psa}
                                     />
 
                                     <span className="whitespace-nowrap text-sm text-rd-muted">

@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 import LabReportHeader, { LabSignatures } from "./labReportHeader";
+import { REFERENCE_RANGES } from "./referenceRanges";
+import ResultField from "./ResultField";
+
+const RANGES = REFERENCE_RANGES.fbs;
 
 export default function FBSForm({
     patient,
@@ -110,14 +114,12 @@ export default function FBSForm({
 
                                 <div className="flex items-center justify-center gap-1">
 
-                                    <input
-                                        type="text"
+                                    <ResultField
                                         name="glucose"
                                         value={result.glucose}
                                         onChange={handleChange}
                                         readOnly={readOnly}
-                                        placeholder="0.00"
-                                        className="w-full rounded bg-rd-field p-2 text-center"
+                                        range={RANGES.glucose}
                                     />
 
                                     <span className="whitespace-nowrap text-sm text-rd-muted">
