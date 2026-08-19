@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
+import { jwtVerify } from "jose";
 
 import { SESSION_COOKIE_NAME } from "@/lib/session.config";
 
@@ -23,7 +23,10 @@ const ROLE_HOME = {
   doctor: "/dashboard/doctor",
 };
 
-export function middleware(request) {
+// jose needs the secret as a Uint8Array, not a raw string.
+const secretKey = new TextEncoder().encode(process.env.SESSION_SECRET);
+
+export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
   if (
@@ -44,7 +47,7 @@ export function middleware(request) {
   }
 
   try {
-    const user = jwt.verify(token, process.env.SESSION_SECRET);
+    const { payload: user } = await jwtVerify(token, secretKey);
 
     if (!user?.role) {
       const response = NextResponse.redirect(new URL("/auth/login", request.url));
