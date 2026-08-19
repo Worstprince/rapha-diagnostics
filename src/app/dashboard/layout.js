@@ -27,7 +27,7 @@ const ROLE_HOMES = {
 };
 
 /* Which dashboards front the drawn mark rather than the flat nav tile. */
-const ANIMATED_MARK_HOMES = [ROLE_HOMES.admin, ROLE_HOMES.doctor];
+const ANIMATED_MARK_HOMES = [ROLE_HOMES.admin, ROLE_HOMES.doctor, ROLE_HOMES.medtech];
 
 function overviewLink(href) {
   return { href, label: "Overview", Icon: GridIcon };
