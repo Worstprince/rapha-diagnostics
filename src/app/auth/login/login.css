@@ -59,11 +59,6 @@
   --rd-canvas: #0a1424;
   --rd-card: rgba(21, 38, 64, 0.84);
 
-  /* The mark is one colour and draws with currentColor, so it does what a
-     one-colour mark always does: dark on light grounds, light on dark ones. It
-     needed a white plate behind it only because it was pinned to black on a
-     dark panel — inverting costs nothing and leaves no box on the page. */
-  --rd-mark-ink: #ffffff;
   --rd-mark-halo: rgba(56, 189, 248, 0.34);
 
   position: relative;
@@ -137,9 +132,6 @@ html[data-theme="light"] .rd-page {
   --rd-canvas: #f2f7fc;
   --rd-card: #ffffff;
 
-  /* Black, as asked for, and here it simply works: the panel is light, so the
-     flask reads at full strength with nothing drawn around it. */
-  --rd-mark-ink: #0b1220;
   --rd-mark-halo: rgba(2, 132, 199, 0.16);
 }
 
@@ -236,49 +228,6 @@ html[data-theme="light"] .rd-dnafield {
   gap: 14px;
 }
 
-.rd-mark {
-  flex: none;
-  display: block;
-  overflow: visible;
-  /* The flask draws with currentColor. */
-  color: var(--rd-mark-ink);
-  transform-origin: 50% 50%;
-  /* Only the entrance lives here. The turning happens inside the SVG so the
-     flask can stay upright while its rings move. */
-  animation: rd-mark-in 700ms cubic-bezier(0.34, 1.26, 0.58, 1) 120ms both;
-}
-
-
-/* The tail sweeps by walking a dash around the path. One stroke, so it stays
-   solid at any speed — nothing to strobe the way a line of separate circles
-   does once it moves quickly. */
-.rd-trail {
-  animation-name: rd-trail-lap;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-fill-mode: both;
-}
-
-@keyframes rd-trail-lap {
-  from {
-    stroke-dashoffset: var(--rd-dash-from);
-  }
-  to {
-    stroke-dashoffset: var(--rd-dash-to);
-  }
-}
-
-@keyframes rd-mark-in {
-  from {
-    opacity: 0;
-    transform: scale(0.72);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
 
 /* The glow breathes on its own track so it can run at a different tempo to the
    drift — the two drifting in and out of phase is what keeps it from reading
@@ -315,18 +264,6 @@ html[data-theme="light"] .rd-dnafield {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rd-mark {
-    animation: rd-mark-in 320ms ease-out both;
-  }
-
-  .rd-trail {
-    animation: none;
-  }
-
-  .rd-trail {
-    display: none;
-  }
-
   .rd-brandmark::before {
     animation: none;
     opacity: 0.3;

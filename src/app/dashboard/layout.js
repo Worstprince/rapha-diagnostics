@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { NotebookPen as NotebookPenIcon } from "lucide-react";
 
 import AccountMenu from "@/components/AccountMenu";
+import AnimatedMark from "@/components/BrandMark";
 import { useCurrentUser } from "@/lib/session";
 import {
   ActivityIcon,
@@ -137,10 +138,14 @@ function BrandMark() {
   );
 }
 
-function Wordmark() {
+/* The nav tile is the mark everywhere except the admin section, where the
+   drawn version with its orbiting trails takes over. Scoped to the section
+   rather than the single overview page so the lockup does not swap out from
+   under an admin who clicks into Activity Log. */
+function Wordmark({ animated = false }) {
   return (
     <div className="flex items-center gap-3">
-      <BrandMark />
+      {animated ? <AnimatedMark size={44} className="rd-mark -my-1" /> : <BrandMark />}
       <div className="leading-none">
         <p className="text-base font-extrabold tracking-tight text-rd-title">Rapha</p>
         <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-rd-muted">
@@ -240,6 +245,7 @@ const ROLE_ACCESS = {
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
+  const isAdminArea = pathname.startsWith(ROLE_HOMES.admin);
   const router = useRouter();
   const user = useCurrentUser();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -318,7 +324,7 @@ export default function DashboardLayout({ children }) {
         {/* Flush bar on mobile; a floating panel once there's room to inset it. */}
         <aside className="no-print border-b border-rd-hair bg-rd-card backdrop-blur-xl lg:sticky lg:top-4 lg:flex lg:h-[calc(100dvh-2rem)] lg:w-72 lg:flex-none lg:flex-col lg:rounded-2xl lg:border lg:shadow-[var(--rd-card-shadow)]">
           <div className="flex items-center justify-between gap-3 p-5 lg:p-4">
-            <Wordmark />
+            <Wordmark animated={isAdminArea} />
             <button
               ref={menuButtonRef}
               type="button"
@@ -355,7 +361,7 @@ export default function DashboardLayout({ children }) {
               className="rd-drawer absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col border-r border-rd-hair bg-rd-card backdrop-blur-xl"
             >
               <div className="flex items-center justify-between gap-3 p-5">
-                <Wordmark />
+                <Wordmark animated={isAdminArea} />
                 <button
                   ref={closeButtonRef}
                   type="button"

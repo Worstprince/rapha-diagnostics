@@ -1,0 +1,75 @@
+/* ---------------------------------------------------------------------------
+   The animated mark, and only what it needs to draw itself.
+
+   These rules used to live in the login page's stylesheet, which is why the
+   mark could not be used anywhere else. Everything here is scoped to the two
+   classes the SVG applies, so importing the component is enough — no page has
+   to know the mark exists.
+   --------------------------------------------------------------------------- */
+
+/* The flask is one colour and draws with currentColor, so it does what a
+   one-colour mark always does: dark on light grounds, light on dark ones.
+   Declared on :root rather than on a page class so it resolves wherever the
+   component is mounted; a host that needs a different ink can override
+   --rd-mark-ink on any ancestor. */
+:root {
+  --rd-mark-ink: #ffffff;
+}
+
+:root[data-theme="light"] {
+  --rd-mark-ink: #0b1220;
+}
+
+.rd-mark {
+  flex: none;
+  display: block;
+  overflow: visible;
+  color: var(--rd-mark-ink);
+  transform-origin: 50% 50%;
+  /* Only the entrance lives here. The turning happens inside the SVG so the
+     flask can stay upright while its rings move. */
+  animation: rd-mark-in 700ms cubic-bezier(0.34, 1.26, 0.58, 1) 120ms both;
+}
+
+/* The tail sweeps by walking a dash around the path. One stroke, so it stays
+   solid at any speed — nothing to strobe the way a line of separate circles
+   does once it moves quickly. */
+.rd-trail {
+  animation-name: rd-trail-lap;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+
+@keyframes rd-trail-lap {
+  from {
+    stroke-dashoffset: var(--rd-dash-from);
+  }
+  to {
+    stroke-dashoffset: var(--rd-dash-to);
+  }
+}
+
+@keyframes rd-mark-in {
+  from {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rd-mark {
+    animation: rd-mark-in 320ms ease-out both;
+  }
+
+  /* The orbits are the whole animation. With motion reduced there is nothing
+     to slow them down to that still reads as deliberate, so they come off and
+     the flask stands on its own. */
+  .rd-trail {
+    display: none;
+  }
+}
