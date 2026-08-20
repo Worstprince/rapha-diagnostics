@@ -9,6 +9,7 @@ import {
     td,
     th,
 } from "@/app/dashboard/admin/_ui";
+import BrandMark from "@/components/BrandMark";
 
 
 function formatCurrency(value) {
@@ -146,222 +147,107 @@ export default function BillingDetailsPage() {
 
 
     return (
-
         <div className="mx-auto max-w-5xl space-y-5">
-
-            <PageHeader
-                title={`Visit #${visit.visitId}`}
-                description="View the billing details and tests associated with this visit."
-            />
-
-
-            <section className="rd-panel p-6">
-
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-
-                    <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                            Patient
-                        </p>
-
-                        <p className="mt-1 font-medium text-rd-title">
-                            {formatPatientName(visit)}
-                        </p>
-
-                        <p className="mt-1 text-sm text-rd-muted">
-                            Patient ID: {visit.patientId}
-                        </p>
-                    </div>
-
-
-                    <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                            Visit Date
-                        </p>
-
-                        <p className="mt-1 font-medium text-rd-title">
-                            {visit.visitDate}
-                        </p>
-                    </div>
-
-
-                    <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                            Priority
-                        </p>
-
-                        <p className="mt-1 font-medium text-rd-title">
-                            {visit.priority || "Routine"}
-                        </p>
-                    </div>
-
-
-                    <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                            Assigned Doctor
-                        </p>
-
-                        <p className="mt-1 font-medium text-rd-title">
-                            {visit.doctorName
-                                ? `Dr. ${visit.doctorName}`
-                                : "Unassigned"}
-                        </p>
-                    </div>
-
-
-                    <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                            Referring Doctor
-                        </p>
-
-                        <p className="mt-1 font-medium text-rd-title">
-                            {visit.referringDoctorName ||
-                                "Walk-in / none"}
-                        </p>
-
-                        {visit.referringDoctorClinic && (
-                            <p className="mt-1 text-sm text-rd-muted">
-                                {visit.referringDoctorClinic}
-                            </p>
-                        )}
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <section className="rd-panel overflow-hidden">
-
-                <div className="border-b border-rd-hair p-5">
-
-                    <h2 className="font-semibold text-rd-title">
-                        Tests and Charges
-                    </h2>
-
-                    <p className="mt-1 text-sm text-rd-muted">
-                        Tests requested for this visit and their recorded charges.
-                    </p>
-
-                </div>
-
-
-                <div className="rd-scroll-thin overflow-auto">
-
-                    <table className="w-full min-w-[600px] border-collapse">
-
-                        <thead>
-
-                            <tr className="border-b border-rd-hair">
-
-                                <th className={th}>
-                                    Test
-                                </th>
-
-                                <th className={`${th} text-right`}>
-                                    Cost
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            {visit.tests?.map((test) => (
-
-                                <tr
-                                    key={test.id}
-                                    className="border-b border-rd-hair last:border-0"
-                                >
-
-                                    <td className={`${td} font-medium text-rd-title`}>
-                                        {test.name}
-                                    </td>
-
-                                    <td className={`${td} text-right tabular-nums`}>
-                                        {formatCurrency(test.cost)}
-                                    </td>
-
-                                </tr>
-
-                            ))}
-
-                        </tbody>
-
-
-                        <tfoot>
-
-                            <tr className="border-t border-rd-hair">
-
-                                <td className={`${td} text-right font-semibold text-rd-title`}>
-                                    Total
-                                </td>
-
-                                <td className={`${td} text-right text-lg font-semibold tabular-nums text-rd-title`}>
-                                    {formatCurrency(visit.totalCost)}
-                                </td>
-
-                            </tr>
-
-                        </tfoot>
-
-                    </table>
-
-                </div>
-
-            </section>
-
-
-            <section className="rd-panel p-6">
-
-                <div className="grid gap-5 sm:grid-cols-2">
-
-                    <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                            Recorded At
-                        </p>
-
-                        <p className="mt-1 font-medium text-rd-title">
-                            {visit.recordedAt || "—"}
-                        </p>
-                    </div>
-
-
-                    <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-rd-muted">
-                            Recorded By
-                        </p>
-
-                        <p className="mt-1 font-medium text-rd-title">
-                            {visit.recordedBy || "—"}
-                        </p>
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <div className="flex justify-end">
-
-                <button
-                    type="button"
-                    onClick={() =>
-                        router.push(
-                            "/dashboard/reception/billing"
-                        )
-                    }
-                    className="rd-btn-secondary rd-press rd-focus"
-                >
-                    Back to Billing History
-                </button>
-
+            <div className="no-print">
+                <PageHeader
+                    title={`Visit #${visit.visitId}`}
+                    description="Review and print the invoice for this visit."
+                />
             </div>
 
-        </div>
+            <article className="print-result rd-panel overflow-hidden bg-rd-card">
+                <header className="border-b-2 border-rd-cyan px-6 py-7 sm:px-10">
+                    <div className="flex flex-wrap items-start justify-between gap-6">
+                        <div className="flex items-center gap-4">
+                            <BrandMark size={64} className="text-rd-cyan" />
+                            <div>
+                                <p className="text-xl font-bold tracking-tight text-rd-title">
+                                    Rapha Diagnostics
+                                </p>
+                                <p className="mt-1 text-sm text-rd-muted">
+                                    Laboratory Services
+                                </p>
+                            </div>
+                        </div>
+                        <div className="text-left sm:text-right">
+                            <p className="text-xs font-bold uppercase tracking-[0.24em] text-rd-cyan">
+                                Invoice
+                            </p>
+                            <p className="mt-2 text-2xl font-bold text-rd-title">
+                                #{visit.visitId}
+                            </p>
+                            <p className="mt-1 text-sm text-rd-muted">
+                                Issued {visit.recordedAt || visit.visitDate}
+                            </p>
+                        </div>
+                    </div>
+                </header>
 
+                <section className="grid gap-6 border-b border-rd-hair px-6 py-6 sm:grid-cols-2 sm:px-10">
+                    <div>
+                        <p className="text-xs font-bold uppercase tracking-wider text-rd-muted">Bill To</p>
+                        <p className="mt-2 text-lg font-semibold text-rd-title">{formatPatientName(visit)}</p>
+                        <p className="mt-1 text-sm text-rd-muted">Patient ID: {visit.patientId}</p>
+                    </div>
+                    <div className="sm:text-right">
+                        <p className="text-xs font-bold uppercase tracking-wider text-rd-muted">Visit Details</p>
+                        <p className="mt-2 font-medium text-rd-title">Visit date: {visit.visitDate}</p>
+                        <p className="mt-1 text-sm text-rd-muted">Priority: {visit.priority || "Routine"}</p>
+                        <p className="mt-1 text-sm text-rd-muted">
+                            Doctor: {visit.doctorName ? `Dr. ${visit.doctorName}` : "Unassigned"}
+                        </p>
+                    </div>
+                </section>
+
+                <section className="px-6 py-6 sm:px-10">
+                    <h2 className="text-sm font-bold uppercase tracking-wider text-rd-title">Services</h2>
+                    <div className="rd-scroll-thin mt-4 overflow-auto">
+                        <table className="w-full min-w-[520px] border-collapse">
+                            <thead>
+                                <tr className="border-b-2 border-rd-hair-strong">
+                                    <th className={`${th} pl-0`}>Description</th>
+                                    <th className={`${th} pr-0 text-right`}>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {visit.tests?.map((test) => (
+                                    <tr key={test.id} className="border-b border-rd-hair last:border-0">
+                                        <td className={`${td} pl-0 font-medium text-rd-title`}>{test.name}</td>
+                                        <td className={`${td} pr-0 text-right tabular-nums`}>{formatCurrency(test.cost)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td className="pt-6 text-right text-base font-semibold text-rd-title">Total Due</td>
+                                    <td className="pt-6 pr-0 text-right text-2xl font-bold tabular-nums text-rd-cyan">{formatCurrency(visit.totalCost)}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </section>
+
+                <footer className="grid gap-4 border-t border-rd-hair bg-rd-sunken px-6 py-5 text-sm sm:grid-cols-2 sm:px-10">
+                    <div>
+                        <span className="font-semibold text-rd-title">Assigned doctor:</span>{" "}
+                        <span className="text-rd-muted">{visit.doctorName ? `Dr. ${visit.doctorName}` : "Unassigned"}</span>
+                    </div>
+                    <div className="sm:text-right">
+                        <span className="font-semibold text-rd-title">Recorded by:</span>{" "}
+                        <span className="text-rd-muted">{visit.recordedBy || "—"}</span>
+                    </div>
+                </footer>
+            </article>
+
+            <div className="no-print flex flex-wrap justify-end gap-3">
+                <button type="button" onClick={() => router.push("/dashboard/reception/billing")} className="rd-btn-secondary rd-press rd-focus">
+                    Back to Billing History
+                </button>
+                <button type="button" onClick={() => window.print()} className="rd-btn rd-press rd-focus">
+                    Print Invoice
+                </button>
+            </div>
+        </div>
     );
 
 }
