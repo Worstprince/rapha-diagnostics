@@ -1441,22 +1441,24 @@ export default function PatientDetails({
 
                                                 </div>
 
-                                                <Link
-                                                    href={`/dashboard/${role}/visitation/${visit.visitid}`}
-                                                    aria-label={`Open the visit on ${date.toLocaleDateString()}`}
-                                                    className="rd-press rd-focus inline-flex min-h-11 flex-none cursor-pointer items-center gap-1.5 rounded-xl border border-rd-cyan/35 bg-rd-cyan/10 px-4 text-sm font-semibold text-rd-cyan transition duration-200 hover:border-transparent hover:bg-rd-cyan hover:text-rd-on-cyan hover:shadow-[0_10px_24px_-10px_var(--rd-accent-shadow)]"
-                                                >
+                                                {role !== "reception" && (
+                                                    <Link
+                                                        href={`/dashboard/${role}/visitation/${visit.visitid}`}
+                                                        aria-label={`Open the visit on ${date.toLocaleDateString()}`}
+                                                        className="rd-press rd-focus inline-flex min-h-11 flex-none cursor-pointer items-center gap-1.5 rounded-xl border border-rd-cyan/35 bg-rd-cyan/10 px-4 text-sm font-semibold text-rd-cyan transition duration-200 hover:border-transparent hover:bg-rd-cyan hover:text-rd-on-cyan hover:shadow-[0_10px_24px_-10px_var(--rd-accent-shadow)]"
+                                                    >
 
-                                                    Open visit
+                                                        Open visit
 
-                                                    <ChevronRightIcon
-                                                        size={
-                                                            16
-                                                        }
-                                                        className="transition-transform duration-200 group-hover:translate-x-0.5"
-                                                    />
+                                                        <ChevronRightIcon
+                                                            size={
+                                                                16
+                                                            }
+                                                            className="transition-transform duration-200 group-hover:translate-x-0.5"
+                                                        />
 
-                                                </Link>
+                                                    </Link>
+                                                )}
 
                                             </div>
 

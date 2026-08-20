@@ -54,6 +54,7 @@ const receptionSections = [
     links: [
       { href: "/dashboard/reception/registration", label: "Registration", Icon: ClipboardIcon },
       { href: "/dashboard/reception/visitation", label: "Visitation", Icon: CalendarCheckIcon },
+      { href: "/dashboard/reception/patients", label: "View Patients", Icon: UsersIcon },
       { href: "/dashboard/reception/billing", label: "Billing History", Icon: CalendarCheckIcon },
     ],
   },
