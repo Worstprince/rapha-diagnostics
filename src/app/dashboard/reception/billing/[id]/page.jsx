@@ -160,7 +160,13 @@ export default function BillingDetailsPage() {
                     <div className="flex flex-wrap items-start justify-between gap-6">
                         <div className="flex items-center gap-4">
                             <div>
-                            <image src="/public/rapha-logo.png" alt="Rapha Diagnostics Logo" width={48} height={48} className="h-12 w-12 rounded-full object-cover" />
+                           <Image
+    src="/rapha-logo.png"
+    alt="Rapha Diagnostics"
+    width={64}
+    height={64}
+    className="h-16 w-16 object-contain"
+/>
                                 <p className="text-xl font-bold tracking-tight text-rd-title">
                                     Rapha Diagnostics
                                 </p>
