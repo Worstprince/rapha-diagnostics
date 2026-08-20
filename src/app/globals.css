@@ -34,6 +34,14 @@
 
   --rd-fresh: #34d399;
 
+  --rd-ev-create: #34d399;
+  --rd-ev-update: #fbbf24;
+  --rd-ev-approve: #22d3ee;
+  --rd-ev-archive: #fb7185;
+  --rd-ev-restore: #38bdf8;
+  --rd-ev-security: #c084fc;
+  --rd-ev-access: #818cf8;
+
   --rd-card-shadow: 0 50px 90px -34px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --rd-lift: 0 24px 48px -28px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   --rd-toggle-bg: rgba(15, 23, 42, 0.6);
@@ -83,12 +91,20 @@
 
   --rd-fresh: #047857;
 
+  --rd-ev-create: #047857;
+  --rd-ev-update: #b45309;
+  --rd-ev-approve: #0a7387;
+  --rd-ev-archive: #be123c;
+  --rd-ev-restore: #0369a1;
+  --rd-ev-security: #6d28d9;
+  --rd-ev-access: #4338ca;
+
   --rd-card-shadow: 0 1px 1px rgba(15, 39, 71, 0.06), 0 8px 16px -10px rgba(15, 39, 71, 0.28),
     0 28px 48px -28px rgba(15, 39, 71, 0.4);
   --rd-lift: 0 1px 1px rgba(15, 39, 71, 0.05), 0 6px 12px -8px rgba(15, 39, 71, 0.22),
     0 18px 32px -22px rgba(15, 39, 71, 0.32);
-  --rd-toggle-bg: #ffffff;
-  --rd-toggle-border: rgba(15, 39, 71, 0.16);
+  --rd-toggle-bg: #dfe8f2;
+  --rd-toggle-border: rgba(15, 39, 71, 0.22);
 
   --rd-accent-grad: linear-gradient(180deg, #0b7f95 0%, #06596a 100%);
   --rd-accent-shadow: rgba(11, 127, 149, 0.4);
@@ -357,9 +373,6 @@
   }
 }
 
-/* `inline` matters: it compiles utilities down to var(--rd-*) rather than
-   freezing the value, so bg-rd-card re-resolves when the theme flips instead of
-   staying stuck on whichever palette was current at build time. */
 @theme inline {
   --color-rd-canvas: var(--rd-canvas);
   --color-rd-card: var(--rd-card);
@@ -385,6 +398,14 @@
   --color-rd-fresh: var(--rd-fresh);
   --color-rd-ok-edge: var(--rd-ok-edge);
   --color-rd-ok-bg: var(--rd-ok-bg);
+
+  --color-rd-ev-create: var(--rd-ev-create);
+  --color-rd-ev-update: var(--rd-ev-update);
+  --color-rd-ev-approve: var(--rd-ev-approve);
+  --color-rd-ev-archive: var(--rd-ev-archive);
+  --color-rd-ev-restore: var(--rd-ev-restore);
+  --color-rd-ev-security: var(--rd-ev-security);
+  --color-rd-ev-access: var(--rd-ev-access);
 }
 
 @layer base {
@@ -438,8 +459,6 @@
     transition: background-color 5000s ease-in-out 0s !important;
   }
 
-  /* A data URI can't read a CSS variable, so the stroke colour is baked into
-     the URL and the whole declaration is restated per theme. */
   select {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -519,8 +538,6 @@
     background: var(--rd-scroll-thumb-hover);
   }
 
-  /* Fields and buttons are shared with the login so a form looks the same on
-     both sides of sign-in. Login only adds what's specific to it. */
   .rd-label {
     display: block;
     margin-bottom: 8px;
@@ -529,10 +546,6 @@
     color: var(--rd-label);
   }
 
-  /* background-color, never the `background` shorthand: the shorthand resets
-     background-image, and this class sits in a later layer than the base rule
-     that draws the chevron on a <select>. Using it would leave an appearance:none
-     select with no arrow at all. */
   .rd-input {
     width: 100%;
     padding: 14px 16px;
@@ -568,8 +581,6 @@
     cursor: not-allowed;
   }
 
-  /* .rd-input's `padding` shorthand overrides the base rule that reserves room
-     for the chevron, so anything with a background icon has to claim it back. */
   select.rd-input,
   input[type="date"].rd-input {
     padding-right: 2.5rem;
@@ -579,18 +590,12 @@
     cursor: pointer;
   }
 
-  /* The popup is drawn by the OS and inherits from the select, so it needs an
-     opaque background and a weight of its own — the 600 the field carries reads
-     heavy in a list. */
   select option {
     background-color: var(--rd-popover);
     color: var(--rd-text);
     font-weight: 500;
   }
 
-  /* Nothing chosen yet, so the visible text is a prompt, not a value. Driven by
-     the attribute rather than :invalid, which never fires here — these selects
-     validate in JS and carry no `required`. */
   select.rd-input[data-empty="true"] {
     color: var(--rd-placeholder);
   }
@@ -685,8 +690,6 @@
     cursor: not-allowed;
   }
 
-  /* Referenced by the queue, history and billing pages but never defined, so
-     those Filters buttons were rendering as bare browser buttons. */
   .rd-btn-secondary {
     display: inline-flex;
     align-items: center;
@@ -717,8 +720,6 @@
     cursor: not-allowed;
   }
 
-  /* Same shape as .rd-btn, but never the accent gradient — a destructive
-     confirm must not look like the primary action it's guarding. */
   .rd-btn-danger {
     display: inline-flex;
     align-items: center;
@@ -767,9 +768,6 @@
     line-height: 1.5;
   }
 
-  /* A 12% wash of a bright palette colour reads clearly over a dark card but
-     all but vanishes over white, and the -500 inks drop under 3:1 there. Light
-     mode gets a stronger tint and a darker ink instead. */
   .rd-tint-cyan {
     background-color: rgba(34, 211, 238, 0.14);
     color: #67e8f9;
@@ -832,8 +830,6 @@
     }
   }
 
-  /* The drawer mounts on open rather than staying in the tree, so entry is a
-     keyframe — a transition has no previous value to animate from. */
   .rd-scrim {
     animation: rd-fade-in 180ms ease-out;
   }
@@ -861,9 +857,6 @@
     }
   }
 
-  /* `backwards` holds the from-state during animation-delay, so callers can
-     stagger a list purely via inline animationDelay without a flash of the
-     unanimated end-state first. */
   .rd-rise-in {
     animation: rd-rise-in 480ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
   }
@@ -881,9 +874,6 @@
     }
   }
 
-  /* The account popover mounts on open rather than staying in the tree, so entry
-     is a keyframe. It grows from the edge it's anchored to, which is the bottom
-     one — the sidebar footer opens upward. */
   .rd-pop {
     transform-origin: bottom center;
     animation: rd-pop-in 160ms cubic-bezier(0.32, 0.72, 0, 1);
@@ -910,8 +900,6 @@
     filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.85));
   }
 
-  /* Shared by the login and the dashboard sidebar. Base sits in normal flow;
-     login pins it to the viewport itself. */
   .rd-theme {
     position: relative;
     flex: none;
@@ -978,8 +966,8 @@
 
   html[data-theme="light"] .rd-theme-knob {
     transform: translateX(0);
-    color: #0b2137;
-    background: linear-gradient(180deg, #ffffff, #dbeafe);
+    color: #ffffff;
+    background: linear-gradient(180deg, #0e9fb8, #0a7387);
   }
 
   @media (prefers-reduced-motion: reduce) {

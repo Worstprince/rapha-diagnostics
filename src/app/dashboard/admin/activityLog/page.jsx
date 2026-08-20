@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
+    Avatar,
     ClearFilters,
+    EVENT_ICON,
+    EVENT_TONE,
     FilterField,
     FilterToggle,
     PageHeader,
@@ -11,10 +14,34 @@ import {
     RowSkeleton,
     SearchField,
     StateMessage,
-    actionTone,
-    toneBar,
-    toneDot,
+    categoryMeta,
+    eventCategory,
 } from "../_ui";
+import {
+    clinicDayKey,
+    clinicDayKeys,
+    formatDate,
+    formatFull,
+    formatTime,
+    toDate,
+} from "@/lib/datetime";
+
+
+function dayLabel(dayKey, sample, keys) {
+
+    if (dayKey === keys.today) return "Today";
+    if (dayKey === keys.yesterday) return "Yesterday";
+
+    return formatDate(sample, {
+        weekday: "short",
+        year:
+            keys.today && dayKey.slice(0, 4) === keys.today.slice(0, 4)
+                ? undefined
+                : "numeric"
+    });
+
+}
+
 
 export default function ActivityLogPage() {
 
@@ -161,9 +188,49 @@ export default function ActivityLogPage() {
     ].filter(Boolean).length;
 
 
+    const [dayKeys, setDayKeys] = useState({ today: null, yesterday: null });
+
+    useEffect(() => {
+
+        const sync = () => setDayKeys(clinicDayKeys());
+
+        sync();
+
+        const id = setInterval(sync, 60_000);
+
+        return () => clearInterval(id);
+
+    }, []);
+
+
+    const groups = useMemo(() => {
+
+        const out = [];
+
+        for (const log of logs) {
+
+            const when = toDate(log.datetime);
+            const key = when ? clinicDayKey(when) : "unknown";
+
+            let group = out[out.length - 1];
+
+            if (!group || group.key !== key) {
+                group = { key, sample: when, items: [] };
+                out.push(group);
+            }
+
+            group.items.push({ log, when });
+
+        }
+
+        return out;
+
+    }, [logs]);
+
+
     return (
 
-        <div className="mx-auto flex max-w-5xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
+        <div className="mx-auto flex max-w-6xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
 
             <PageHeader
                 title="Activity Log"
@@ -346,11 +413,7 @@ export default function ActivityLogPage() {
                     <StateMessage
                         title="No activity found"
                         hint={
-                            search ||
-                            moduleFilter ||
-                            actionFilter ||
-                            usernameFilter ||
-                            sortDate
+                            activeCount > 0
                                 ? "Nothing matches the current search and filters."
                                 : "Activity appears here as staff use the system."
                         }
@@ -361,79 +424,148 @@ export default function ActivityLogPage() {
 
                 {!loading && logs.length > 0 && (
 
-                    <ol className="rd-scroll-thin min-h-0 flex-1 space-y-3 overflow-y-auto p-5">
+                    <div className="rd-scroll-thin min-h-0 flex-1 overflow-y-auto px-4 pb-2">
 
-                        {logs.map((log) => {
+                        {groups.map(group => (
 
-                            const tone = actionTone(log.action);
+                            <section key={group.key}>
 
-                            return (
+                                <h3 className="sticky top-0 z-10 flex items-center gap-3 bg-rd-card/95 py-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-rd-muted backdrop-blur-sm">
 
-                                <li
-                                    key={log.id}
-                                    className="relative overflow-hidden rounded-xl border border-rd-hair bg-rd-sunken px-6 py-5 transition-colors hover:border-rd-hair-strong hover:bg-rd-raised"
-                                >
+                                    {group.key === "unknown"
+                                        ? "Undated"
+                                        : dayLabel(group.key, group.sample, dayKeys)}
 
                                     <span
                                         aria-hidden="true"
-                                        className={`absolute inset-y-0 left-0 w-1 ${toneBar[tone]}`}
+                                        className="h-px flex-1 bg-rd-hair"
                                     />
 
+                                    <span className="font-semibold tabular-nums tracking-normal">
+                                        {group.items.length}
+                                    </span>
 
-                                    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-
-                                        <div className="flex flex-wrap items-center gap-2.5">
-
-                                            <span
-                                                aria-hidden="true"
-                                                className={`size-2 flex-none rounded-full ${toneDot[tone]}`}
-                                            />
-
-                                            <p className="text-[15px] font-semibold text-rd-title">
-                                                {log.action}
-                                            </p>
+                                </h3>
 
 
-                                            {log.module && (
+                                <ol>
 
-                                                <span className="rounded-full border border-rd-hair-strong bg-rd-raised px-2.5 py-1 text-xs font-medium text-rd-label">
-                                                    {log.module}
-                                                </span>
+                                    {group.items.map(({ log, when }, index) => {
 
-                                            )}
+                                        const key = eventCategory(log.action);
+                                        const tone = EVENT_TONE[key];
+                                        const meta = categoryMeta(key);
+                                        const Glyph = EVENT_ICON[key];
+                                        const last = index === group.items.length - 1;
 
-                                        </div>
+                                        return (
+
+                                            <li
+                                                key={log.id}
+                                                className="group flex gap-3"
+                                            >
+
+                                                <div className="flex w-9 flex-none flex-col items-center">
+
+                                                    <span
+                                                        className={`grid size-9 flex-none place-items-center rounded-full border ${tone.node}`}
+                                                    >
+                                                        <Glyph size={16} />
+                                                    </span>
+
+                                                    {!last && (
+                                                        <span
+                                                            aria-hidden="true"
+                                                            className={`mt-1.5 w-px flex-1 ${tone.rail}`}
+                                                        />
+                                                    )}
+
+                                                </div>
 
 
-                                        <time className="text-xs tabular-nums text-rd-muted">
-                                            {log.datetime}
-                                        </time>
+                                                <div className={`mb-2 min-w-0 flex-1 rounded-xl px-3 py-2 transition-colors ${tone.hover}`}>
 
-                                    </div>
+                                                    <div className="flex items-baseline justify-between gap-3">
+
+                                                        <div className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1">
+
+                                                            <p className="text-[15px] font-semibold leading-tight text-rd-title">
+                                                                {log.action}
+                                                            </p>
+
+                                                            <span
+                                                                title={meta.hint}
+                                                                className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${tone.chip}`}
+                                                            >
+                                                                {meta.label}
+                                                            </span>
+
+                                                            {log.module && (
+
+                                                                <span className="rounded-full border border-rd-hair px-2 py-0.5 text-[11px] font-medium text-rd-muted">
+                                                                    {log.module}
+                                                                </span>
+
+                                                            )}
+
+                                                        </div>
 
 
-                                    <p className="mt-2.5 text-sm leading-relaxed text-rd-label">
-                                        {log.description}
-                                    </p>
+                                                        {when ? (
+
+                                                            <time
+                                                                dateTime={when.toISOString()}
+                                                                title={formatFull(when)}
+                                                                className="w-[4.75rem] flex-none text-right text-xs tabular-nums text-rd-muted"
+                                                            >
+                                                                {formatTime(when)}
+                                                            </time>
+
+                                                        ) : (
+
+                                                            <span className="w-[4.75rem] flex-none text-right text-xs text-rd-muted">
+                                                                —
+                                                            </span>
+
+                                                        )}
+
+                                                    </div>
 
 
-                                    <p className="mt-3 text-xs text-rd-muted">
+                                                    <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
 
-                                        Performed by{" "}
+                                                        <p className="min-w-0 text-sm leading-snug text-rd-label">
+                                                            {log.description}
+                                                        </p>
 
-                                        <span className="font-semibold text-rd-label">
-                                            {log.username}
-                                        </span>
+                                                        <span className="flex flex-none items-center gap-1.5 text-xs text-rd-muted">
 
-                                    </p>
+                                                            <Avatar
+                                                                name={log.username}
+                                                                className="size-5 text-[9px]"
+                                                            />
 
-                                </li>
+                                                            {log.username ?? "Unknown user"}
 
-                            );
+                                                        </span>
 
-                        })}
+                                                    </div>
 
-                    </ol>
+                                                </div>
+
+                                            </li>
+
+                                        );
+
+                                    })}
+
+                                </ol>
+
+                            </section>
+
+                        ))}
+
+                    </div>
 
                 )}
 
@@ -455,7 +587,7 @@ export default function ActivityLogPage() {
                                 onClick={() =>
                                     setPage(prev => Math.max(1, prev - 1))
                                 }
-                                className="rd-btn-ghost rd-press rd-focus min-h-10 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="rd-btn-ghost rd-press rd-focus min-h-11 disabled:pointer-events-none disabled:opacity-40"
                             >
                                 Previous
                             </button>
@@ -469,7 +601,7 @@ export default function ActivityLogPage() {
                                         Math.min(totalPages, prev + 1)
                                     )
                                 }
-                                className="rd-btn rd-press rd-focus min-h-10 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="rd-btn-ghost rd-press rd-focus min-h-11 disabled:pointer-events-none disabled:opacity-40"
                             >
                                 Next
                             </button>

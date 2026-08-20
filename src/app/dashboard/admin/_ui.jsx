@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 function Icon({ size = 18, className = "", children }) {
     return (
         <svg
@@ -49,6 +51,15 @@ export function ChevronDownIcon(props) {
     return (
         <Icon {...props}>
             <path d="m6 9 6 6 6-6" />
+        </Icon>
+    );
+}
+
+export function ArrowLeftIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="M19 12H5" />
+            <path d="m11 18-6-6 6-6" />
         </Icon>
     );
 }
@@ -159,7 +170,7 @@ export function ClockIcon(props) {
 }
 
 const ROLE_LABELS = {
-    Pathologist: "Physician",
+    Physician: "Doctor",
 };
 
 export function roleLabel(value) {
@@ -203,29 +214,250 @@ export const toneChip = {
 };
 
 const ROLE_TONES = {
-    Administrator: "violet",
     Receptionist: "cyan",
     "Medical Technologist": "amber",
     Pathologist: "emerald",
-    Cashier: "rose",
+    Physician: "rose",
+    Administrator: "violet",
 };
+
+export const STAFF_ROLES = Object.keys(ROLE_TONES);
 
 export function roleTone(value) {
     return ROLE_TONES[String(value ?? "")] ?? "neutral";
 }
 
-const ACTION_TONES = [
-    [/create|add|register|insert|new/, "emerald"],
-    [/delete|remove|archive|deactivate|disable/, "rose"],
-    [/update|edit|modify|change|assign|approve/, "amber"],
-    [/login|logout|sign|access|view|search/, "cyan"],
+
+export const EVENT_CATEGORIES = [
+    {
+        key: "create",
+        label: "Created",
+        hint: "New records added",
+        actions: [
+            "User registration",
+            "Patient registration",
+            "Visitation created",
+            "Save Test Result",
+        ],
+        match: /creat|regist|\badd|\bnew\b|save|submit|insert/,
+    },
+    {
+        key: "update",
+        label: "Updated",
+        hint: "Existing records changed",
+        actions: [
+            "User Update",
+            "Profile Updated",
+            "Update Test Result",
+            "Assign MedTech",
+        ],
+        match: /updat|edit|modif|chang|assign|renam|transfer/,
+    },
+    {
+        key: "approve",
+        label: "Approved",
+        hint: "Results signed off",
+        actions: ["Result Approved"],
+        match: /approv|verif|releas|finali|complet/,
+    },
+    {
+        key: "archive",
+        label: "Archived",
+        hint: "Records withdrawn",
+        actions: ["User Archived"],
+        match: /archiv|delet|remov|deactivat|disabl|revok|void|cancel/,
+    },
+    {
+        key: "restore",
+        label: "Restored",
+        hint: "Records reinstated",
+        actions: ["User Restored"],
+        match: /restor|reactivat|reinstat|unarchiv/,
+    },
+    {
+        key: "security",
+        label: "Security",
+        hint: "Credentials and permissions",
+        actions: ["Password Changed"],
+        match: /password|credential|permission|\brole\b|reset|lock/,
+    },
+    {
+        key: "access",
+        label: "Access",
+        hint: "Sign-ins and sessions",
+        actions: ["Login", "Logout"],
+        match: /log ?in|log ?out|signed |session/,
+    },
 ];
 
-export function actionTone(value) {
-    const text = String(value ?? "").toLowerCase();
-    const rule = ACTION_TONES.find(([pattern]) => pattern.test(text));
-    return rule ? rule[1] : "violet";
+export const OTHER_CATEGORY = {
+    key: "other",
+    label: "Other",
+    hint: "Not yet categorised",
+};
+
+const EXACT = new Map();
+for (const category of EVENT_CATEGORIES) {
+    for (const action of category.actions) {
+        EXACT.set(action.toLowerCase(), category.key);
+    }
 }
+
+const FALLBACK_ORDER = [
+    "archive",
+    "restore",
+    "security",
+    "access",
+    "approve",
+    "create",
+    "update",
+];
+
+export function eventCategory(value) {
+    const text = String(value ?? "").trim().toLowerCase();
+    if (!text) return OTHER_CATEGORY.key;
+
+    const exact = EXACT.get(text);
+    if (exact) return exact;
+
+    for (const key of FALLBACK_ORDER) {
+        const category = EVENT_CATEGORIES.find((item) => item.key === key);
+        if (category.match.test(text)) return category.key;
+    }
+
+    return OTHER_CATEGORY.key;
+}
+
+export function categoryMeta(key) {
+    return EVENT_CATEGORIES.find((item) => item.key === key) ?? OTHER_CATEGORY;
+}
+
+export const EVENT_TONE = {
+    create: {
+        node: "border-rd-ev-create/40 bg-rd-ev-create/12 text-rd-ev-create",
+        dot: "bg-rd-ev-create",
+        rail: "bg-rd-ev-create/35",
+        hover: "group-hover:bg-rd-ev-create/8",
+        chip: "border-rd-ev-create/45 bg-rd-ev-create/12 text-rd-ev-create",
+    },
+    update: {
+        node: "border-rd-ev-update/40 bg-rd-ev-update/12 text-rd-ev-update",
+        dot: "bg-rd-ev-update",
+        rail: "bg-rd-ev-update/35",
+        hover: "group-hover:bg-rd-ev-update/8",
+        chip: "border-rd-ev-update/45 bg-rd-ev-update/12 text-rd-ev-update",
+    },
+    approve: {
+        node: "border-rd-ev-approve/40 bg-rd-ev-approve/12 text-rd-ev-approve",
+        dot: "bg-rd-ev-approve",
+        rail: "bg-rd-ev-approve/35",
+        hover: "group-hover:bg-rd-ev-approve/8",
+        chip: "border-rd-ev-approve/45 bg-rd-ev-approve/12 text-rd-ev-approve",
+    },
+    archive: {
+        node: "border-rd-ev-archive/40 bg-rd-ev-archive/12 text-rd-ev-archive",
+        dot: "bg-rd-ev-archive",
+        rail: "bg-rd-ev-archive/35",
+        hover: "group-hover:bg-rd-ev-archive/8",
+        chip: "border-rd-ev-archive/45 bg-rd-ev-archive/12 text-rd-ev-archive",
+    },
+    restore: {
+        node: "border-rd-ev-restore/40 bg-rd-ev-restore/12 text-rd-ev-restore",
+        dot: "bg-rd-ev-restore",
+        rail: "bg-rd-ev-restore/35",
+        hover: "group-hover:bg-rd-ev-restore/8",
+        chip: "border-rd-ev-restore/45 bg-rd-ev-restore/12 text-rd-ev-restore",
+    },
+    security: {
+        node: "border-rd-ev-security/40 bg-rd-ev-security/12 text-rd-ev-security",
+        dot: "bg-rd-ev-security",
+        rail: "bg-rd-ev-security/35",
+        hover: "group-hover:bg-rd-ev-security/8",
+        chip: "border-rd-ev-security/45 bg-rd-ev-security/12 text-rd-ev-security",
+    },
+    access: {
+        node: "border-rd-ev-access/40 bg-rd-ev-access/12 text-rd-ev-access",
+        dot: "bg-rd-ev-access",
+        rail: "bg-rd-ev-access/35",
+        hover: "group-hover:bg-rd-ev-access/8",
+        chip: "border-rd-ev-access/45 bg-rd-ev-access/12 text-rd-ev-access",
+    },
+    other: {
+        node: "border-rd-hair-strong bg-rd-raised text-rd-muted",
+        dot: "bg-rd-muted",
+        rail: "bg-rd-hair-strong",
+        hover: "group-hover:bg-rd-raised",
+        chip: "border-rd-hair-strong bg-rd-raised text-rd-muted",
+    },
+};
+
+export function PlusCircleIcon(props) {
+    return (
+        <Icon {...props}>
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 8.5v7" />
+            <path d="M8.5 12h7" />
+        </Icon>
+    );
+}
+
+export function ArchiveIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="M3.5 5.5h17v4h-17z" />
+            <path d="M5 9.5V18a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5V9.5" />
+            <path d="M10 13h4" />
+        </Icon>
+    );
+}
+
+export function RestoreIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="M3.5 12a8.5 8.5 0 1 0 2.7-6.2" />
+            <path d="M3.5 4.2v4.6h4.6" />
+        </Icon>
+    );
+}
+
+export function KeyIcon(props) {
+    return (
+        <Icon {...props}>
+            <circle cx="8.5" cy="15.5" r="3.8" />
+            <path d="m11.2 12.8 7.6-7.6" />
+            <path d="m16.4 7.6 2 2" />
+        </Icon>
+    );
+}
+
+export function SignInIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="M14.5 3.5h3a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-3" />
+            <path d="m9.5 16.5 4.5-4.5-4.5-4.5" />
+            <path d="M14 12H3.5" />
+        </Icon>
+    );
+}
+
+export function PulseIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="M3 12h3.5l2.5 6 4-13 2.5 7H21" />
+        </Icon>
+    );
+}
+
+export const EVENT_ICON = {
+    create: PlusCircleIcon,
+    update: PencilIcon,
+    approve: CheckCircleIcon,
+    archive: ArchiveIcon,
+    restore: RestoreIcon,
+    security: KeyIcon,
+    access: SignInIcon,
+    other: PulseIcon,
+};
 
 export function Badge({ tone = "neutral", children }) {
     return (
@@ -270,13 +502,51 @@ export function ClearFilters({ count, onClear }) {
     );
 }
 
-export function PageHeader({ title, description }) {
+export function BackLink({ href, label = "All users", onNavigate }) {
+
+    const className =
+        "rd-press rd-focus group/back inline-flex min-h-10 w-fit cursor-pointer items-center gap-2 rounded-xl border border-rd-hair-strong bg-rd-sunken px-3.5 text-sm font-semibold text-rd-label transition-[color,background-color,border-color,box-shadow] duration-200 hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan hover:shadow-[0_0_18px_-6px_rgba(34,211,238,0.5)] motion-reduce:transition-none";
+
+    const inner = (
+        <>
+            <ArrowLeftIcon
+                size={16}
+                className="transition-transform duration-200 group-hover/back:-translate-x-0.5 motion-reduce:transition-none"
+            />
+            {label}
+        </>
+    );
+
+    if (onNavigate) {
+        return (
+            <button type="button" onClick={() => onNavigate(href)} className={className}>
+                {inner}
+            </button>
+        );
+    }
+
+    return (
+        <Link href={href} className={className}>
+            {inner}
+        </Link>
+    );
+
+}
+
+export function PageHeader({ title, description, back }) {
     return (
         <header className="rd-panel flex-none p-6">
+            {back && (
+                <div className="mb-4">
+                    <BackLink {...back} />
+                </div>
+            )}
             <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
                 Admin
             </p>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">{title}</h1>
+            <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">
+                {title}
+            </h1>
             {description && <p className="mt-2 text-sm text-rd-muted">{description}</p>}
         </header>
     );
@@ -396,5 +666,61 @@ export function HeaderGlow() {
             aria-hidden="true"
             className="pointer-events-none absolute -right-20 -top-24 size-56 rounded-full bg-rd-cyan/10 blur-3xl"
         />
+    );
+}
+
+export function initialsOf(name) {
+    if (!name) return "";
+    return String(name)
+        .split(/[\s._-]+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0].toUpperCase())
+        .join("");
+}
+
+export function Avatar({ name, className = "size-9 text-xs" }) {
+    return (
+        <span
+            aria-hidden="true"
+            className={`grid flex-none place-items-center rounded-full bg-rd-cyan/15 font-bold text-rd-cyan ${className}`}
+        >
+            {initialsOf(name)}
+        </span>
+    );
+}
+
+export function Spinner({ size = 16 }) {
+    return (
+        <svg
+            className="animate-spin motion-reduce:animate-none"
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+        >
+            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.3" strokeWidth="3" />
+            <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+        </svg>
+    );
+}
+
+export function CheckIcon({ size = 16, className = "" }) {
+    return (
+        <svg
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+            aria-hidden="true"
+        >
+            <path d="M20 6 9 17l-5-5" />
+        </svg>
     );
 }

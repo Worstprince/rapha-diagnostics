@@ -9,9 +9,9 @@ import {
     FilterField,
     FilterToggle,
     PencilIcon,
-    ResultCount,
     RowSkeleton,
     SearchField,
+    STAFF_ROLES,
     StateMessage,
     roleLabel,
     roleTone,
@@ -19,6 +19,7 @@ import {
     td,
     th,
 } from "@/app/dashboard/admin/_ui";
+import { formatDate, formatFull, formatTime, toDate } from "@/lib/datetime";
 
 
 function StatusPill({ archived }) {
@@ -61,12 +62,7 @@ export default function DisplayUsers() {
     const [totalPages, setTotalPages] = useState(0);
 
 
-    const roles = [
-        "Administrator",
-        "Receptionist",
-        "Medical Technologist",
-        "Pathologist",
-    ];
+    const roles = STAFF_ROLES;
 
 
     useEffect(() => {
@@ -307,18 +303,7 @@ export default function DisplayUsers() {
                     />
 
 
-                    <div className="flex items-center justify-between gap-3">
-
-                        {!loading && (
-
-                            <ResultCount
-                                shown={users.length}
-                                total={total}
-                                noun="users"
-                            />
-
-                        )}
-
+                    <div className="flex items-center justify-end gap-3">
 
                         <FilterToggle
                             open={showFilters}
@@ -561,7 +546,30 @@ export default function DisplayUsers() {
                                             <td
                                                 className={`${td} tabular-nums`}
                                             >
-                                                {user.created_at}
+
+                                                {toDate(user.created_at) ? (
+
+                                                    <span
+                                                        title={formatFull(user.created_at)}
+                                                        className="block leading-tight"
+                                                    >
+
+                                                        {formatDate(user.created_at)}
+
+                                                        <span className="mt-0.5 block text-xs text-rd-muted">
+                                                            {formatTime(user.created_at)}
+                                                        </span>
+
+                                                    </span>
+
+                                                ) : (
+
+                                                    <span className="text-rd-muted">
+                                                        —
+                                                    </span>
+
+                                                )}
+
                                             </td>
 
 
@@ -588,7 +596,7 @@ export default function DisplayUsers() {
                                                     className={rowAction}
                                                     onClick={() =>
                                                         router.push(
-                                                            `/dashboard/admin/editUsers?id=${user.id}`
+                                                            `/dashboard/admin/editUsers/${user.id}`
                                                         )
                                                     }
                                                 >
@@ -643,7 +651,7 @@ export default function DisplayUsers() {
                             </p>
 
 
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-2">
 
 
                                 <button
@@ -652,26 +660,24 @@ export default function DisplayUsers() {
                                     onClick={() =>
                                         goToPage(page - 1)
                                     }
-                                    className="rd-btn rd-press rd-focus disabled:pointer-events-none disabled:opacity-40"
+                                    className="rd-btn-ghost rd-press rd-focus disabled:pointer-events-none disabled:opacity-40"
                                 >
                                     Previous
                                 </button>
-
-
                                 {paginationPages.map(pageNumber => (
-
                                     <button
                                         key={pageNumber}
                                         type="button"
+                                        aria-current={pageNumber === page ? "page" : undefined}
                                         onClick={() =>
                                             goToPage(
                                                 pageNumber
                                             )
                                         }
-                                        className={`min-w-9 rounded-md px-3 py-2 text-sm ${
+                                        className={`rd-press rd-focus inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border px-3 text-sm transition-colors ${
                                             pageNumber === page
-                                                ? "bg-rd-title text-rd-bg"
-                                                : "text-rd-muted hover:bg-rd-raised"
+                                                ? "cursor-default border-transparent bg-rd-cyan font-semibold text-rd-on-cyan"
+                                                : "border-transparent text-rd-muted hover:border-rd-hair-strong hover:bg-rd-raised hover:text-rd-title"
                                         }`}
                                     >
 
@@ -690,7 +696,7 @@ export default function DisplayUsers() {
                                     onClick={() =>
                                         goToPage(page + 1)
                                     }
-                                    className="rd-btn rd-press rd-focus disabled:pointer-events-none disabled:opacity-40"
+                                    className="rd-btn-ghost rd-press rd-focus disabled:pointer-events-none disabled:opacity-40"
                                 >
                                     Next
                                 </button>

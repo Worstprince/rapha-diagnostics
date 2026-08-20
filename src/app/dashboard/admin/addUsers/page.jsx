@@ -6,23 +6,49 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 import { useCurrentUser } from "@/lib/session";
 
 import Toast from "../_toast";
-import { PageHeader, roleLabel } from "../_ui";
+import { Avatar, CheckIcon, PageHeader, STAFF_ROLES, Spinner, roleLabel } from "../_ui";
+import {
+  EMAIL,
+  Field,
+  MIN_PASSWORD,
+  MIN_USERNAME,
+  PASSWORD_RULES,
+  Requirement,
+  SectionHeader,
+  SummaryRow,
+  errText,
+  field,
+  passwordChecks,
+} from "../_form";
 
-const ROLES = [
-  "Administrator",
-  "Receptionist",
-  "Medical Technologist",
-  "Pathologist",
+
+const EMPTY_USER = {
+  username: "",
+  fname: "",
+  mname: "",
+  lname: "",
+  password: "",
+  confirmPassword: "",
+  email: "",
+  role: "",
+};
+
+const REQUIRED_FIELDS = [
+  "fname",
+  "lname",
+  "username",
+  "email",
+  "role",
+  "password",
+  "confirmPassword",
 ];
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MIN_PASSWORD = 8;
-const MIN_USERNAME = 3;
+function passwordSummary(user) {
+  if (!user.password) return "";
+  if (!user.confirmPassword) return "Needs confirming";
+  if (user.password !== user.confirmPassword) return "Does not match";
 
-const errText = "mt-1.5 text-sm text-rd-danger";
-
-function field(hasError) {
-  return `rd-input ${hasError ? "rd-input--error" : ""}`;
+  return "Set and confirmed";
 }
 
 const tickers = new Set();
@@ -71,45 +97,8 @@ function LiveTimestamp() {
   );
 }
 
-export default function AddUsers() {
-  const currentUser = useCurrentUser();
-
-  const [user, setUser] = useState({
-    username: "",
-    fname: "",
-    mname: "",
-    lname: "",
-    password: "",
-    confirmPassword: "",
-    email: "",
-    role: "",
-  });
-
-  const [errors, setErrors] = useState({});
-  const [status, setStatus] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-
-  function handleChange(e) {
-    const { name, value } = e.target;
-
-    setUser((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    setErrors((prev) => {
-      if (!prev[name]) return prev;
-
-      const next = { ...prev };
-      delete next[name];
-
-      return next;
-    });
-  }
-
-  function validate() {
-    const found = {};
+function fieldErrors(user) {
+  const found = {};
 
     if (!user.username.trim()) {
       found.username = "Username is required.";
@@ -158,6 +147,39 @@ export default function AddUsers() {
     if (!user.role) {
       found.role = "Please select a role.";
     }
+
+  return found;
+}
+export default function AddUsers() {
+  const currentUser = useCurrentUser();
+
+  const [user, setUser] = useState(EMPTY_USER);
+
+  const [errors, setErrors] = useState({});
+  const [status, setStatus] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  function handleChange(e) {
+    const { name, value } = e.target;
+
+    setUser((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    setErrors((prev) => {
+      if (!prev[name]) return prev;
+
+      const next = { ...prev };
+      delete next[name];
+
+      return next;
+    });
+  }
+
+  function validate() {
+    const found = fieldErrors(user);
 
     setErrors(found);
 
@@ -210,16 +232,7 @@ export default function AddUsers() {
         text: `User “${user.username}” added successfully.`,
       });
 
-      setUser({
-        username: "",
-        fname: "",
-        mname: "",
-        lname: "",
-        password: "",
-        confirmPassword: "",
-        email: "",
-        role: "",
-      });
+      setUser(EMPTY_USER);
 
       setErrors({});
     } catch {
@@ -232,357 +245,345 @@ export default function AddUsers() {
     }
   }
 
+  const fullName = [user.fname, user.mname, user.lname]
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join(" ");
+
   const selectedRoleLabel = roleLabel(user.role);
 
+  const checks = passwordChecks(user.password);
+
+  const pending = fieldErrors(user);
+  const filledRequired = REQUIRED_FIELDS.filter((key) => !pending[key]).length;
+  const isComplete = filledRequired === REQUIRED_FIELDS.length;
+  const isDirty = Object.values(user).some((value) => value !== "");
+
+  function handleReset() {
+    setUser(EMPTY_USER);
+    setErrors({});
+    setStatus(null);
+  }
+
   return (
-    <div className="mx-auto max-w-2xl space-y-5">
+    <div className="mx-auto max-w-6xl space-y-5">
 
       <PageHeader
+          back={{ href: "/dashboard/admin/viewUsers", label: "All users" }}
         title="Add User"
         description="Create an account and assign the role that matches their department."
       />
 
-      <section className="rd-panel p-6">
+      <form onSubmit={handleSubmit} className="w-full max-w-full space-y-5" noValidate>
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-5"
-          noValidate
-        >
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] lg:items-start">
 
-          <div>
-            <label
-              htmlFor="username"
-              className="rd-label"
-            >
-              Username
-            </label>
+          <div className="space-y-5">
 
-            <input
-              id="username"
-              type="text"
-              name="username"
-              autoComplete="off"
-              value={user.username}
-              onChange={handleChange}
-              aria-invalid={
-                errors.username ? true : undefined
-              }
-              aria-describedby={
-                errors.username
-                  ? "username-error"
-                  : undefined
-              }
-              className={field(errors.username)}
-            />
+            <section className="rd-panel">
 
-            {errors.username && (
-              <p
-                id="username-error"
-                className={errText}
-              >
-                {errors.username}
-              </p>
-            )}
-          </div>
+              <SectionHeader
+                title="Personal information"
+                description="The staff member's legal name, as it should appear on records."
+              />
 
+              <div className="grid gap-4 p-4 sm:grid-cols-2">
 
-          <div>
-            <label
-              htmlFor="fname"
-              className="rd-label"
-            >
-              First Name
-            </label>
+                <Field id="fname" label="First name" required error={errors.fname}>
+                  <input
+                    id="fname"
+                    type="text"
+                    name="fname"
+                    autoComplete="off"
+                    value={user.fname}
+                    onChange={handleChange}
+                    placeholder="Juan"
+                    aria-invalid={errors.fname ? true : undefined}
+                    aria-describedby={errors.fname ? "fname-error" : undefined}
+                    className={field(errors.fname)}
+                  />
+                </Field>
 
-            <input
-              id="fname"
-              type="text"
-              name="fname"
-              autoComplete="given-name"
-              value={user.fname}
-              onChange={handleChange}
-              aria-invalid={
-                errors.fname ? true : undefined
-              }
-              aria-describedby={
-                errors.fname
-                  ? "fname-error"
-                  : undefined
-              }
-              className={field(errors.fname)}
-            />
+                <Field id="mname" label="Middle name">
+                  <input
+                    id="mname"
+                    type="text"
+                    name="mname"
+                    autoComplete="off"
+                    value={user.mname}
+                    onChange={handleChange}
+                    placeholder="Santos"
+                    className={field(false)}
+                  />
+                </Field>
 
-            {errors.fname && (
-              <p
-                id="fname-error"
-                className={errText}
-              >
-                {errors.fname}
-              </p>
-            )}
-          </div>
-
-
-          <div>
-            <label
-              htmlFor="mname"
-              className="rd-label"
-            >
-              Middle Name
-            </label>
-
-            <input
-              id="mname"
-              type="text"
-              name="mname"
-              autoComplete="additional-name"
-              value={user.mname}
-              onChange={handleChange}
-              className="rd-input"
-            />
-          </div>
-
-
-          <div>
-            <label
-              htmlFor="lname"
-              className="rd-label"
-            >
-              Last Name
-            </label>
-
-            <input
-              id="lname"
-              type="text"
-              name="lname"
-              autoComplete="family-name"
-              value={user.lname}
-              onChange={handleChange}
-              aria-invalid={
-                errors.lname ? true : undefined
-              }
-              aria-describedby={
-                errors.lname
-                  ? "lname-error"
-                  : undefined
-              }
-              className={field(errors.lname)}
-            />
-
-            {errors.lname && (
-              <p
-                id="lname-error"
-                className={errText}
-              >
-                {errors.lname}
-              </p>
-            )}
-          </div>
-
-
-          <div>
-            <label
-              htmlFor="password"
-              className="rd-label"
-            >
-              Password
-            </label>
-
-            <input
-              id="password"
-              type="password"
-              name="password"
-              autoComplete="new-password"
-              value={user.password}
-              onChange={handleChange}
-              aria-invalid={
-                errors.password ? true : undefined
-              }
-              aria-describedby={
-                errors.password
-                  ? "password-error"
-                  : undefined
-              }
-              className={field(errors.password)}
-            />
-
-            {errors.password && (
-              <p
-                id="password-error"
-                className={errText}
-              >
-                {errors.password}
-              </p>
-            )}
-          </div>
-
-
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="rd-label"
-            >
-              Confirm Password
-            </label>
-
-            <input
-              id="confirmPassword"
-              type="password"
-              name="confirmPassword"
-              autoComplete="new-password"
-              value={user.confirmPassword}
-              onChange={handleChange}
-              aria-invalid={
-                errors.confirmPassword
-                  ? true
-                  : undefined
-              }
-              aria-describedby={
-                errors.confirmPassword
-                  ? "confirmPassword-error"
-                  : undefined
-              }
-              className={field(errors.confirmPassword)}
-            />
-
-            {errors.confirmPassword && (
-              <p
-                id="confirmPassword-error"
-                className={errText}
-              >
-                {errors.confirmPassword}
-              </p>
-            )}
-          </div>
-
-
-          <div>
-            <label
-              htmlFor="email"
-              className="rd-label"
-            >
-              Email
-            </label>
-
-            <input
-              id="email"
-              type="email"
-              name="email"
-              autoComplete="off"
-              value={user.email}
-              onChange={handleChange}
-              aria-invalid={
-                errors.email ? true : undefined
-              }
-              aria-describedby={
-                errors.email
-                  ? "email-error"
-                  : undefined
-              }
-              className={field(errors.email)}
-            />
-
-            {errors.email && (
-              <p
-                id="email-error"
-                className={errText}
-              >
-                {errors.email}
-              </p>
-            )}
-          </div>
-
-
-          <div>
-            <label
-              htmlFor="role"
-              className="rd-label"
-            >
-              Role
-            </label>
-
-            <select
-              id="role"
-              name="role"
-              value={user.role}
-              onChange={handleChange}
-              data-empty={user.role === ""}
-              aria-invalid={
-                errors.role ? true : undefined
-              }
-              aria-describedby={
-                errors.role
-                  ? "role-error"
-                  : undefined
-              }
-              className={field(errors.role)}
-            >
-              <option
-                value=""
-                disabled
-                hidden
-              >
-                Select Role
-              </option>
-
-              {ROLES.map((role) => (
-                <option
-                  key={role}
-                  value={role}
+                <Field
+                  id="lname"
+                  label="Last name"
+                  required
+                  error={errors.lname}
+                  className="sm:col-span-2"
                 >
-                  {roleLabel(role)}
-                </option>
-              ))}
-            </select>
+                  <input
+                    id="lname"
+                    type="text"
+                    name="lname"
+                    autoComplete="off"
+                    value={user.lname}
+                    onChange={handleChange}
+                    placeholder="Dela Cruz"
+                    aria-invalid={errors.lname ? true : undefined}
+                    aria-describedby={errors.lname ? "lname-error" : undefined}
+                    className={field(errors.lname)}
+                  />
+                </Field>
 
-            {errors.role && (
-              <p
-                id="role-error"
-                className={errText}
-              >
-                {errors.role}
-              </p>
-            )}
+              </div>
+
+            </section>
+
+
+            <section className="rd-panel">
+
+              <SectionHeader
+                title="Account access"
+                description="How they sign in, and what the account is allowed to reach."
+              />
+
+              <div className="grid gap-4 p-4 sm:grid-cols-2">
+
+                <Field id="username" label="Username" required error={errors.username}>
+                  <input
+                    id="username"
+                    type="text"
+                    name="username"
+                    autoComplete="off"
+                    value={user.username}
+                    onChange={handleChange}
+                    placeholder="jdelacruz"
+                    aria-invalid={errors.username ? true : undefined}
+                    aria-describedby={errors.username ? "username-error" : undefined}
+                    className={field(errors.username)}
+                  />
+                </Field>
+
+                <Field id="email" label="Email address" required error={errors.email}>
+                  <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    autoComplete="off"
+                    value={user.email}
+                    onChange={handleChange}
+                    placeholder="name@rapha.com"
+                    aria-invalid={errors.email ? true : undefined}
+                    aria-describedby={errors.email ? "email-error" : undefined}
+                    className={field(errors.email)}
+                  />
+                </Field>
+
+                <Field id="role" label="Role" required error={errors.role}>
+                  <select
+                    id="role"
+                    name="role"
+                    value={user.role}
+                    onChange={handleChange}
+                    data-empty={user.role === ""}
+                    aria-invalid={errors.role ? true : undefined}
+                    aria-describedby={errors.role ? "role-error" : undefined}
+                    className={field(errors.role)}
+                  >
+                    <option value="" disabled hidden>
+                      Select Role
+                    </option>
+
+                    {STAFF_ROLES.map((role) => (
+                      <option key={role} value={role}>
+                        {roleLabel(role)}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+
+                <Field id="createdAt" label="Created at">
+                  <LiveTimestamp />
+                  <p id="createdAt-hint" className="mt-1.5 text-xs text-rd-muted">
+                    Recorded automatically when the account is saved.
+                  </p>
+                </Field>
+
+              </div>
+
+            </section>
+
+
+            <section className="rd-panel">
+
+              <SectionHeader
+                title="Password"
+                description="Set the first password. The account can sign in with it immediately."
+              />
+
+              <div className="grid gap-4 p-4 sm:grid-cols-2">
+
+                <Field id="password" label="Password" required error={errors.password}>
+                  <input
+                    id="password"
+                    type="password"
+                    name="password"
+                    autoComplete="new-password"
+                    value={user.password}
+                    onChange={handleChange}
+                    aria-invalid={errors.password ? true : undefined}
+                    aria-describedby={errors.password ? "password-error" : "password-rules"}
+                    className={field(errors.password)}
+                  />
+                </Field>
+
+                <Field
+                  id="confirmPassword"
+                  label="Confirm password"
+                  required
+                  error={errors.confirmPassword}
+                >
+                  <input
+                    id="confirmPassword"
+                    type="password"
+                    name="confirmPassword"
+                    autoComplete="new-password"
+                    value={user.confirmPassword}
+                    onChange={handleChange}
+                    aria-invalid={errors.confirmPassword ? true : undefined}
+                    aria-describedby={
+                      errors.confirmPassword ? "confirmPassword-error" : undefined
+                    }
+                    className={field(errors.confirmPassword)}
+                  />
+                </Field>
+
+                <ul
+                  id="password-rules"
+                  className="grid gap-x-4 gap-y-1.5 sm:col-span-2 sm:grid-cols-2"
+                >
+                  {PASSWORD_RULES.map(({ key, label }) => (
+                    <Requirement key={key} met={checks[key]} label={label} />
+                  ))}
+                </ul>
+
+              </div>
+
+            </section>
+
           </div>
 
 
-          <div>
-            <label
-              htmlFor="createdAt"
-              className="rd-label"
-            >
-              Created At
-            </label>
+          <aside className="lg:sticky lg:top-4">
 
-            <LiveTimestamp />
+            <section className="rd-panel">
 
-            <p
-              id="createdAt-hint"
-              className="mt-1.5 text-sm text-rd-muted"
-            >
-              Recorded automatically when the account is saved.
-            </p>
-          </div>
+              <SectionHeader
+                title="Account preview"
+                description="A quick check of what will be created."
+              />
 
+              <div className="space-y-4 p-4">
 
-          <div className="flex justify-end">
+                <div className="flex items-center gap-3 rounded-xl border border-rd-hair bg-rd-sunken p-3">
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className="rd-btn rd-press rd-focus"
-            >
-              {submitting
-                ? "Adding…"
-                : "Add User"}
-            </button>
+                  <Avatar
+                    name={fullName || user.username || "?"}
+                    className="size-11 text-sm"
+                  />
 
-          </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-rd-title">
+                      {fullName || "New staff member"}
+                    </p>
+                    <p className="mt-0.5 text-xs text-rd-muted">
+                      {user.role ? selectedRoleLabel : "Role not set"}
+                    </p>
+                  </div>
 
-        </form>
+                </div>
 
-      </section>
+                <dl className="divide-y divide-rd-hair">
+                  <SummaryRow label="Username" value={user.username} />
+                  <SummaryRow label="Email" value={user.email} />
+                  <SummaryRow label="Role" value={user.role ? selectedRoleLabel : ""} />
+                  <SummaryRow label="Password" value={passwordSummary(user)} />
+                </dl>
+
+                <div className="rounded-xl border border-rd-hair bg-rd-sunken p-3">
+
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-rd-muted">
+                      Required fields
+                    </span>
+                    <span className="text-sm font-bold tabular-nums text-rd-title">
+                      {filledRequired}/{REQUIRED_FIELDS.length}
+                    </span>
+                  </div>
+
+                  <div
+                    role="progressbar"
+                    aria-valuemin={0}
+                    aria-valuemax={REQUIRED_FIELDS.length}
+                    aria-valuenow={filledRequired}
+                    aria-label="Required fields completed"
+                    className="mt-2 h-1.5 overflow-hidden rounded-full bg-rd-raised"
+                  >
+                    <span
+                      className={`block h-full rounded-full transition-[width] duration-300 motion-reduce:transition-none ${
+                        isComplete ? "bg-emerald-500" : "bg-rd-cyan"
+                      }`}
+                      style={{
+                        width: `${(filledRequired / REQUIRED_FIELDS.length) * 100}%`,
+                      }}
+                    />
+                  </div>
+
+                </div>
+
+                <div className="flex flex-col gap-2.5">
+
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="rd-btn rd-press rd-focus w-full"
+                  >
+                    {submitting ? (
+                      <>
+                        <Spinner />
+                        Adding…
+                      </>
+                    ) : (
+                      <>
+                        <CheckIcon size={16} />
+                        Add User
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    disabled={submitting || !isDirty}
+                    className="rd-btn-ghost rd-press rd-focus w-full"
+                  >
+                    Clear form
+                  </button>
+
+                </div>
+
+              </div>
+
+            </section>
+
+          </aside>
+
+        </div>
+
+      </form>
 
 
       <Toast
