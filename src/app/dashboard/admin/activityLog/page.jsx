@@ -17,68 +17,32 @@ import {
     categoryMeta,
     eventCategory,
 } from "../_ui";
-
-
-const DAY_MS = 86400000;
-
-
-function startOfDay(value) {
-
-    const date = new Date(value);
-
-    date.setHours(0, 0, 0, 0);
-
-    return date.getTime();
-
-}
+import {
+    clinicDayKey,
+    clinicDayKeys,
+    formatDate,
+    formatFull,
+    formatTime,
+    toDate,
+} from "@/lib/datetime";
 
 
 /* The rows used to print the raw column value, which arrives as an ISO string:
    "2026-08-19T19:47:16.000Z". That is unreadable at a glance and it is also the
-   UTC instant, so an admin in Manila reading a log of their own morning's work
-   saw the previous evening's date on every line. The Date the driver hands back
-   is correct -- only the rendering was wrong -- so the local wall clock goes on
-   screen, with the full timestamp kept on hover. */
-function timeLabel(date) {
+   UTC instant, so an admin reading a log of their own morning's work saw the
+   previous evening's date on every line. The Date the driver hands back is
+   correct -- only the rendering was wrong. Everything now goes through the
+   clinic's zone rather than the reader's; see lib/datetime for why the locale
+   alone was not enough to do that. */
+function dayLabel(dayKey, sample, keys) {
 
-    return date.toLocaleTimeString("en-PH", {
-        hour: "numeric",
-        minute: "2-digit"
-    });
+    if (dayKey === keys.today) return "Today";
+    if (dayKey === keys.yesterday) return "Yesterday";
 
-}
-
-
-function fullLabel(date) {
-
-    return date.toLocaleString("en-PH", {
-        dateStyle: "full",
-        timeStyle: "medium"
-    });
-
-}
-
-
-function dayLabel(dayStart, todayStart) {
-
-    const date = new Date(dayStart);
-
-    if (todayStart !== null) {
-
-        const days = Math.round((todayStart - dayStart) / DAY_MS);
-
-        if (days === 0) return "Today";
-        if (days === 1) return "Yesterday";
-
-    }
-
-    return date.toLocaleDateString("en-PH", {
+    return formatDate(sample, {
         weekday: "short",
-        day: "numeric",
-        month: "short",
         year:
-            todayStart !== null &&
-            date.getFullYear() === new Date(todayStart).getFullYear()
+            keys.today && dayKey.slice(0, 4) === keys.today.slice(0, 4)
                 ? undefined
                 : "numeric"
     });
@@ -235,11 +199,11 @@ export default function ActivityLogPage() {
        -- so it cannot be read during render, and a log left open past midnight
        would otherwise keep labelling yesterday's entries Today. Same shape the
        overview page already uses for its clock. */
-    const [todayStart, setTodayStart] = useState(null);
+    const [dayKeys, setDayKeys] = useState({ today: null, yesterday: null });
 
     useEffect(() => {
 
-        const sync = () => setTodayStart(startOfDay(Date.now()));
+        const sync = () => setDayKeys(clinicDayKeys());
 
         sync();
 
@@ -251,25 +215,27 @@ export default function ActivityLogPage() {
 
 
     /* Rows arrive already sorted by datetime, so one pass is enough to cut them
-       into day runs -- no bucketing and re-sorting needed. */
+       into day runs -- no bucketing and re-sorting needed. The key is the
+       calendar day in Manila, not the reader's local midnight, so an entry
+       logged at 00:30 here does not get filed under the previous day for
+       somebody reading from further west. */
     const groups = useMemo(() => {
 
         const out = [];
 
         for (const log of logs) {
 
-            const when = new Date(log.datetime);
-            const valid = !Number.isNaN(when.getTime());
-            const key = valid ? startOfDay(when) : "unknown";
+            const when = toDate(log.datetime);
+            const key = when ? clinicDayKey(when) : "unknown";
 
             let group = out[out.length - 1];
 
             if (!group || group.key !== key) {
-                group = { key, items: [] };
+                group = { key, sample: when, items: [] };
                 out.push(group);
             }
 
-            group.items.push({ log, when: valid ? when : null });
+            group.items.push({ log, when });
 
         }
 
@@ -484,7 +450,7 @@ export default function ActivityLogPage() {
 
                                     {group.key === "unknown"
                                         ? "Undated"
-                                        : dayLabel(group.key, todayStart)}
+                                        : dayLabel(group.key, group.sample, dayKeys)}
 
                                     <span
                                         aria-hidden="true"
@@ -578,10 +544,10 @@ export default function ActivityLogPage() {
 
                                                             <time
                                                                 dateTime={when.toISOString()}
-                                                                title={fullLabel(when)}
+                                                                title={formatFull(when)}
                                                                 className="w-[4.75rem] flex-none text-right text-xs tabular-nums text-rd-muted"
                                                             >
-                                                                {timeLabel(when)}
+                                                                {formatTime(when)}
                                                             </time>
 
                                                         ) : (

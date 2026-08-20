@@ -18,6 +18,7 @@ import {
     td,
     th,
 } from "@/app/dashboard/admin/_ui";
+import { formatDate, formatFull, formatTime, toDate } from "@/lib/datetime";
 
 
 function StatusPill({ archived }) {
@@ -552,10 +553,41 @@ export default function DisplayUsers() {
                                             </td>
 
 
+                                            {/* Was printing the raw column value,
+                                                "2026-08-19T19:47:16.000Z" -- the UTC
+                                                instant, so an account opened at 3:47am
+                                                Manila showed the previous evening's
+                                                date. Date on top, clock time under it:
+                                                dropping the time to fit one line would
+                                                have lost information an audit column
+                                                needs. */}
                                             <td
                                                 className={`${td} tabular-nums`}
                                             >
-                                                {user.created_at}
+
+                                                {toDate(user.created_at) ? (
+
+                                                    <span
+                                                        title={formatFull(user.created_at)}
+                                                        className="block leading-tight"
+                                                    >
+
+                                                        {formatDate(user.created_at)}
+
+                                                        <span className="mt-0.5 block text-xs text-rd-muted">
+                                                            {formatTime(user.created_at)}
+                                                        </span>
+
+                                                    </span>
+
+                                                ) : (
+
+                                                    <span className="text-rd-muted">
+                                                        —
+                                                    </span>
+
+                                                )}
+
                                             </td>
 
 
