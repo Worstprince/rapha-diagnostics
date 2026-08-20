@@ -7,8 +7,7 @@ import Link from "next/link";
 import { Search, ChevronRight } from "lucide-react";
 
 const PRIORITY_CLASSES = {
-  Emergency: "bg-amber-500/15 text-amber-400",
-  Urgent: "bg-red-500/15 text-red-400",
+  Emergency: "bg-red-500/15 text-red-400",
   Routine: "bg-slate-500/15 text-slate-400",
 };
 
@@ -121,8 +120,6 @@ export default function NotesQueueTable({ entries = [] }) {
                 <Dot
                   className={
                     entry.priority === "Emergency"
-                      ? "bg-amber-400"
-                      : entry.priority === "Urgent"
                       ? "bg-red-400"
                       : "bg-slate-400"
                   }

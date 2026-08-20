@@ -233,12 +233,12 @@ export function Avatar({ name, className = "size-9 text-xs" }) {
     );
 }
 
-const URGENT = /urgent|stat|critical|emergency/;
+const EMERGENCY = /emergency|urgent|stat|critical/;
 
 const TONE_RULES = [
     [/approved|released|complete|done|ready|finished/, "ok"],
     [/cancel|rejected|failed|void|expired|invalid/, "dead"],
-    [URGENT, "danger"],
+    [EMERGENCY, "danger"],
     [/pending|waiting|queue|review|draft|incomplete|hold|high/, "warn"],
     [/progress|processing|ongoing|assigned|collected|received|active|open/, "info"],
 ];
@@ -249,17 +249,12 @@ function toneOf(value) {
     return rule ? rule[1] : "neutral";
 }
 
-export function isUrgent(value) {
-    return URGENT.test(String(value ?? "").toLowerCase());
+export function isEmergency(value) {
+    return EMERGENCY.test(String(value ?? "").toLowerCase());
 }
 
-const EMERGENCY = /emergency|stat|critical/;
-
 export function priorityTone(value) {
-    const text = String(value ?? "").toLowerCase();
-    if (EMERGENCY.test(text)) return "warn";
-    if (URGENT.test(text)) return "danger";
-    return "neutral";
+    return EMERGENCY.test(String(value ?? "").toLowerCase()) ? "danger" : "neutral";
 }
 
 export const toneBar = {

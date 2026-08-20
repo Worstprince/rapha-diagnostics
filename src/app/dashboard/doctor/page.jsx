@@ -13,7 +13,7 @@ import {
     HeaderGlow,
     PriorityPill,
     TableSkeleton,
-    isUrgent,
+    isEmergency,
     priorityTone,
     rowAction,
     toneBar,
@@ -69,7 +69,7 @@ export default function DoctorDashboardPage() {
     async function fetchVisitations() {
 
         try {
-            /* The endpoint paginates, so the shortlist and the urgent/today
+            /* The endpoint paginates, so the shortlist and the emergency/today
                counts are drawn from a wide first page while "In the queue"
                uses the server's own total. */
             const response = await fetch(
@@ -107,8 +107,8 @@ export default function DoctorDashboardPage() {
             chip: "bg-cyan-500/12 text-cyan-600",
         },
         {
-            label: "Flagged urgent",
-            value: rows.filter((visit) => isUrgent(visit.priority)).length,
+            label: "Flagged emergency",
+            value: rows.filter((visit) => isEmergency(visit.priority)).length,
             hint: "Need attention first",
             Icon: FlaskIcon,
             chip: "bg-red-500/12 text-red-600",
@@ -122,15 +122,15 @@ export default function DoctorDashboardPage() {
         },
     ];
 
-    const urgent = rows
-        .filter((visit) => isUrgent(visit.priority))
+    const emergency = rows
+        .filter((visit) => isEmergency(visit.priority))
         .sort(
             (a, b) =>
                 Number(priorityTone(a.priority) !== "danger") -
                 Number(priorityTone(b.priority) !== "danger")
         );
 
-    const shortlist = urgent.slice(0, SHORTLIST);
+    const shortlist = emergency.slice(0, SHORTLIST);
 
     return (
         <div className="mx-auto flex max-w-6xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
@@ -200,9 +200,9 @@ export default function DoctorDashboardPage() {
 
                         <h2 className="text-lg font-semibold text-rd-title">Priority patients</h2>
 
-                        {!loading && urgent.length > 0 && (
+                        {!loading && emergency.length > 0 && (
                             <span className="grid min-w-6 place-items-center rounded-full border border-red-500/50 bg-red-500/14 px-1.5 py-0.5 text-xs font-bold tabular-nums text-rd-title">
-                                {urgent.length}
+                                {emergency.length}
                             </span>
                         )}
 
@@ -233,8 +233,8 @@ export default function DoctorDashboardPage() {
                 ) : shortlist.length === 0 ? (
 
                     <EmptyState
-                        title="No urgent patients"
-                        hint="Only visits marked Urgent or Emergency appear here. Open the queue to see everyone waiting."
+                        title="No emergency patients"
+                        hint="Only visits marked Emergency appear here. Open the queue to see everyone waiting."
                     />
 
                 ) : (
@@ -292,10 +292,10 @@ export default function DoctorDashboardPage() {
 
                         })}
 
-                        {!loading && urgent.length > shortlist.length && (
+                        {!loading && emergency.length > shortlist.length && (
                             <li className="pt-1 text-center text-sm text-rd-muted">
-                                {urgent.length - shortlist.length} more urgent{" "}
-                                {urgent.length - shortlist.length === 1 ? "patient" : "patients"} in the queue
+                                {emergency.length - shortlist.length} more emergency{" "}
+                                {emergency.length - shortlist.length === 1 ? "patient" : "patients"} in the queue
                             </li>
                         )}
 

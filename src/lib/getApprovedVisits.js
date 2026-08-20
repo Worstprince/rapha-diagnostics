@@ -45,9 +45,8 @@ export default async function getApprovedVisits() {
             ORDER BY
                 CASE v.priority
                     WHEN 'Emergency' THEN 1
-                    WHEN 'Urgent'    THEN 2
-                    WHEN 'Routine'   THEN 3
-                    ELSE 4
+                    WHEN 'Routine'   THEN 2
+                    ELSE 3
                 END,
                 v.visited_at ASC;
             `

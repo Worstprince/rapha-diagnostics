@@ -48,8 +48,7 @@ const STATUS_CLASSES = {
 };
 
 const PRIORITY_CLASSES = {
-  Emergency: "bg-amber-500/15 text-amber-400",
-  Urgent: "bg-red-500/15 text-red-400",
+  Emergency: "bg-red-500/15 text-red-400",
   Routine: "bg-slate-500/15 text-slate-400",
 };
 

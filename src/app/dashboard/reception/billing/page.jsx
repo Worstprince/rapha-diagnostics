@@ -394,10 +394,6 @@ export default function ViewBillingHistory() {
                                     Routine
                                 </option>
 
-                                <option value="Urgent">
-                                    Urgent
-                                </option>
-
                                 <option value="Emergency">
                                     Emergency
                                 </option>

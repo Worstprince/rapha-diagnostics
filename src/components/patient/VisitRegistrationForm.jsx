@@ -1433,10 +1433,6 @@ setMedtechs(data || []);
                   </option>
 
                   <option>
-                    Urgent
-                  </option>
-
-                  <option>
                     Emergency
                   </option>
                 </select>
