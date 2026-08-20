@@ -17,6 +17,9 @@ import {
   UserPenIcon,
 } from "@/components/icons";
 import { setCurrentUser, signOut, useCurrentUser } from "@/lib/session";
+import SignatureCapture from "@/components/SignatureCapture";
+import Toast from "@/components/Toast";
+import { canSign } from "@/lib/signingRoles";
 import { useTheme } from "@/lib/theme";
 
 const MIN_USERNAME = 3;
@@ -326,6 +329,96 @@ function EditProfileDialog({ open, user, onClose }) {
 
 const EMPTY_PASSWORD_FORM = { currentPassword: "", newPassword: "", confirmPassword: "" };
 
+function SignatureIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M3 17c3 0 3.5-9 6-9s2 8 4.5 8 3-4 4.5-4" />
+      <path d="M3 21h18" />
+    </svg>
+  );
+}
+
+/* Kept apart from Edit profile rather than folded into it. The two save through
+   different endpoints and fail for different reasons -- a rejected username
+   should not strand a captured signature, and an image upload should not be
+   gated on a name being valid. Splitting them also means the discard warning
+   below only guards the thing that can actually be lost. */
+function SignatureDialog({ open, user, onClose, onToast }) {
+  /* Unmounted while closed rather than reset by an effect on open. The state
+     that would need clearing -- an unsaved capture, a status line -- goes with
+     it, so there is nothing to synchronise and no extra render pass. */
+  if (!open) return null;
+
+  return <SignatureDialogBody user={user} onClose={onClose} onToast={onToast} />;
+}
+
+function SignatureDialogBody({ user, onClose, onToast }) {
+  const [dirty, setDirty] = useState(false);
+  const [discardOpen, setDiscardOpen] = useState(false);
+
+  /* Clicking beside a dialog is easy to do by accident, and an unsaved capture
+     is gone for good if it just closes. Escape and the backdrop route through
+     here; the Done button is the deliberate exit and always closes. */
+  function requestDismiss() {
+    if (dirty) {
+      setDiscardOpen(true);
+      return;
+    }
+    onClose();
+  }
+
+  return (
+    <>
+      <FormDialog
+        open
+        title="Signature"
+        description="Your signature is printed above your name on results you are assigned to."
+        onClose={onClose}
+        onDismiss={requestDismiss}
+      >
+        {user?.id && (
+          <SignatureCapture
+            userId={user.id}
+            hasExisting={Boolean(user.hasSignature)}
+            onStatus={onToast}
+            onDirtyChange={setDirty}
+            onSaved={onClose}
+          />
+        )}
+
+        <div className="mt-6 flex justify-end">
+          <button type="button" onClick={requestDismiss} className="rd-btn-ghost rd-press rd-focus">
+            Done
+          </button>
+        </div>
+      </FormDialog>
+
+      <ConfirmDialog
+        open={discardOpen}
+        tone="danger"
+        title="Discard this signature?"
+        description="The signature you just captured has not been saved and will be lost."
+        confirmLabel="Discard and leave"
+        onConfirm={() => {
+          setDiscardOpen(false);
+          onClose();
+        }}
+        onCancel={() => setDiscardOpen(false)}
+      />
+    </>
+  );
+}
+
 function ChangePasswordDialog({ open, user, onClose }) {
   const [form, setForm] = useState(EMPTY_PASSWORD_FORM);
   const [errors, setErrors] = useState({});
@@ -546,6 +639,7 @@ export default function AccountMenu() {
 
   const [open, setOpen] = useState(false);
   const [dialog, setDialog] = useState(null);
+  const [toast, setToast] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
@@ -646,6 +740,15 @@ export default function AccountMenu() {
               label="Edit profile"
               onClick={() => openDialog("profile")}
             />
+            {/* Reception and admin never appear on a lab report, so there is
+                nothing for their signature to be printed on. */}
+            {canSign(user?.role) && (
+              <MenuRow
+                Icon={SignatureIcon}
+                label="Signature"
+                onClick={() => openDialog("signature")}
+              />
+            )}
             <MenuRow
               Icon={KeyIcon}
               label="Change password"
@@ -725,6 +828,18 @@ export default function AccountMenu() {
       </button>
 
       <EditProfileDialog open={dialog === "profile"} user={user} onClose={closeDialog} />
+
+      <SignatureDialog
+        open={dialog === "signature"}
+        user={user}
+        onClose={closeDialog}
+        onToast={setToast}
+      />
+
+      {/* Same floating toast the lab and admin pages use, rather than a note
+          inside the panel -- the panel closes on save, so anything printed in
+          it would vanish with it. */}
+      <Toast status={toast} onDismiss={() => setToast(null)} />
 
       <ChangePasswordDialog open={dialog === "password"} user={user} onClose={closeDialog} />
 

@@ -43,3 +43,6 @@ uploads/
 *.tsbuildinfo
 next-env.d.ts
 .env
+
+# staff e-signatures (served through an authenticated route, never statically)
+/private

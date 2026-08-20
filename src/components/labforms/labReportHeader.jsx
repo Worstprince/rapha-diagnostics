@@ -1,5 +1,7 @@
 "use client";
 
+import { useSignatureOnFile } from "@/lib/useSignatureOnFile";
+
 const BAND_COLORS = {
   HEMATOLOGY: "#D99694",
   "CLINICAL CHEMISTRY": "#92D050",
@@ -38,20 +40,36 @@ function Field({ label, value, wide = false }) {
 
 }
 
-function SignatureBlock({ name, extension, license, role, signature }) {
+function SignatureBlock({ name, extension, license, role, signerId }) {
     const printedName = [name, extension].filter(Boolean).join(", ");
+
+    /* Rendered only once the image is known to load. The shared placeholder
+       that used to fill this slot is gone deliberately: printing somebody
+       else's mark above a name is worse than printing none, and an unsigned
+       report should look unsigned. */
+    const onFile = useSignatureOnFile(signerId);
 
     return (
         <div className="text-center">
 
             <div className="flex h-12 items-end justify-center print:h-11">
-                {signature && (
-                    <img
-                        src={signature}
-                        alt=""
-                        className="rd-signature h-full w-auto object-contain"
+
+                {/* The signer's own uploaded mark, painted through a mask so it
+                    takes the theme's ink colour rather than being inverted. The
+                    static placeholder is kept only as the fallback for a signer
+                    with nothing on file yet.
+
+                    A 404 from the signature route is expected and harmless: an
+                    unresolvable mask paints nothing, so the space above the name
+                    is simply empty instead of showing a broken image. */}
+                {onFile === "present" && (
+                    <span
+                        aria-hidden="true"
+                        className="rd-sign"
+                        style={{ "--rd-sign-src": `url("/api/users/${signerId}/signature")` }}
                     />
                 )}
+
             </div>
 
             <div className="font-semibold uppercase leading-tight print:text-[12px]">
@@ -95,7 +113,7 @@ export function LabSignatures({
                     extension={doctorExtension}
                     license={doctorLicense}
                     role="Pathologist"
-                    signature="/lab/sig-pathologist.png"
+                    signerId={doctorId}
                 />
 
                 <SignatureBlock
@@ -103,7 +121,7 @@ export function LabSignatures({
                     extension={medtechExtension}
                     license={medtechLicense}
                     role="Medical Technologist"
-                    signature="/lab/sig-medtech-a.png"
+                    signerId={medtechId}
                 />
 
             </div>

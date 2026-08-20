@@ -904,6 +904,10 @@
     }
   }
 
+  /* Superseded by .rd-sign below. invert(1) flips every pixel, so a scan with
+     any surviving paper tone turns the background dark grey rather than
+     transparent, and coloured ink comes out as its complement. Kept only for
+     the two static placeholder images under /lab. */
   html[data-theme="dark"] .rd-signature {
     filter: invert(1);
   }
@@ -986,5 +990,46 @@
     .rd-theme-knob {
       transition: background 300ms ease;
     }
+  }
+}
+
+/* Deliberately outside @layer components: see the note above. */
+/* An uploaded signature is painted, not displayed. The stored PNG is a
+   silhouette -- ink opaque, paper keyed to alpha on upload -- so filling it
+   with currentColor renders one file as dark ink on the light theme and
+   light ink on the dark one, with no filter and no second asset.
+
+   Hidden where masks are unsupported: the element would otherwise paint as a
+   solid block of currentColor, which is worse than showing nothing. The name
+   and licence underneath are real text either way. */
+.rd-sign {
+  display: none;
+}
+
+@supports ((-webkit-mask-image: url("")) or (mask-image: url(""))) {
+  .rd-sign {
+    display: block;
+    width: 100%;
+    max-width: 200px;
+    height: 100%;
+    margin-inline: auto;
+    color: var(--rd-title);
+    background-color: currentColor;
+    -webkit-mask-image: var(--rd-sign-src);
+    mask-image: var(--rd-sign-src);
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center bottom;
+    mask-position: center bottom;
+  }
+}
+
+/* A signed report is a clinical record. On paper the mark is black on white,
+   whatever theme the screen happened to be in. */
+@media print {
+  .rd-sign {
+    color: #000000;
   }
 }

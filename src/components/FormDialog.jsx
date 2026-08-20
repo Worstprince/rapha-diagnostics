@@ -9,7 +9,12 @@ import { createPortal } from "react-dom";
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-export default function FormDialog({ open, title, description, onClose, children }) {
+/* onDismiss is what the backdrop and Escape call; onClose is the deliberate
+   exit a Cancel button triggers. They are separate so a dialog holding unsaved
+   work can interrupt the casual dismissals -- clicking beside a form is easy to
+   do by accident, and losing a capture to it is not recoverable. Callers that
+   pass no onDismiss keep the old behaviour exactly. */
+export default function FormDialog({ open, title, description, onClose, onDismiss, children }) {
   const titleId = useId();
   const descId = useId();
   const panelRef = useRef(null);
@@ -17,8 +22,10 @@ export default function FormDialog({ open, title, description, onClose, children
   /* Callers pass inline arrow functions, so keeping onClose in the effect deps
      would re-run it — and steal focus back — on every parent render. */
   const closeHandler = useRef(onClose);
+  const dismissHandler = useRef(onDismiss);
   useEffect(() => {
     closeHandler.current = onClose;
+    dismissHandler.current = onDismiss;
   });
 
   useEffect(() => {
@@ -31,7 +38,7 @@ export default function FormDialog({ open, title, description, onClose, children
 
     const onKeyDown = (event) => {
       if (event.key === "Escape") {
-        closeHandler.current?.();
+        (dismissHandler.current ?? closeHandler.current)?.();
         return;
       }
       if (event.key !== "Tab") return;
@@ -68,7 +75,11 @@ export default function FormDialog({ open, title, description, onClose, children
      from is one — rendered in place it would be trapped inside it. */
   return createPortal(
     <div className="fixed inset-0 z-[70] grid place-items-center p-5">
-      <div className="rd-scrim absolute inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
+      <div
+        className="rd-scrim absolute inset-0 bg-black/50"
+        onClick={onDismiss ?? onClose}
+        aria-hidden="true"
+      />
 
       <div
         ref={panelRef}
