@@ -20,14 +20,15 @@ import {
     th,
 } from "@/app/dashboard/admin/_ui";
 import { formatDate, formatFull, formatTime, toDate } from "@/lib/datetime";
+import { statusLabel, statusTone } from "@/lib/accountStatus";
 
 
-function StatusPill({ archived }) {
+function StatusPill({ status }) {
 
     return (
 
-        <Badge tone={archived ? "neutral" : "emerald"}>
-            {archived ? "Archived" : "Active"}
+        <Badge tone={statusTone(status)}>
+            {statusLabel(status)}
         </Badge>
 
     );
@@ -370,6 +371,10 @@ export default function DisplayUsers() {
                                     Active
                                 </option>
 
+                                <option value="locked">
+                                    Locked
+                                </option>
+
                                 <option value="archived">
                                     Archived
                                 </option>
@@ -576,11 +581,7 @@ export default function DisplayUsers() {
                                             <td className={td}>
 
                                                 <StatusPill
-                                                    archived={
-                                                        Boolean(
-                                                            user.archivestatus
-                                                        )
-                                                    }
+                                                    status={user.archivestatus}
                                                 />
 
                                             </td>

@@ -1183,9 +1183,6 @@ export default function LoginPage() {
                   <input type="checkbox" name="remember" />
                   <span>Remember me</span>
                 </label>
-                <a href="#" className="rd-link">
-                  Forgot password?
-                </a>
               </div>
 
               {status ? (

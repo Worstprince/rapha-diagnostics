@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
 import { logActivity } from "@/lib/logActivity";
 import { getCurrentUser } from "@/lib/serverSession";
+import { ACCOUNT_ARCHIVED, ACCOUNT_LOCKED, isArchived, toStatus } from "@/lib/accountStatus";
+import { clearAttempts } from "@/lib/loginAttempts";
 
 export async function GET(request, { params }) {
 
@@ -236,7 +238,7 @@ export async function PUT(request, { params }) {
         // Prevent a user from archiving their own account.
         if (
             String(currentUser.id) === String(id) &&
-            user.archivestatus
+            isArchived(user.archivestatus)
         ) {
 
             return NextResponse.json(
@@ -363,9 +365,29 @@ export async function PUT(request, { params }) {
         }
 
 
+        const wasStatus = toStatus(existingUser.archivestatus);
+        const nowStatus = toStatus(user.archivestatus);
+
+        // Lifting a lock by hand also drops the in-memory attempt count. Left
+        // alone it would still be sitting at the limit, and the next typo would
+        // put the account straight back where it started.
+        if (wasStatus === ACCOUNT_LOCKED && nowStatus !== ACCOUNT_LOCKED) {
+
+            clearAttempts(id);
+
+            await logActivity(
+                currentUser.id,
+                "Account Unlocked",
+                `Unlocked account: ${user.username}`,
+                "Authentication"
+            );
+
+        }
+
+
         if (
-            !existingUser.archivestatus &&
-            user.archivestatus
+            wasStatus !== ACCOUNT_ARCHIVED &&
+            nowStatus === ACCOUNT_ARCHIVED
         ) {
 
             await logActivity(
@@ -378,8 +400,8 @@ export async function PUT(request, { params }) {
         }
 
         else if (
-            existingUser.archivestatus &&
-            !user.archivestatus
+            wasStatus === ACCOUNT_ARCHIVED &&
+            nowStatus !== ACCOUNT_ARCHIVED
         ) {
 
             await logActivity(
