@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 
 import {
     PageHeader,
@@ -9,7 +10,6 @@ import {
     td,
     th,
 } from "@/app/dashboard/admin/_ui";
-import BrandMark from "@/components/BrandMark";
 
 
 function formatCurrency(value) {
@@ -159,7 +159,13 @@ export default function BillingDetailsPage() {
                 <header className="border-b-2 border-rd-cyan px-6 py-7 sm:px-10">
                     <div className="flex flex-wrap items-start justify-between gap-6">
                         <div className="flex items-center gap-4">
-                            <BrandMark size={64} className="text-rd-cyan" />
+                            <Image
+                                src="/rapha-logo.png"
+                                alt="Rapha Diagnostics"
+                                width={64}
+                                height={64}
+                                className="h-16 w-16 object-contain"
+                            />
                             <div>
                                 <p className="text-xl font-bold tracking-tight text-rd-title">
                                     Rapha Diagnostics
