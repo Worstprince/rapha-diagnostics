@@ -120,6 +120,7 @@ export default function FBSForm({
                                         onChange={handleChange}
                                         readOnly={readOnly}
                                         range={RANGES.glucose}
+                                        type="number"
                                     />
 
                                     <span className="whitespace-nowrap text-sm text-rd-muted">

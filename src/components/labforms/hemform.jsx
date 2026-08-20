@@ -123,6 +123,7 @@ function handleSubmit(e) {
                         onChange={handleChange}
                         readOnly={readOnly}
                         range={RANGES.rbs}
+                        type="number"
                         sex={patient?.sex}
                     />
                 </td>
@@ -140,6 +141,7 @@ function handleSubmit(e) {
                         onChange={handleChange}
                         readOnly={readOnly}
                         range={RANGES.sgot}
+                        type="number"
                         sex={patient?.sex}
                     />
                 </td>
@@ -162,6 +164,7 @@ function handleSubmit(e) {
                         onChange={handleChange}
                         readOnly={readOnly}
                         range={RANGES.creatinine}
+                        type="number"
                         sex={patient?.sex}
                     />
                 </td>
@@ -180,6 +183,7 @@ function handleSubmit(e) {
                         onChange={handleChange}
                         readOnly={readOnly}
                         range={RANGES.sgpt}
+                        type="number"
                         sex={patient?.sex}
                     />
                 </td>
@@ -202,6 +206,7 @@ function handleSubmit(e) {
                         onChange={handleChange}
                         readOnly={readOnly}
                         range={RANGES.uricAcid}
+                        type="number"
                         sex={patient?.sex}
                     />
                 </td>
@@ -220,6 +225,7 @@ function handleSubmit(e) {
                         onChange={handleChange}
                         readOnly={readOnly}
                         range={RANGES.totalBilirubin}
+                        type="number"
                         sex={patient?.sex}
                     />
                 </td>
@@ -241,6 +247,7 @@ function handleSubmit(e) {
                         onChange={handleChange}
                         readOnly={readOnly}
                         range={RANGES.totalCholesterol}
+                        type="number"
                         sex={patient?.sex}
                     />
                 </td>
@@ -259,6 +266,7 @@ function handleSubmit(e) {
                         onChange={handleChange}
                         readOnly={readOnly}
                         range={RANGES.directBilirubin}
+                        type="number"
                         sex={patient?.sex}
                     />
                 </td>
@@ -280,6 +288,7 @@ function handleSubmit(e) {
                         onChange={handleChange}
                         readOnly={readOnly}
                         range={RANGES.triglycerides}
+                        type="number"
                         sex={patient?.sex}
                     />
                 </td>
@@ -298,6 +307,7 @@ function handleSubmit(e) {
                         onChange={handleChange}
                         readOnly={readOnly}
                         range={RANGES.indirectBilirubin}
+                        type="number"
                         sex={patient?.sex}
                     />
                 </td>
@@ -319,6 +329,7 @@ function handleSubmit(e) {
                         onChange={handleChange}
                         readOnly={readOnly}
                         range={RANGES.hdlCholesterol}
+                        type="number"
                         sex={patient?.sex}
                     />
                 </td>
@@ -337,6 +348,7 @@ function handleSubmit(e) {
                         onChange={handleChange}
                         readOnly={readOnly}
                         range={RANGES.hba1c}
+                        type="number"
                         sex={patient?.sex}
                     />
                 </td>
@@ -358,6 +370,7 @@ function handleSubmit(e) {
                         onChange={handleChange}
                         readOnly={readOnly}
                         range={RANGES.ldlCholesterol}
+                        type="number"
                         sex={patient?.sex}
                     />
                 </td>
@@ -376,6 +389,7 @@ function handleSubmit(e) {
                         onChange={handleChange}
                         readOnly={readOnly}
                         range={RANGES.bun}
+                        type="number"
                         sex={patient?.sex}
                     />
                 </td>

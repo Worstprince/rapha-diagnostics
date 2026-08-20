@@ -189,6 +189,7 @@ export default function SemenAnalysisForm({
                                     disabled={readOnly}
                                     range={RANGES.volume}
                                     sex={patient?.sex}
+                                    type="number"
                                 />
 
                             </td>
@@ -231,6 +232,7 @@ export default function SemenAnalysisForm({
                                     disabled={readOnly}
                                     range={RANGES.ph}
                                     sex={patient?.sex}
+                                    type="number"
                                 />
 
                             </td>
@@ -274,6 +276,7 @@ export default function SemenAnalysisForm({
                                     disabled={readOnly}
                                     range={RANGES.viscosity}
                                     sex={patient?.sex}
+                                    type="number"
                                 />
 
                             </td>
@@ -350,7 +353,7 @@ export default function SemenAnalysisForm({
                                     <span>30mins</span>
 
                                     <input
-                                        type="text"
+                                        type="number"
                                         name="motility30min"
                                         value={result.motility30min}
                                         onChange={handleChange}
@@ -369,7 +372,7 @@ export default function SemenAnalysisForm({
                                     <span>30mins</span>
 
                                     <input
-                                        type="text"
+                                        type="number"
                                         name="viability30min"
                                         value={result.viability30min}
                                         onChange={handleChange}
@@ -394,7 +397,7 @@ export default function SemenAnalysisForm({
                                     <span>1Hour</span>
 
                                     <input
-                                        type="text"
+                                        type="number"
                                         name="motility1hr"
                                         value={result.motility1hr}
                                         onChange={handleChange}
@@ -413,7 +416,7 @@ export default function SemenAnalysisForm({
                                     <span>1Hour</span>
 
                                     <input
-                                        type="text"
+                                        type="number"
                                         name="viability1hr"
                                         value={result.viability1hr}
                                         onChange={handleChange}
@@ -438,7 +441,7 @@ export default function SemenAnalysisForm({
                                     <span>2hours</span>
 
                                     <input
-                                        type="text"
+                                        type="number"
                                         name="motility2hr"
                                         value={result.motility2hr}
                                         onChange={handleChange}
@@ -457,7 +460,7 @@ export default function SemenAnalysisForm({
                                     <span>2hours</span>
 
                                     <input
-                                        type="text"
+                                        type="number"
                                         name="viability2hr"
                                         value={result.viability2hr}
                                         onChange={handleChange}
@@ -498,6 +501,7 @@ export default function SemenAnalysisForm({
                                     disabled={readOnly}
                                     range={RANGES.spermConcentration}
                                     sex={patient?.sex}
+                                    type="number"
                                 />
 
                             </td>
@@ -523,6 +527,7 @@ export default function SemenAnalysisForm({
                                     disabled={readOnly}
                                     range={RANGES.spermCount}
                                     sex={patient?.sex}
+                                    type="number"
                                 />
 
                             </td>

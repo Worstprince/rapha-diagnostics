@@ -126,6 +126,7 @@ export default function ElectrolytesForm({
                                         onChange={handleChange}
                                         readOnly={readOnly}
                                         range={RANGES.sodium}
+                                        type="number"
                                     />
 
                                     <span className="whitespace-nowrap text-sm text-rd-muted">
@@ -159,6 +160,7 @@ export default function ElectrolytesForm({
                                         onChange={handleChange}
                                         readOnly={readOnly}
                                         range={RANGES.potassium}
+                                        type="number"
                                     />
 
                                     <span className="whitespace-nowrap text-sm text-rd-muted">
@@ -192,6 +194,7 @@ export default function ElectrolytesForm({
                                         onChange={handleChange}
                                         readOnly={readOnly}
                                         range={RANGES.calcium}
+                                        type="number"
                                     />
 
                                     <span className="whitespace-nowrap text-sm text-rd-muted">
@@ -225,6 +228,7 @@ export default function ElectrolytesForm({
                                         onChange={handleChange}
                                         readOnly={readOnly}
                                         range={RANGES.magnesium}
+                                        type="number"
                                     />
 
                                     <span className="whitespace-nowrap text-sm text-rd-muted">

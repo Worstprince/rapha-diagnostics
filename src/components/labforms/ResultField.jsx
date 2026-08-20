@@ -10,6 +10,7 @@ export default function ResultField({
   disabled = false,
   range,
   sex,
+  type,
   className = "",
 }) {
   const status = evaluateResult(value, range, sex);
@@ -30,6 +31,7 @@ export default function ResultField({
       onChange={onChange}
       readOnly={readOnly}
       disabled={disabled}
+      type={type}
       data-flag={status ?? undefined}
       title={
         flagged

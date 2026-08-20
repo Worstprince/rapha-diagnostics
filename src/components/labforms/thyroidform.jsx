@@ -124,6 +124,7 @@ export default function ThyroidPanelForm({
                                     onChange={handleChange}
                                     readOnly={readOnly}
                                     range={RANGES.tsh}
+                                    type="number"
                                     sex={patient?.sex}
                                     className="text-center"
                                 />
@@ -150,6 +151,7 @@ export default function ThyroidPanelForm({
                                     onChange={handleChange}
                                     readOnly={readOnly}
                                     range={RANGES.ft4}
+                                    type="number"
                                     sex={patient?.sex}
                                     className="text-center"
                                 />
@@ -176,6 +178,7 @@ export default function ThyroidPanelForm({
                                     onChange={handleChange}
                                     readOnly={readOnly}
                                     range={RANGES.t3}
+                                    type="number"
                                     sex={patient?.sex}
                                     className="text-center"
                                 />
@@ -202,6 +205,7 @@ export default function ThyroidPanelForm({
                                     onChange={handleChange}
                                     readOnly={readOnly}
                                     range={RANGES.t4}
+                                    type="number"
                                     sex={patient?.sex}
                                     className="text-center"
                                 />

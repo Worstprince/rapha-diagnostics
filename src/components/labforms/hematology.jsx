@@ -118,16 +118,16 @@ function handleSubmit(e) {
                             <tbody>
 
                                 {[
-                                    ["hemoglobin","Hemoglobin Mass Concentration","M:140-170 g/L\nF:120-150 g/L"],
-                                    ["rbc","RBC no. Conc.","4.5-5.5 x10g/l"],
-                                    ["wbc","WBC no. Conc.","5.5-10.0 x10g/l"],
-                                    ["bleedingTime","Bleeding Time","1-3 mins"],
-                                    ["clottingTime","Clotting Time","2-6 mins"],
-                                    ["bloodGroup","Blood Group","A / B / AB / O"],
-                                    ["platelet","Platelet Count","150-450 x10g/l"],
-                                    ["hematocrit","Hematocrit","M:0.40-0.54\nF:0.36-0.48"],
-                                    ["bsmp","BSMP","Negative"],
-                                    ["others","Others","—"]
+                                    ["hemoglobin", "Hemoglobin Mass Concentration", "M:140-170 g/L\nF:120-150 g/L", "number"],
+                                    ["rbc", "RBC no. Conc.", "4.5-5.5 x10g/l", "number"],
+                                    ["wbc", "WBC no. Conc.", "5.5-10.0 x10g/l", "number"],
+                                    ["bleedingTime", "Bleeding Time", "1-3 mins", "number"],
+                                    ["clottingTime", "Clotting Time", "2-6 mins", "number"],
+                                    ["bloodGroup", "Blood Group", "A / B / AB / O", "text"],
+                                    ["platelet", "Platelet Count", "150-450 x10g/l", "number"],
+                                    ["hematocrit", "Hematocrit", "M:0.40-0.54\nF:0.36-0.48", "number"],
+                                    ["bsmp", "BSMP", "Negative", "text"],
+                                    ["others", "Others", "—", "text"]
                                 ].map(item => (
 
                                     <tr
@@ -147,6 +147,7 @@ function handleSubmit(e) {
                                                 readOnly={readOnly}
                                                 range={RANGES[item[0]]}
                                                 sex={patient?.sex}
+                                                type={item[3]}
                                             />
 
                                         </td>
@@ -196,17 +197,17 @@ function handleSubmit(e) {
                             <tbody>
 
                                 {[
-                                    ["segmenters","Segmenters","0.55-0.65"],
-                                    ["band","Band","0.02-0.04"],
-                                    ["juvenile","Juvenile","0.00-0.02"],
-                                    ["lymphocytes","Lymphocytes","0.25-0.35"],
-                                    ["monocytes","Monocytes","0.02-0.06"],
-                                    ["eosinophils","Eosinophils","0.02-0.04"],
-                                    ["basophils","Basophils","0.00-0.01"],
-                                    ["mcv","MCV","80-100 fl"],
-                                    ["mch","MCH","27-31 pg"],
-                                    ["mchc","MCHC","32-36 g/dL"],
-                                    ["rdw","RDW-CV","11-15 %"]
+                                    ["segmenters", "Segmenters", "0.55-0.65", "number"],
+                                    ["band", "Band", "0.02-0.04", "number"],
+                                    ["juvenile", "Juvenile", "0.00-0.02", "number"],
+                                    ["lymphocytes", "Lymphocytes", "0.25-0.35", "number"],
+                                    ["monocytes", "Monocytes", "0.02-0.06", "number"],
+                                    ["eosinophils", "Eosinophils", "0.02-0.04", "number"],
+                                    ["basophils", "Basophils", "0.00-0.01", "number"],
+                                    ["mcv", "MCV", "80-100 fl", "number"],
+                                    ["mch", "MCH", "27-31 pg", "number"],
+                                    ["mchc", "MCHC", "32-36 g/dL", "number"],
+                                    ["rdw", "RDW-CV", "11-15 %", "number"]
                                 ].map(item => (
 
                                     <tr
@@ -226,6 +227,7 @@ function handleSubmit(e) {
                                                 readOnly={readOnly}
                                                 range={RANGES[item[0]]}
                                                 sex={patient?.sex}
+                                                type={item[3]}
                                             />
 
                                         </td>
