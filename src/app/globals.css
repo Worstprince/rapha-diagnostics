@@ -139,6 +139,10 @@
   opacity: 1;
 }
 
+.invoice-print-logo {
+  display: none;
+}
+
 @media print {
 
     :root,
@@ -225,6 +229,14 @@
 
   .no-print {
     display: none !important;
+  }
+
+  .invoice-screen-logo {
+    display: none !important;
+  }
+
+  .invoice-print-logo {
+    display: block !important;
   }
 
   body > div,
