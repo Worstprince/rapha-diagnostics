@@ -9,7 +9,6 @@ import {
     FilterField,
     FilterToggle,
     PencilIcon,
-    ResultCount,
     RowSkeleton,
     SearchField,
     StateMessage,
@@ -307,18 +306,13 @@ export default function DisplayUsers() {
                     />
 
 
-                    <div className="flex items-center justify-between gap-3">
-
-                        {!loading && (
-
-                            <ResultCount
-                                shown={users.length}
-                                total={total}
-                                noun="users"
-                            />
-
-                        )}
-
+                    {/* The count that used to sit here said the same thing as the
+                        one above the pager, which also carries the range. The
+                        pager's is the one that stays: it is more informative and
+                        it sits with the controls it describes. Nothing is lost in
+                        the empty state either -- there is no page of results to
+                        count, and StateMessage already says so. */}
+                    <div className="flex items-center justify-end gap-3">
 
                         <FilterToggle
                             open={showFilters}
