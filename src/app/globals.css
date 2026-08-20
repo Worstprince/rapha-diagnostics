@@ -34,6 +34,15 @@
 
   --rd-fresh: #34d399;
 
+  /* Activity event tones -- see EVENT_CATEGORIES in dashboard/admin/_ui. */
+  --rd-ev-create: #34d399;
+  --rd-ev-update: #fbbf24;
+  --rd-ev-approve: #22d3ee;
+  --rd-ev-archive: #fb7185;
+  --rd-ev-restore: #38bdf8;
+  --rd-ev-security: #c084fc;
+  --rd-ev-access: #818cf8;
+
   --rd-card-shadow: 0 50px 90px -34px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --rd-lift: 0 24px 48px -28px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   --rd-toggle-bg: rgba(15, 23, 42, 0.6);
@@ -82,6 +91,15 @@
   --rd-ok-bg: rgba(10, 115, 135, 0.1);
 
   --rd-fresh: #047857;
+
+  /* Same seven tones, re-picked for contrast on a white card. */
+  --rd-ev-create: #047857;
+  --rd-ev-update: #b45309;
+  --rd-ev-approve: #0a7387;
+  --rd-ev-archive: #be123c;
+  --rd-ev-restore: #0369a1;
+  --rd-ev-security: #6d28d9;
+  --rd-ev-access: #4338ca;
 
   --rd-card-shadow: 0 1px 1px rgba(15, 39, 71, 0.06), 0 8px 16px -10px rgba(15, 39, 71, 0.28),
     0 28px 48px -28px rgba(15, 39, 71, 0.4);
@@ -385,6 +403,14 @@
   --color-rd-fresh: var(--rd-fresh);
   --color-rd-ok-edge: var(--rd-ok-edge);
   --color-rd-ok-bg: var(--rd-ok-bg);
+
+  --color-rd-ev-create: var(--rd-ev-create);
+  --color-rd-ev-update: var(--rd-ev-update);
+  --color-rd-ev-approve: var(--rd-ev-approve);
+  --color-rd-ev-archive: var(--rd-ev-archive);
+  --color-rd-ev-restore: var(--rd-ev-restore);
+  --color-rd-ev-security: var(--rd-ev-security);
+  --color-rd-ev-access: var(--rd-ev-access);
 }
 
 @layer base {

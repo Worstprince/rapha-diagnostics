@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
+    Avatar,
     ClearFilters,
+    EVENT_ICON,
+    EVENT_TONE,
     FilterField,
     FilterToggle,
     PageHeader,
@@ -11,10 +14,77 @@ import {
     RowSkeleton,
     SearchField,
     StateMessage,
-    actionTone,
-    toneBar,
-    toneDot,
+    categoryMeta,
+    eventCategory,
 } from "../_ui";
+
+
+const DAY_MS = 86400000;
+
+
+function startOfDay(value) {
+
+    const date = new Date(value);
+
+    date.setHours(0, 0, 0, 0);
+
+    return date.getTime();
+
+}
+
+
+/* The rows used to print the raw column value, which arrives as an ISO string:
+   "2026-08-19T19:47:16.000Z". That is unreadable at a glance and it is also the
+   UTC instant, so an admin in Manila reading a log of their own morning's work
+   saw the previous evening's date on every line. The Date the driver hands back
+   is correct -- only the rendering was wrong -- so the local wall clock goes on
+   screen, with the full timestamp kept on hover. */
+function timeLabel(date) {
+
+    return date.toLocaleTimeString("en-PH", {
+        hour: "numeric",
+        minute: "2-digit"
+    });
+
+}
+
+
+function fullLabel(date) {
+
+    return date.toLocaleString("en-PH", {
+        dateStyle: "full",
+        timeStyle: "medium"
+    });
+
+}
+
+
+function dayLabel(dayStart, todayStart) {
+
+    const date = new Date(dayStart);
+
+    if (todayStart !== null) {
+
+        const days = Math.round((todayStart - dayStart) / DAY_MS);
+
+        if (days === 0) return "Today";
+        if (days === 1) return "Yesterday";
+
+    }
+
+    return date.toLocaleDateString("en-PH", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year:
+            todayStart !== null &&
+            date.getFullYear() === new Date(todayStart).getFullYear()
+                ? undefined
+                : "numeric"
+    });
+
+}
+
 
 export default function ActivityLogPage() {
 
@@ -159,6 +229,53 @@ export default function ActivityLogPage() {
         usernameFilter,
         sortDate
     ].filter(Boolean).length;
+
+
+    /* "Today" is not a pure function of the rows -- it depends on when you look
+       -- so it cannot be read during render, and a log left open past midnight
+       would otherwise keep labelling yesterday's entries Today. Same shape the
+       overview page already uses for its clock. */
+    const [todayStart, setTodayStart] = useState(null);
+
+    useEffect(() => {
+
+        const sync = () => setTodayStart(startOfDay(Date.now()));
+
+        sync();
+
+        const id = setInterval(sync, 60_000);
+
+        return () => clearInterval(id);
+
+    }, []);
+
+
+    /* Rows arrive already sorted by datetime, so one pass is enough to cut them
+       into day runs -- no bucketing and re-sorting needed. */
+    const groups = useMemo(() => {
+
+        const out = [];
+
+        for (const log of logs) {
+
+            const when = new Date(log.datetime);
+            const valid = !Number.isNaN(when.getTime());
+            const key = valid ? startOfDay(when) : "unknown";
+
+            let group = out[out.length - 1];
+
+            if (!group || group.key !== key) {
+                group = { key, items: [] };
+                out.push(group);
+            }
+
+            group.items.push({ log, when: valid ? when : null });
+
+        }
+
+        return out;
+
+    }, [logs]);
 
 
     return (
@@ -346,11 +463,7 @@ export default function ActivityLogPage() {
                     <StateMessage
                         title="No activity found"
                         hint={
-                            search ||
-                            moduleFilter ||
-                            actionFilter ||
-                            usernameFilter ||
-                            sortDate
+                            activeCount > 0
                                 ? "Nothing matches the current search and filters."
                                 : "Activity appears here as staff use the system."
                         }
@@ -361,86 +474,161 @@ export default function ActivityLogPage() {
 
                 {!loading && logs.length > 0 && (
 
-                    <ol className="rd-scroll-thin min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
+                    <div className="rd-scroll-thin min-h-0 flex-1 overflow-y-auto px-4 pb-2">
 
-                        {logs.map((log) => {
+                        {groups.map(group => (
 
-                            const tone = actionTone(log.action);
+                            <section key={group.key}>
 
-                            return (
+                                <h3 className="sticky top-0 z-10 flex items-center gap-3 bg-rd-card/95 py-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-rd-muted backdrop-blur-sm">
 
-                                <li
-                                    key={log.id}
-                                    className="relative overflow-hidden rounded-xl border border-rd-hair bg-rd-sunken px-4 py-3 transition-colors hover:border-rd-hair-strong hover:bg-rd-raised"
-                                >
+                                    {group.key === "unknown"
+                                        ? "Undated"
+                                        : dayLabel(group.key, todayStart)}
 
                                     <span
                                         aria-hidden="true"
-                                        className={`absolute inset-y-0 left-0 w-1 ${toneBar[tone]}`}
+                                        className="h-px flex-1 bg-rd-hair"
                                     />
 
+                                    <span className="font-semibold tabular-nums tracking-normal">
+                                        {group.items.length}
+                                    </span>
 
-                                    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-
-                                        <div className="flex flex-wrap items-center gap-2.5">
-
-                                            <span
-                                                aria-hidden="true"
-                                                className={`size-2 flex-none rounded-full ${toneDot[tone]}`}
-                                            />
-
-                                            <p className="text-[15px] font-semibold text-rd-title">
-                                                {log.action}
-                                            </p>
+                                </h3>
 
 
-                                            {log.module && (
+                                <ol>
 
-                                                <span className="rounded-full border border-rd-hair-strong bg-rd-raised px-2.5 py-1 text-xs font-medium text-rd-label">
-                                                    {log.module}
-                                                </span>
+                                    {group.items.map(({ log, when }, index) => {
 
-                                            )}
+                                        const key = eventCategory(log.action);
+                                        const tone = EVENT_TONE[key];
+                                        const meta = categoryMeta(key);
+                                        const Glyph = EVENT_ICON[key];
+                                        const last = index === group.items.length - 1;
 
-                                        </div>
+                                        return (
+
+                                            <li
+                                                key={log.id}
+                                                className="group flex gap-3"
+                                            >
+
+                                                {/* Node, thread and label all take the
+                                                    event's colour, so what kind of change
+                                                    a row records is legible before any of
+                                                    it is read. The thread also ties a
+                                                    day's entries into one strand instead
+                                                    of ten loose cards; it is dropped on
+                                                    the last row, where it would dangle. */}
+                                                <div className="flex w-9 flex-none flex-col items-center">
+
+                                                    <span
+                                                        className={`grid size-9 flex-none place-items-center rounded-full border ${tone.node}`}
+                                                    >
+                                                        <Glyph size={16} />
+                                                    </span>
+
+                                                    {!last && (
+                                                        <span
+                                                            aria-hidden="true"
+                                                            className={`mt-1.5 w-px flex-1 ${tone.rail}`}
+                                                        />
+                                                    )}
+
+                                                </div>
 
 
-                                        <time className="text-xs tabular-nums text-rd-muted">
-                                            {log.datetime}
-                                        </time>
+                                                <div className={`mb-2 min-w-0 flex-1 rounded-xl px-3 py-2 transition-colors ${tone.hover}`}>
 
-                                    </div>
+                                                    <div className="flex items-baseline justify-between gap-3">
+
+                                                        <div className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1">
+
+                                                            <p className="text-[15px] font-semibold leading-tight text-rd-title">
+                                                                {log.action}
+                                                            </p>
+
+                                                            {/* Names the colour it is
+                                                                wearing. Without it the
+                                                                palette would be a code
+                                                                with no key, and colour on
+                                                                its own is not something
+                                                                every reader can use. */}
+                                                            <span
+                                                                title={meta.hint}
+                                                                className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${tone.chip}`}
+                                                            >
+                                                                {meta.label}
+                                                            </span>
+
+                                                            {log.module && (
+
+                                                                <span className="rounded-full border border-rd-hair px-2 py-0.5 text-[11px] font-medium text-rd-muted">
+                                                                    {log.module}
+                                                                </span>
+
+                                                            )}
+
+                                                        </div>
 
 
-                                    {/* Description and actor share a line. Stacked, they cost a
-                                        whole extra row of text and a gap on every entry, which is
-                                        why only three fitted on screen. flex-wrap puts the actor
-                                        back underneath once the description needs the width. */}
-                                    <div className="mt-1.5 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
+                                                        {when ? (
 
-                                        <p className="text-sm leading-snug text-rd-label">
-                                            {log.description}
-                                        </p>
+                                                            <time
+                                                                dateTime={when.toISOString()}
+                                                                title={fullLabel(when)}
+                                                                className="w-[4.75rem] flex-none text-right text-xs tabular-nums text-rd-muted"
+                                                            >
+                                                                {timeLabel(when)}
+                                                            </time>
 
-                                        <p className="flex-none text-xs text-rd-muted">
+                                                        ) : (
 
-                                            Performed by{" "}
+                                                            <span className="w-[4.75rem] flex-none text-right text-xs text-rd-muted">
+                                                                —
+                                                            </span>
 
-                                            <span className="font-semibold text-rd-label">
-                                                {log.username}
-                                            </span>
+                                                        )}
 
-                                        </p>
+                                                    </div>
 
-                                    </div>
 
-                                </li>
+                                                    <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
 
-                            );
+                                                        <p className="min-w-0 text-sm leading-snug text-rd-label">
+                                                            {log.description}
+                                                        </p>
 
-                        })}
+                                                        <span className="flex flex-none items-center gap-1.5 text-xs text-rd-muted">
 
-                    </ol>
+                                                            <Avatar
+                                                                name={log.username}
+                                                                className="size-5 text-[9px]"
+                                                            />
+
+                                                            {log.username ?? "Unknown user"}
+
+                                                        </span>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </li>
+
+                                        );
+
+                                    })}
+
+                                </ol>
+
+                            </section>
+
+                        ))}
+
+                    </div>
 
                 )}
 
@@ -462,7 +650,7 @@ export default function ActivityLogPage() {
                                 onClick={() =>
                                     setPage(prev => Math.max(1, prev - 1))
                                 }
-                                className="rd-btn-ghost rd-press rd-focus min-h-10 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="rd-btn-ghost rd-press rd-focus min-h-11 disabled:pointer-events-none disabled:opacity-40"
                             >
                                 Previous
                             </button>
@@ -476,7 +664,7 @@ export default function ActivityLogPage() {
                                         Math.min(totalPages, prev + 1)
                                     )
                                 }
-                                className="rd-btn rd-press rd-focus min-h-10 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="rd-btn-ghost rd-press rd-focus min-h-11 disabled:pointer-events-none disabled:opacity-40"
                             >
                                 Next
                             </button>

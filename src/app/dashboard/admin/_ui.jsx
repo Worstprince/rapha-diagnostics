@@ -219,18 +219,270 @@ export function roleTone(value) {
     return ROLE_TONES[String(value ?? "")] ?? "neutral";
 }
 
-const ACTION_TONES = [
-    [/create|add|register|insert|new/, "emerald"],
-    [/delete|remove|archive|deactivate|disable/, "rose"],
-    [/update|edit|modify|change|assign|approve/, "amber"],
-    [/login|logout|sign|access|view|search/, "cyan"],
+/* ---------------------------------------------------------------------------
+   Activity taxonomy.
+
+   What was here before was an ordered list of loose regexes, and it quietly got
+   the log's two most common creation events wrong. /register/ does not match
+   "registration" -- the word is regist-RAT-ion, there is no "register" inside
+   it -- so every "User registration" and "Patient registration" row fell past
+   all four rules onto the violet default. Violet was also what an unrecognised
+   action got, so the single most common creation event in the table was painted
+   the same colour as "we have no idea what this is". "User Restored" and
+   "Save Test Result" fell through the same hole.
+
+   So the exact strings the API routes actually write are spelled out now. The
+   regexes stay, but only as a net for actions added later, and they are ordered
+   so the consequential reading wins: an archive or a credential change is
+   recognised before the generic "something was updated".
+
+   A category is a class of change, not one action. That is deliberate --
+   somebody scanning a log asks "was anything destroyed, did anyone's access
+   change", not "which of the thirteen verbs is this one". Note that Login is
+   deliberately the quiet grey: it is 69% of every row in the table, and
+   colouring the majority case loudly leaves the exceptions nothing to stand
+   out against.
+--------------------------------------------------------------------------- */
+
+export const EVENT_CATEGORIES = [
+    {
+        key: "create",
+        label: "Created",
+        hint: "New records added",
+        actions: [
+            "User registration",
+            "Patient registration",
+            "Visitation created",
+            "Save Test Result",
+        ],
+        match: /creat|regist|\badd|\bnew\b|save|submit|insert/,
+    },
+    {
+        key: "update",
+        label: "Updated",
+        hint: "Existing records changed",
+        actions: [
+            "User Update",
+            "Profile Updated",
+            "Update Test Result",
+            "Assign MedTech",
+        ],
+        match: /updat|edit|modif|chang|assign|renam|transfer/,
+    },
+    {
+        key: "approve",
+        label: "Approved",
+        hint: "Results signed off",
+        actions: ["Result Approved"],
+        // Not /sign/ -- "Assign MedTech" contains it.
+        match: /approv|verif|releas|finali|complet/,
+    },
+    {
+        key: "archive",
+        label: "Archived",
+        hint: "Records withdrawn",
+        actions: ["User Archived"],
+        match: /archiv|delet|remov|deactivat|disabl|revok|void|cancel/,
+    },
+    {
+        key: "restore",
+        label: "Restored",
+        hint: "Records reinstated",
+        actions: ["User Restored"],
+        match: /restor|reactivat|reinstat|unarchiv/,
+    },
+    {
+        key: "security",
+        label: "Security",
+        hint: "Credentials and permissions",
+        actions: ["Password Changed"],
+        match: /password|credential|permission|\brole\b|reset|lock/,
+    },
+    {
+        key: "access",
+        label: "Access",
+        hint: "Sign-ins and sessions",
+        actions: ["Login", "Logout"],
+        match: /log ?in|log ?out|signed |session/,
+    },
 ];
 
-export function actionTone(value) {
-    const text = String(value ?? "").toLowerCase();
-    const rule = ACTION_TONES.find(([pattern]) => pattern.test(text));
-    return rule ? rule[1] : "violet";
+export const OTHER_CATEGORY = {
+    key: "other",
+    label: "Other",
+    hint: "Not yet categorised",
+};
+
+/* Exact match first, so the actions the app writes today are pinned no matter
+   how the fallback regexes drift. */
+const EXACT = new Map();
+for (const category of EVENT_CATEGORIES) {
+    for (const action of category.actions) {
+        EXACT.set(action.toLowerCase(), category.key);
+    }
 }
+
+/* Not the declaration order: destructive and credential events have to be
+   tested before the generic ones, or "Password Changed" reads as an update. */
+const FALLBACK_ORDER = [
+    "archive",
+    "restore",
+    "security",
+    "access",
+    "approve",
+    "create",
+    "update",
+];
+
+export function eventCategory(value) {
+    const text = String(value ?? "").trim().toLowerCase();
+    if (!text) return OTHER_CATEGORY.key;
+
+    const exact = EXACT.get(text);
+    if (exact) return exact;
+
+    for (const key of FALLBACK_ORDER) {
+        const category = EVENT_CATEGORIES.find((item) => item.key === key);
+        if (category.match.test(text)) return category.key;
+    }
+
+    return OTHER_CATEGORY.key;
+}
+
+export function categoryMeta(key) {
+    return EVENT_CATEGORIES.find((item) => item.key === key) ?? OTHER_CATEGORY;
+}
+
+/* Tailwind scans source for whole class names, so these cannot be assembled
+   from the category key at runtime -- each string has to appear literally. */
+export const EVENT_TONE = {
+    create: {
+        node: "border-rd-ev-create/40 bg-rd-ev-create/12 text-rd-ev-create",
+        dot: "bg-rd-ev-create",
+        rail: "bg-rd-ev-create/35",
+        hover: "group-hover:bg-rd-ev-create/8",
+        chip: "border-rd-ev-create/45 bg-rd-ev-create/12 text-rd-ev-create",
+    },
+    update: {
+        node: "border-rd-ev-update/40 bg-rd-ev-update/12 text-rd-ev-update",
+        dot: "bg-rd-ev-update",
+        rail: "bg-rd-ev-update/35",
+        hover: "group-hover:bg-rd-ev-update/8",
+        chip: "border-rd-ev-update/45 bg-rd-ev-update/12 text-rd-ev-update",
+    },
+    approve: {
+        node: "border-rd-ev-approve/40 bg-rd-ev-approve/12 text-rd-ev-approve",
+        dot: "bg-rd-ev-approve",
+        rail: "bg-rd-ev-approve/35",
+        hover: "group-hover:bg-rd-ev-approve/8",
+        chip: "border-rd-ev-approve/45 bg-rd-ev-approve/12 text-rd-ev-approve",
+    },
+    archive: {
+        node: "border-rd-ev-archive/40 bg-rd-ev-archive/12 text-rd-ev-archive",
+        dot: "bg-rd-ev-archive",
+        rail: "bg-rd-ev-archive/35",
+        hover: "group-hover:bg-rd-ev-archive/8",
+        chip: "border-rd-ev-archive/45 bg-rd-ev-archive/12 text-rd-ev-archive",
+    },
+    restore: {
+        node: "border-rd-ev-restore/40 bg-rd-ev-restore/12 text-rd-ev-restore",
+        dot: "bg-rd-ev-restore",
+        rail: "bg-rd-ev-restore/35",
+        hover: "group-hover:bg-rd-ev-restore/8",
+        chip: "border-rd-ev-restore/45 bg-rd-ev-restore/12 text-rd-ev-restore",
+    },
+    security: {
+        node: "border-rd-ev-security/40 bg-rd-ev-security/12 text-rd-ev-security",
+        dot: "bg-rd-ev-security",
+        rail: "bg-rd-ev-security/35",
+        hover: "group-hover:bg-rd-ev-security/8",
+        chip: "border-rd-ev-security/45 bg-rd-ev-security/12 text-rd-ev-security",
+    },
+    access: {
+        node: "border-rd-ev-access/40 bg-rd-ev-access/12 text-rd-ev-access",
+        dot: "bg-rd-ev-access",
+        rail: "bg-rd-ev-access/35",
+        hover: "group-hover:bg-rd-ev-access/8",
+        chip: "border-rd-ev-access/45 bg-rd-ev-access/12 text-rd-ev-access",
+    },
+    other: {
+        node: "border-rd-hair-strong bg-rd-raised text-rd-muted",
+        dot: "bg-rd-muted",
+        rail: "bg-rd-hair-strong",
+        hover: "group-hover:bg-rd-raised",
+        chip: "border-rd-hair-strong bg-rd-raised text-rd-muted",
+    },
+};
+
+export function PlusCircleIcon(props) {
+    return (
+        <Icon {...props}>
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 8.5v7" />
+            <path d="M8.5 12h7" />
+        </Icon>
+    );
+}
+
+export function ArchiveIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="M3.5 5.5h17v4h-17z" />
+            <path d="M5 9.5V18a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5V9.5" />
+            <path d="M10 13h4" />
+        </Icon>
+    );
+}
+
+export function RestoreIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="M3.5 12a8.5 8.5 0 1 0 2.7-6.2" />
+            <path d="M3.5 4.2v4.6h4.6" />
+        </Icon>
+    );
+}
+
+export function KeyIcon(props) {
+    return (
+        <Icon {...props}>
+            <circle cx="8.5" cy="15.5" r="3.8" />
+            <path d="m11.2 12.8 7.6-7.6" />
+            <path d="m16.4 7.6 2 2" />
+        </Icon>
+    );
+}
+
+export function SignInIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="M14.5 3.5h3a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-3" />
+            <path d="m9.5 16.5 4.5-4.5-4.5-4.5" />
+            <path d="M14 12H3.5" />
+        </Icon>
+    );
+}
+
+export function PulseIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="M3 12h3.5l2.5 6 4-13 2.5 7H21" />
+        </Icon>
+    );
+}
+
+/* Colour on its own is not an accessible channel, and it is slower to read than
+   a shape besides. Every category carries a glyph saying the same thing. */
+export const EVENT_ICON = {
+    create: PlusCircleIcon,
+    update: PencilIcon,
+    approve: CheckCircleIcon,
+    archive: ArchiveIcon,
+    restore: RestoreIcon,
+    security: KeyIcon,
+    access: SignInIcon,
+    other: PulseIcon,
+};
 
 export function Badge({ tone = "neutral", children }) {
     return (
