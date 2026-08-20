@@ -1,22 +1,6 @@
-/* ---------------------------------------------------------------------------
-   RAPHA DIAGNOSTICS — login palette.
-
-   Design system: "Patient Portal / Health Records" (Trust & Authority +
-   Accessible & Ethical). Clinical blue, health green, alert red, accessible
-   contrast. The auth screen borrows the vault-navy dark ground that secure
-   sign-in surfaces use, so the two halves of the page read as one system:
-   deep navy for the brand side, clean white for the form side.
-
-   Only page-scoped tokens live here. Everything is declared on .rd-page rather
-   than :root so the dashboard keeps the palette it already ships with.
-   --------------------------------------------------------------------------- */
 .rd-page {
   --rd-noise-opacity: 0.035;
 
-  /* Clinical blue. The earlier teal sat at the same value as the logo's cyan
-     trail and the two cancelled each other out; this ramp is far darker than
-     anything in the mark, so the trail reads as the brightest thing on the
-     panel instead of competing with it. */
   --rd-brand-grad: linear-gradient(
     152deg,
     rgba(41, 79, 128, 0.62) 0%,
@@ -27,17 +11,12 @@
   --rd-brand-shadow: 0 40px 80px -40px rgba(2, 8, 23, 0.8), inset 0 1px 0 rgba(186, 230, 253, 0.14);
   --rd-brand-sheen: radial-gradient(130% 90% at 10% -10%, rgba(255, 255, 255, 0.12), transparent 62%);
 
-  /* Panel-local ink. Every one of these flips in light mode, which is the whole
-     reason the panel's children reference tokens instead of literal whites. */
   --rd-on-brand: #f0f9ff;
   --rd-on-brand-dim: rgba(224, 242, 254, 0.76);
   --rd-on-brand-faint: rgba(186, 230, 253, 0.62);
   --rd-chip-bg: rgba(125, 211, 252, 0.1);
   --rd-chip-edge: rgba(125, 211, 252, 0.2);
 
-  /* Accent overrides. globals.css ships a cyan that is a near-match for the
-     logo trail; these shift it to clinical blue so the mark stays the only
-     cyan on the page. 8.4:1 on the card ground. */
   --rd-cyan: #7dd3fc;
   --rd-cyan-strong: #bae6fd;
   --rd-on-cyan: #052a3d;
@@ -46,12 +25,8 @@
   --rd-accent-shadow-strong: rgba(56, 189, 248, 0.7);
   --rd-focus-ring: rgba(56, 189, 248, 0.16);
 
-  /* Health green, from the same palette row. Used only where a state is being
-     reported — never as decoration. */
   --rd-fresh: #34d399;
 
-  /* The trace on the panel. Tokenised because a beam bright enough to glow on
-     navy is far too pale to see once the panel turns white. */
   --rd-ecg-base: rgba(125, 211, 252, 0.18);
   --rd-ecg-beam: #38bdf8;
   --rd-ecg-glow: rgba(56, 189, 248, 0.85);
@@ -71,24 +46,11 @@
   color: var(--rd-text);
   background-color: var(--rd-canvas);
   background-image: none;
-  /* Figtree for headings, Noto Sans for running text — the "Medical Clean"
-     pairing. Both load through next/font, so there is no layout shift and no
-     request to a font CDN at runtime. */
   font-family: var(--rd-font-body), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   transition: background-color 400ms ease, color 400ms ease;
 }
 
-/* ---------------------------------------------------------------------------
-   Light mode.
-
-   The panel turns over with the rest of the page rather than staying navy. A
-   dark slab on a pale canvas is the thing that made light mode read as an
-   afterthought — two unrelated surfaces sharing a screen. Here both halves are
-   light and the difference between them is tint and elevation, not value:
-   the brand side is a cool blue-white with a graticule, the form side is plain
-   white and sits higher.
-   --------------------------------------------------------------------------- */
 html[data-theme="light"] .rd-page {
   --rd-noise-opacity: 0.02;
 
@@ -102,19 +64,12 @@ html[data-theme="light"] .rd-page {
   --rd-brand-shadow: 0 40px 80px -44px rgba(12, 74, 110, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.9);
   --rd-brand-sheen: radial-gradient(130% 90% at 10% -10%, rgba(255, 255, 255, 0.85), transparent 58%);
 
-  /* Deep navy ink rather than near-black: it belongs to the same blue family as
-     the panel, so the text sits in the surface instead of on top of it.
-     #0C4A6E on the panel mid-tone is 8.9:1. */
   --rd-on-brand: #0c3255;
   --rd-on-brand-dim: #3a5f80;
-  /* #5B7D9C measured 3.85:1 on the panel, under AA for the 11px status line
-     it sets. This is 5.1:1. */
   --rd-on-brand-faint: #47698a;
   --rd-chip-bg: rgba(2, 132, 199, 0.08);
   --rd-chip-edge: rgba(2, 132, 199, 0.22);
 
-  /* #0369A1 rather than the palette's #0284C7: white on #0284C7 lands at
-     4.1:1, which fails AA for the 15px button label. This clears 5.9:1. */
   --rd-cyan: #0369a1;
   --rd-cyan-strong: #075985;
   --rd-on-cyan: #ffffff;
@@ -159,9 +114,6 @@ html[data-theme="light"] .rd-page {
   animation: rd-dna-in 600ms cubic-bezier(0.22, 0.68, 0.24, 1) backwards;
 }
 
-/* Pulled well back in light mode. The field reads as texture behind dark
-   glass, but behind white cards the same strength shows up as smudges around
-   the panel edges. */
 html[data-theme="light"] .rd-dnafield {
   --rd-dna-opacity: 0.42;
 }
@@ -171,17 +123,6 @@ html[data-theme="light"] .rd-dnafield {
   to   { opacity: var(--rd-dna-opacity); }
 }
 
-/* The toggle itself is shared (globals.css). Login is the only place it floats
-   over the page rather than sitting in chrome — hence the .rd-page scope on
-   every rule below that touches it.
-
-   Unscoped, these follow the class onto every other screen that renders a
-   ThemeToggle. The dashboard puts one inside the account menu, and a bare
-   .rd-theme { position: fixed } lifts it out of that row and pins it to the
-   corner of the viewport, leaving the "Dark mode" row with no control at all.
-   In a production build the route stylesheets swap and it never fires; in dev,
-   CSS from a visited route stays in the document, so signing in and landing on
-   the dashboard reproduces it every time. */
 .rd-page .rd-theme {
   position: fixed;
   top: 22px;
@@ -189,10 +130,6 @@ html[data-theme="light"] .rd-dnafield {
   z-index: 6;
 }
 
-/* Stretch, not centre. Centring left a short card floating against a tall
-   panel with mismatched top and bottom edges — the two halves read as separate
-   objects rather than one screen split down the middle. Both columns are now
-   the same height and the card centres its own content instead. */
 .rd-shell {
   position: relative;
   z-index: 1;
@@ -238,12 +175,6 @@ html[data-theme="light"] .rd-dnafield {
 }
 
 
-/* The glow breathes on its own track so it can run at a different tempo to the
-   drift — the two drifting in and out of phase is what keeps it from reading
-   as a loop. z-index keeps it behind the mark: an absolutely positioned
-   pseudo-element otherwise paints over the static <img> next to it. */
-/* Halo behind the tile, sized to it — the offset tracks the tile's half-width,
-   so it has to move whenever the tile does. */
 .rd-brandmark::before {
   content: "";
   position: absolute;
@@ -290,15 +221,10 @@ html[data-theme="light"] .rd-dnafield {
   font-family: var(--rd-font-display), ui-sans-serif, system-ui, sans-serif;
   font-size: 32px;
   font-weight: 700;
-  /* Pulled tight. At this size the default spacing leaves the five letters
-     drifting apart, and the name has to read as one shape next to the mark. */
   letter-spacing: -0.032em;
   color: var(--rd-on-brand);
 }
 
-/* The second line carries the accent and opens with a short rule. That gives
-   the lockup a floor, and stops "Diagnostics" reading as a stray caption under
-   the name — it is part of the mark, not a description of it. */
 .rd-word-sub {
   display: flex;
   align-items: center;
@@ -331,8 +257,6 @@ html[data-theme="light"] .rd-dnafield {
   color: var(--rd-on-brand);
 }
 
-/* The one word that names what the product does. Given the accent so the eye
-   lands on it before reading the rest of the line. */
 .rd-hero em {
   font-style: normal;
   color: var(--rd-cyan-strong);
@@ -348,9 +272,6 @@ html[data-theme="light"] .rd-dnafield {
 
 .rd-ecg { margin: auto 0; }
 
-/* The four roles the portal routes to, stated up front. This is the one thing a
-   sign-in screen can usefully say about itself, and it replaces a paragraph
-   that said the same thing in prose. Chips, not a list, so it stays one band. */
 .rd-roles {
   display: flex;
   flex-wrap: wrap;
@@ -394,9 +315,6 @@ html[data-theme="light"] .rd-dnafield {
   transition: background 350ms ease, border-color 350ms ease, box-shadow 350ms ease;
 }
 
-/* A hairline of the accent across the top edge. The card is otherwise a plain
-   rectangle of glass; this one stroke ties it to the panel opposite and gives
-   the eye a starting line above the heading. */
 .rd-card::before {
   content: "";
   position: absolute;
@@ -454,7 +372,6 @@ html[data-theme="light"] .rd-dnafield {
   gap: 18px;
 }
 
-/* .rd-label and .rd-input are shared (globals.css). */
 
 .rd-pw { position: relative; }
 .rd-pw .rd-input { padding-right: 52px; }
@@ -523,11 +440,8 @@ html[data-theme="light"] .rd-dnafield {
   outline-offset: 3px;
 }
 
-/* .rd-status and its tones are shared (globals.css). */
 
 .rd-submit {
-  /* Flex so the label stays optically centred once the spinner appears beside
-     it — a text swap alone makes the button jump. */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -572,9 +486,6 @@ html[data-theme="light"] .rd-dnafield {
 }
 
 
-/* Submit spinner. The button already disables itself while the request is in
-   flight, but a label change alone is easy to miss — this gives the wait a
-   moving part, which is the difference between "thinking" and "frozen". */
 .rd-spin {
   flex: none;
   width: 16px;
@@ -589,9 +500,6 @@ html[data-theme="light"] .rd-dnafield {
   to { transform: rotate(360deg); }
 }
 
-/* Caps Lock is the single most common cause of a failed password on a portal
-   that people sign into from shared workstations. Warning before submit beats
-   reporting a wrong password after it. Amber, not red — nothing is wrong yet. */
 .rd-caps {
   display: flex;
   align-items: center;
@@ -607,8 +515,6 @@ html[data-theme="light"] .rd-caps { color: #b45309; }
 
 .rd-caps svg { flex: none; }
 
-/* Field group. The label/field pairing gets a wrapper so the caps hint and any
-   future per-field message have somewhere to sit that the form gap respects. */
 .rd-field { display: block; }
 @media (max-width: 980px) {
   .rd-page { padding: 18px; }
@@ -631,9 +537,6 @@ html[data-theme="light"] .rd-caps { color: #b45309; }
 @media (prefers-reduced-motion: reduce) {
   .rd-submit:hover:not(:disabled) { transform: none; }
 
-  /* The spinner is the one loop that stays: it is reporting state, not
-     decorating. Slowed and reduced to a fade so it still says "working"
-     without the rotation. */
   .rd-spin { animation-duration: 1.6s; }
 }
 

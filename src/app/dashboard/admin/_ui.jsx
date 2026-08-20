@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 function Icon({ size = 18, className = "", children }) {
     return (
         <svg
@@ -49,6 +51,15 @@ export function ChevronDownIcon(props) {
     return (
         <Icon {...props}>
             <path d="m6 9 6 6 6-6" />
+        </Icon>
+    );
+}
+
+export function ArrowLeftIcon(props) {
+    return (
+        <Icon {...props}>
+            <path d="M19 12H5" />
+            <path d="m11 18-6-6 6-6" />
         </Icon>
     );
 }
@@ -158,14 +169,9 @@ export function ClockIcon(props) {
     );
 }
 
-/* Deliberately empty. This used to render the stored role "Pathologist" as
-   "Physician", which was a problem rather than a nicety: "Physician" is itself
-   a separate stored role -- the doctor list selects on
-   `role = 'Physician' OR role = 'Pathologist'`, and login and the middleware
-   both route the two independently. Aliasing one to the other made two
-   distinct roles indistinguishable in every admin table and dropdown. Roles
-   now display under the name they are saved as. */
-const ROLE_LABELS = {};
+const ROLE_LABELS = {
+    Physician: "Doctor",
+};
 
 export function roleLabel(value) {
     const role = String(value ?? "");
@@ -208,41 +214,19 @@ export const toneChip = {
 };
 
 const ROLE_TONES = {
-    Administrator: "violet",
     Receptionist: "cyan",
     "Medical Technologist": "amber",
     Pathologist: "emerald",
-    Cashier: "rose",
+    Physician: "rose",
+    Administrator: "violet",
 };
+
+export const STAFF_ROLES = Object.keys(ROLE_TONES);
 
 export function roleTone(value) {
     return ROLE_TONES[String(value ?? "")] ?? "neutral";
 }
 
-/* ---------------------------------------------------------------------------
-   Activity taxonomy.
-
-   What was here before was an ordered list of loose regexes, and it quietly got
-   the log's two most common creation events wrong. /register/ does not match
-   "registration" -- the word is regist-RAT-ion, there is no "register" inside
-   it -- so every "User registration" and "Patient registration" row fell past
-   all four rules onto the violet default. Violet was also what an unrecognised
-   action got, so the single most common creation event in the table was painted
-   the same colour as "we have no idea what this is". "User Restored" and
-   "Save Test Result" fell through the same hole.
-
-   So the exact strings the API routes actually write are spelled out now. The
-   regexes stay, but only as a net for actions added later, and they are ordered
-   so the consequential reading wins: an archive or a credential change is
-   recognised before the generic "something was updated".
-
-   A category is a class of change, not one action. That is deliberate --
-   somebody scanning a log asks "was anything destroyed, did anyone's access
-   change", not "which of the thirteen verbs is this one". Note that Login is
-   deliberately the quiet grey: it is 69% of every row in the table, and
-   colouring the majority case loudly leaves the exceptions nothing to stand
-   out against.
---------------------------------------------------------------------------- */
 
 export const EVENT_CATEGORIES = [
     {
@@ -274,7 +258,6 @@ export const EVENT_CATEGORIES = [
         label: "Approved",
         hint: "Results signed off",
         actions: ["Result Approved"],
-        // Not /sign/ -- "Assign MedTech" contains it.
         match: /approv|verif|releas|finali|complet/,
     },
     {
@@ -313,8 +296,6 @@ export const OTHER_CATEGORY = {
     hint: "Not yet categorised",
 };
 
-/* Exact match first, so the actions the app writes today are pinned no matter
-   how the fallback regexes drift. */
 const EXACT = new Map();
 for (const category of EVENT_CATEGORIES) {
     for (const action of category.actions) {
@@ -322,8 +303,6 @@ for (const category of EVENT_CATEGORIES) {
     }
 }
 
-/* Not the declaration order: destructive and credential events have to be
-   tested before the generic ones, or "Password Changed" reads as an update. */
 const FALLBACK_ORDER = [
     "archive",
     "restore",
@@ -353,8 +332,6 @@ export function categoryMeta(key) {
     return EVENT_CATEGORIES.find((item) => item.key === key) ?? OTHER_CATEGORY;
 }
 
-/* Tailwind scans source for whole class names, so these cannot be assembled
-   from the category key at runtime -- each string has to appear literally. */
 export const EVENT_TONE = {
     create: {
         node: "border-rd-ev-create/40 bg-rd-ev-create/12 text-rd-ev-create",
@@ -471,8 +448,6 @@ export function PulseIcon(props) {
     );
 }
 
-/* Colour on its own is not an accessible channel, and it is slower to read than
-   a shape besides. Every category carries a glyph saying the same thing. */
 export const EVENT_ICON = {
     create: PlusCircleIcon,
     update: PencilIcon,
@@ -527,13 +502,51 @@ export function ClearFilters({ count, onClear }) {
     );
 }
 
-export function PageHeader({ title, description }) {
+export function BackLink({ href, label = "All users", onNavigate }) {
+
+    const className =
+        "rd-press rd-focus group/back inline-flex min-h-10 w-fit cursor-pointer items-center gap-2 rounded-xl border border-rd-hair-strong bg-rd-sunken px-3.5 text-sm font-semibold text-rd-label transition-[color,background-color,border-color,box-shadow] duration-200 hover:border-rd-cyan/50 hover:bg-rd-cyan/10 hover:text-rd-cyan hover:shadow-[0_0_18px_-6px_rgba(34,211,238,0.5)] motion-reduce:transition-none";
+
+    const inner = (
+        <>
+            <ArrowLeftIcon
+                size={16}
+                className="transition-transform duration-200 group-hover/back:-translate-x-0.5 motion-reduce:transition-none"
+            />
+            {label}
+        </>
+    );
+
+    if (onNavigate) {
+        return (
+            <button type="button" onClick={() => onNavigate(href)} className={className}>
+                {inner}
+            </button>
+        );
+    }
+
+    return (
+        <Link href={href} className={className}>
+            {inner}
+        </Link>
+    );
+
+}
+
+export function PageHeader({ title, description, back }) {
     return (
         <header className="rd-panel flex-none p-6">
+            {back && (
+                <div className="mb-4">
+                    <BackLink {...back} />
+                </div>
+            )}
             <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-rd-cyan">
                 Admin
             </p>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">{title}</h1>
+            <h1 className="mt-2 text-2xl font-bold tracking-tight text-rd-title">
+                {title}
+            </h1>
             {description && <p className="mt-2 text-sm text-rd-muted">{description}</p>}
         </header>
     );
@@ -656,9 +669,6 @@ export function HeaderGlow() {
     );
 }
 
-/* Identity and progress primitives, mirroring the ones the other dashboard
-   sections already carry in their own _ui. Admin had no need for them until the
-   Add User form grew a live preview panel. */
 export function initialsOf(name) {
     if (!name) return "";
     return String(name)

@@ -13,13 +13,19 @@ export async function GET(request, { params }) {
         const [user] = await db.query(
             `
             SELECT
-                id,
-                username,
-                email,
-                role,
-                archivestatus
-            FROM tblusers
-            WHERE id = ?
+                u.id,
+                u.username,
+                u.email,
+                u.role,
+                u.archivestatus,
+                u.created_at,
+                ui.fname,
+                ui.mname,
+                ui.lname
+            FROM tblusers u
+            LEFT JOIN tbluserinfo ui
+                ON ui.userid = u.id
+            WHERE u.id = ?
             `,
             [id]
         );
@@ -217,8 +223,6 @@ export async function PUT(request, { params }) {
         const { userId } = user;
 
 
-        // Get the user's current information
-        // so we can detect archive/restore changes.
         const [existingRows] = await db.query(
             `
             SELECT
@@ -250,7 +254,6 @@ export async function PUT(request, { params }) {
         const existingUser = existingRows[0];
 
 
-        // Check if username/email belongs to another user
         const [duplicateRows] = await db.query(
             `
             SELECT
@@ -282,7 +285,6 @@ export async function PUT(request, { params }) {
         }
 
         
-        // Update WITHOUT changing password
         if (user.password === "") {
 
             await db.query(
@@ -306,7 +308,6 @@ export async function PUT(request, { params }) {
 
         }
         
-        // Update WITH password
         else {
             const hashedPassword = await bcrypt.hash(user.password, 12);
             await db.query(
@@ -332,8 +333,6 @@ export async function PUT(request, { params }) {
 
         }
 
-
-        // Determine what type of activity happened
 
         if (
             !existingUser.archivestatus &&

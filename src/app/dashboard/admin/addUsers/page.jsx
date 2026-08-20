@@ -6,27 +6,22 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 import { useCurrentUser } from "@/lib/session";
 
 import Toast from "../_toast";
-import { Avatar, CheckIcon, PageHeader, Spinner, roleLabel } from "../_ui";
+import { Avatar, CheckIcon, PageHeader, STAFF_ROLES, Spinner, roleLabel } from "../_ui";
+import {
+  EMAIL,
+  Field,
+  MIN_PASSWORD,
+  MIN_USERNAME,
+  PASSWORD_RULES,
+  Requirement,
+  SectionHeader,
+  SummaryRow,
+  errText,
+  field,
+  passwordChecks,
+} from "../_form";
 
-const ROLES = [
-  "Administrator",
-  "Receptionist",
-  "Medical Technologist",
-  "Pathologist",
-];
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MIN_PASSWORD = 8;
-const MIN_USERNAME = 3;
-
-const errText = "mt-1.5 text-sm text-rd-danger";
-
-function field(hasError) {
-  return `rd-input ${hasError ? "rd-input--error" : ""}`;
-}
-
-/* One definition of the blank account, used by both the initial state and the
-   post-submit reset so the two can't drift apart. */
 const EMPTY_USER = {
   username: "",
   fname: "",
@@ -38,10 +33,6 @@ const EMPTY_USER = {
   role: "",
 };
 
-/* Drives the progress meter in the preview panel. confirmPassword is in the
-   list on purpose: leaving it out let a mismatched pair still read as complete,
-   which is the same lie in a different place. With every rule counted, a full
-   bar means exactly one thing -- submit will go through. */
 const REQUIRED_FIELDS = [
   "fname",
   "lname",
@@ -52,103 +43,12 @@ const REQUIRED_FIELDS = [
   "confirmPassword",
 ];
 
-const PASSWORD_RULES = [
-  { key: "length", label: `At least ${MIN_PASSWORD} characters` },
-  { key: "lower", label: "One lowercase letter" },
-  { key: "upper", label: "One uppercase letter" },
-  { key: "digit", label: "One number" },
-  { key: "symbol", label: "One symbol" },
-];
-
-/* What the preview says about the password. Never the password itself: this
-   panel sits open on a shared admin workstation, and the value is the one thing
-   on the form that must not be readable from across the desk.
-
-   It reports only what the preview is good at answering -- is one set, and do
-   the two entries agree. Which rules are still outstanding is the checklist's
-   job, directly under the field where it can be acted on. */
 function passwordSummary(user) {
   if (!user.password) return "";
   if (!user.confirmPassword) return "Needs confirming";
   if (user.password !== user.confirmPassword) return "Does not match";
 
   return "Set and confirmed";
-}
-
-function passwordChecks(value) {
-  return {
-    length: value.length >= MIN_PASSWORD,
-    lower: /[a-z]/.test(value),
-    upper: /[A-Z]/.test(value),
-    digit: /\d/.test(value),
-    symbol: /[^A-Za-z0-9]/.test(value),
-  };
-}
-
-function SectionHeader({ title, description }) {
-  return (
-    <div className="border-b border-rd-hair p-4">
-      <h2 className="text-lg font-semibold text-rd-title">{title}</h2>
-      <p className="mt-0.5 text-sm text-rd-muted">{description}</p>
-    </div>
-  );
-}
-
-function Field({ id, label, error, required = false, className = "", children }) {
-  return (
-    <div className={`min-w-0 ${className}`.trim()}>
-
-      <label htmlFor={id} className="rd-label">
-        {label}
-        {required && (
-          <span aria-hidden="true" className="ml-1 text-rd-danger">
-            *
-          </span>
-        )}
-      </label>
-
-      {children}
-
-      {error && (
-        <p id={`${id}-error`} role="alert" className={errText}>
-          {error}
-        </p>
-      )}
-
-    </div>
-  );
-}
-
-function SummaryRow({ label, value }) {
-  return (
-    <div className="flex items-baseline justify-between gap-3 py-2">
-      <dt className="text-xs font-semibold uppercase tracking-wider text-rd-muted">
-        {label}
-      </dt>
-      <dd className="min-w-0 truncate text-right text-sm font-medium text-rd-text">
-        {value || <span className="text-rd-placeholder">Not set</span>}
-      </dd>
-    </div>
-  );
-}
-
-/* Met state is carried by the icon as well as the colour, so the list still
-   reads for anyone who can't separate the green from the grey. */
-function Requirement({ met, label }) {
-  return (
-    <li className="flex items-center gap-2 text-xs">
-      <span
-        aria-hidden="true"
-        className={`grid size-4 flex-none place-items-center rounded-full ${
-          met ? "bg-emerald-500/15 text-emerald-500" : "bg-rd-raised text-rd-muted"
-        }`}
-      >
-        {met ? <CheckIcon size={11} /> : <span className="size-1 rounded-full bg-current" />}
-      </span>
-      <span className={met ? "text-rd-label" : "text-rd-muted"}>{label}</span>
-      <span className="sr-only">{met ? " — met" : " — not met"}</span>
-    </li>
-  );
 }
 
 const tickers = new Set();
@@ -197,11 +97,6 @@ function LiveTimestamp() {
   );
 }
 
-/* Every rule the form enforces, in one place. validate() reports them to the
-   user; the preview meter counts them. One source means the meter cannot show
-   a form as ready that submit would then turn around and reject — which it did:
-   it counted any non-empty value, so “sas” passed as an email and the bar read
-   6/6 complete on a form that could not be saved. */
 function fieldErrors(user) {
   const found = {};
 
@@ -359,9 +254,6 @@ export default function AddUsers() {
 
   const checks = passwordChecks(user.password);
 
-  /* Counted against the real rules, not against emptiness. The meter used to
-     tick up for any non-blank value, so a half-typed email read as done and the
-     bar sat at complete on a form submit would reject. */
   const pending = fieldErrors(user);
   const filledRequired = REQUIRED_FIELDS.filter((key) => !pending[key]).length;
   const isComplete = filledRequired === REQUIRED_FIELDS.length;
@@ -377,6 +269,7 @@ export default function AddUsers() {
     <div className="mx-auto max-w-6xl space-y-5">
 
       <PageHeader
+          back={{ href: "/dashboard/admin/viewUsers", label: "All users" }}
         title="Add User"
         description="Create an account and assign the role that matches their department."
       />
@@ -504,7 +397,7 @@ export default function AddUsers() {
                       Select Role
                     </option>
 
-                    {ROLES.map((role) => (
+                    {STAFF_ROLES.map((role) => (
                       <option key={role} value={role}>
                         {roleLabel(role)}
                       </option>
@@ -568,9 +461,6 @@ export default function AddUsers() {
                   />
                 </Field>
 
-                {/* validate() tests the five rules in sequence and reports only the
-                    first failure, so a weak password took up to four submits to
-                    fix. Showing all five live turns that into none. */}
                 <ul
                   id="password-rules"
                   className="grid gap-x-4 gap-y-1.5 sm:col-span-2 sm:grid-cols-2"

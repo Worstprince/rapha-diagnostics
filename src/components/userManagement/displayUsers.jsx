@@ -11,6 +11,7 @@ import {
     PencilIcon,
     RowSkeleton,
     SearchField,
+    STAFF_ROLES,
     StateMessage,
     roleLabel,
     roleTone,
@@ -61,12 +62,7 @@ export default function DisplayUsers() {
     const [totalPages, setTotalPages] = useState(0);
 
 
-    const roles = [
-        "Administrator",
-        "Receptionist",
-        "Medical Technologist",
-        "Pathologist",
-    ];
+    const roles = STAFF_ROLES;
 
 
     useEffect(() => {
@@ -307,12 +303,6 @@ export default function DisplayUsers() {
                     />
 
 
-                    {/* The count that used to sit here said the same thing as the
-                        one above the pager, which also carries the range. The
-                        pager's is the one that stays: it is more informative and
-                        it sits with the controls it describes. Nothing is lost in
-                        the empty state either -- there is no page of results to
-                        count, and StateMessage already says so. */}
                     <div className="flex items-center justify-end gap-3">
 
                         <FilterToggle
@@ -553,14 +543,6 @@ export default function DisplayUsers() {
                                             </td>
 
 
-                                            {/* Was printing the raw column value,
-                                                "2026-08-19T19:47:16.000Z" -- the UTC
-                                                instant, so an account opened at 3:47am
-                                                Manila showed the previous evening's
-                                                date. Date on top, clock time under it:
-                                                dropping the time to fit one line would
-                                                have lost information an audit column
-                                                needs. */}
                                             <td
                                                 className={`${td} tabular-nums`}
                                             >
@@ -614,7 +596,7 @@ export default function DisplayUsers() {
                                                     className={rowAction}
                                                     onClick={() =>
                                                         router.push(
-                                                            `/dashboard/admin/editUsers?id=${user.id}`
+                                                            `/dashboard/admin/editUsers/${user.id}`
                                                         )
                                                     }
                                                 >
@@ -682,13 +664,6 @@ export default function DisplayUsers() {
                                 >
                                     Previous
                                 </button>
-                                {/* The active chip was bg-rd-title with text-rd-bg. --rd-title is a
-                                    text colour (#fff dark, near-black light), so using it as a
-                                    background flipped it to a stark white block on the dark theme.
-                                    And rd-bg is not a token at all, so the number fell back to the
-                                    page text colour and came out invisible against it in both
-                                    themes. The accent pair is built for exactly this: --rd-on-cyan
-                                    is the text colour that goes on --rd-cyan. */}
                                 {paginationPages.map(pageNumber => (
                                     <button
                                         key={pageNumber}

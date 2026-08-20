@@ -27,13 +27,6 @@ import {
 } from "@/lib/datetime";
 
 
-/* The rows used to print the raw column value, which arrives as an ISO string:
-   "2026-08-19T19:47:16.000Z". That is unreadable at a glance and it is also the
-   UTC instant, so an admin reading a log of their own morning's work saw the
-   previous evening's date on every line. The Date the driver hands back is
-   correct -- only the rendering was wrong. Everything now goes through the
-   clinic's zone rather than the reader's; see lib/datetime for why the locale
-   alone was not enough to do that. */
 function dayLabel(dayKey, sample, keys) {
 
     if (dayKey === keys.today) return "Today";
@@ -195,10 +188,6 @@ export default function ActivityLogPage() {
     ].filter(Boolean).length;
 
 
-    /* "Today" is not a pure function of the rows -- it depends on when you look
-       -- so it cannot be read during render, and a log left open past midnight
-       would otherwise keep labelling yesterday's entries Today. Same shape the
-       overview page already uses for its clock. */
     const [dayKeys, setDayKeys] = useState({ today: null, yesterday: null });
 
     useEffect(() => {
@@ -214,11 +203,6 @@ export default function ActivityLogPage() {
     }, []);
 
 
-    /* Rows arrive already sorted by datetime, so one pass is enough to cut them
-       into day runs -- no bucketing and re-sorting needed. The key is the
-       calendar day in Manila, not the reader's local midnight, so an entry
-       logged at 00:30 here does not get filed under the previous day for
-       somebody reading from further west. */
     const groups = useMemo(() => {
 
         const out = [];
@@ -481,13 +465,6 @@ export default function ActivityLogPage() {
                                                 className="group flex gap-3"
                                             >
 
-                                                {/* Node, thread and label all take the
-                                                    event's colour, so what kind of change
-                                                    a row records is legible before any of
-                                                    it is read. The thread also ties a
-                                                    day's entries into one strand instead
-                                                    of ten loose cards; it is dropped on
-                                                    the last row, where it would dangle. */}
                                                 <div className="flex w-9 flex-none flex-col items-center">
 
                                                     <span
@@ -516,12 +493,6 @@ export default function ActivityLogPage() {
                                                                 {log.action}
                                                             </p>
 
-                                                            {/* Names the colour it is
-                                                                wearing. Without it the
-                                                                palette would be a code
-                                                                with no key, and colour on
-                                                                its own is not something
-                                                                every reader can use. */}
                                                             <span
                                                                 title={meta.hint}
                                                                 className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${tone.chip}`}

@@ -55,7 +55,6 @@ export function formatTime(value, options = {}) {
 }
 
 
-
 export function formatFull(value) {
 
     const date = toDate(value);
@@ -75,7 +74,6 @@ export function formatFull(value) {
 }
 
 
-
 const DAY_KEY = new Intl.DateTimeFormat("en-CA", {
     timeZone: CLINIC_TIME_ZONE,
     year: "numeric",
@@ -89,7 +87,6 @@ export function clinicDayKey(value) {
     return date ? DAY_KEY.format(date) : null;
 
 }
-
 
 
 export function clinicDayKeys(now = Date.now()) {
