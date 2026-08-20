@@ -178,6 +178,20 @@ export default function NotesEditor({ visit, currentUserId }) {
   const [unlockedForEdit, setUnlockedForEdit] = useState(false);
   const isLocked = status === "Finalized" && !unlockedForEdit;
 
+  // Dirty-tracking for the narrative sections: Save draft should only be
+  // enabled once the current text differs from what's actually saved in the
+  // DB. hasSavedDraft tracks whether any draft has ever been persisted for
+  // this visit (true already if we loaded an existing Draft/Finalized note),
+  // which gates Sign and finalize.
+  const [lastSavedSections, setLastSavedSections] = useState(() => ({
+    ...initialSections,
+  }));
+  const [isDirty, setIsDirty] = useState(false);
+  const [hasContent, setHasContent] = useState(() =>
+    SECTION_KEYS.some((key) => (initialSections[key] ?? "").trim().length > 0)
+  );
+  const [hasSavedDraft, setHasSavedDraft] = useState(status !== "Awaiting note");
+
   // Comments panel — content is fetched lazily, only when first expanded.
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [comments, setComments] = useState(null);
@@ -333,7 +347,7 @@ export default function NotesEditor({ visit, currentUserId }) {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   }
 
-  const canFinalize = acknowledged && !isLocked;
+  const canFinalize = acknowledged && !isLocked && hasSavedDraft && hasContent;
 
   const getSections = useCallback(() => {
     const out = {};
@@ -343,16 +357,46 @@ export default function NotesEditor({ visit, currentUserId }) {
     return out;
   }, []);
 
-  const exec = useCallback((command) => {
-    document.execCommand(command, false);
-  }, []);
+  // contentEditable often leaves a stray trailing newline/<br> behind after
+  // deleting all text, so innerText comes back as "\n" instead of "" even
+  // though the section looks empty. Normalize before comparing so that
+  // doesn't register as a change.
+  const normalizeText = (str) => (str ?? "").replace(/\s+$/, "");
 
-  const insertQuickPhrase = useCallback((text) => {
-    document.execCommand("insertText", false, text);
-    setShowPhraseMenu(false);
-  }, []);
+  // Re-checks the live editor content against what's actually persisted, so
+  // "Save draft" only lights up once there's a real change to save — not on
+  // every keystroke/focus regardless of whether anything actually changed.
+  const checkDirty = useCallback(() => {
+    const current = getSections();
+    const dirty = SECTION_KEYS.some(
+      (key) => normalizeText(current[key]) !== normalizeText(lastSavedSections[key])
+    );
+    const anyContent = SECTION_KEYS.some(
+      (key) => (current[key] ?? "").trim().length > 0
+    );
+    setIsDirty(dirty);
+    setHasContent(anyContent);
+  }, [getSections, lastSavedSections]);
+
+  const exec = useCallback(
+    (command) => {
+      document.execCommand(command, false);
+      checkDirty();
+    },
+    [checkDirty]
+  );
+
+  const insertQuickPhrase = useCallback(
+    (text) => {
+      document.execCommand("insertText", false, text);
+      setShowPhraseMenu(false);
+      checkDirty();
+    },
+    [checkDirty]
+  );
 
   const handleSaveDraft = useCallback(async () => {
+    if (!isDirty || !hasContent) return; // guard against firing on a stale/disabled button
     const sections = getSections();
     try {
       const res = await fetch(`/api/doctor/notes/${id}`, {
@@ -362,12 +406,15 @@ export default function NotesEditor({ visit, currentUserId }) {
       });
       if (!res.ok) throw new Error("Save failed");
       setSavedJustNow(true);
+      setLastSavedSections(sections);
+      setIsDirty(false);
+      setHasSavedDraft(true);
       router.refresh(); // picks up the "Awaiting note" -> "Draft" status change
     } catch (err) {
       console.error("Failed to save draft:", err);
       setSavedJustNow(false);
     }
-  }, [getSections, id, acknowledged, router]);
+  }, [isDirty, hasContent, getSections, id, acknowledged, router]);
 
   const handleFinalize = useCallback(async () => {
     if (!canFinalize) return;
@@ -380,6 +427,8 @@ export default function NotesEditor({ visit, currentUserId }) {
       });
       if (!res.ok) throw new Error("Finalize failed");
       setUnlockedForEdit(false); // re-lock once signed again
+      setLastSavedSections(sections);
+      setIsDirty(false);
       router.refresh(); // picks up the new "Finalized" status
     } catch (err) {
       console.error("Failed to finalize note:", err);
@@ -404,12 +453,13 @@ export default function NotesEditor({ visit, currentUserId }) {
         }
       });
       setSavedJustNow(false); // drafted text isn't saved to the DB yet
+      checkDirty(); // el.innerText mutation above doesn't fire an input event
     } catch (err) {
       console.error("Failed to generate AI draft:", err);
     } finally {
       setAiGenerating(false);
     }
-  }, [id]);
+  }, [id, checkDirty]);
 
   return (
     <div className="min-h-screen w-full bg-[#0a0e1a] px-6 py-6 text-slate-100">
@@ -609,6 +659,7 @@ export default function NotesEditor({ visit, currentUserId }) {
                     }}
                     contentEditable={!isLocked}
                     suppressContentEditableWarning
+                    onInput={checkDirty}
                     data-placeholder={`Enter ${SECTION_LABELS[key].toLowerCase()}…`}
                     className={
                       "min-h-[24px] whitespace-pre-wrap text-[14px] leading-[1.7] outline-none empty:before:text-slate-600 empty:before:content-[attr(data-placeholder)] " +
@@ -768,9 +819,11 @@ export default function NotesEditor({ visit, currentUserId }) {
               <Clock size={13} aria-hidden="true" />
               {isLocked
                 ? "Read-only"
+                : isDirty
+                ? "Unsaved changes"
                 : savedJustNow
                 ? "Autosaved just now"
-                : "Unsaved changes"}
+                : "No changes to save"}
             </p>
             {!isLocked && (
               <div className="flex gap-2">
@@ -778,7 +831,8 @@ export default function NotesEditor({ visit, currentUserId }) {
                   <button
                     type="button"
                     onClick={handleSaveDraft}
-                    className="h-8 rounded-md border border-white/10 px-3 text-[13px] font-medium text-slate-300 hover:bg-white/5"
+                    disabled={!isDirty || !hasContent}
+                    className="h-8 rounded-md border border-white/10 px-3 text-[13px] font-medium text-slate-300 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
                   >
                     Save draft
                   </button>
@@ -787,6 +841,11 @@ export default function NotesEditor({ visit, currentUserId }) {
                   type="button"
                   disabled={!canFinalize}
                   onClick={handleFinalize}
+                  title={
+                    !hasSavedDraft && !isLocked
+                      ? "Save a draft before signing and finalizing"
+                      : undefined
+                  }
                   className="flex h-8 items-center gap-1.5 rounded-md bg-cyan-500 px-3 text-[13px] font-medium text-[#0a0e1a] hover:bg-cyan-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500"
                 >
                   <PenLine size={14} aria-hidden="true" />
