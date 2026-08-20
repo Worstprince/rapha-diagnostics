@@ -235,7 +235,7 @@ export default function AddUsers() {
   const selectedRoleLabel = roleLabel(user.role);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-5">
+    <div className="mx-auto max-w-6xl space-y-5">
 
       <PageHeader
         title="Add User"

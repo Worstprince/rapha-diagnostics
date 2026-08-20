@@ -163,7 +163,7 @@ export default function ActivityLogPage() {
 
     return (
 
-        <div className="mx-auto flex max-w-5xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
+        <div className="mx-auto flex max-w-6xl flex-col gap-5 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
 
             <PageHeader
                 title="Activity Log"
@@ -361,7 +361,7 @@ export default function ActivityLogPage() {
 
                 {!loading && logs.length > 0 && (
 
-                    <ol className="rd-scroll-thin min-h-0 flex-1 space-y-3 overflow-y-auto p-5">
+                    <ol className="rd-scroll-thin min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
 
                         {logs.map((log) => {
 
@@ -371,7 +371,7 @@ export default function ActivityLogPage() {
 
                                 <li
                                     key={log.id}
-                                    className="relative overflow-hidden rounded-xl border border-rd-hair bg-rd-sunken px-6 py-5 transition-colors hover:border-rd-hair-strong hover:bg-rd-raised"
+                                    className="relative overflow-hidden rounded-xl border border-rd-hair bg-rd-sunken px-4 py-3 transition-colors hover:border-rd-hair-strong hover:bg-rd-raised"
                                 >
 
                                     <span
@@ -412,20 +412,27 @@ export default function ActivityLogPage() {
                                     </div>
 
 
-                                    <p className="mt-2.5 text-sm leading-relaxed text-rd-label">
-                                        {log.description}
-                                    </p>
+                                    {/* Description and actor share a line. Stacked, they cost a
+                                        whole extra row of text and a gap on every entry, which is
+                                        why only three fitted on screen. flex-wrap puts the actor
+                                        back underneath once the description needs the width. */}
+                                    <div className="mt-1.5 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
 
+                                        <p className="text-sm leading-snug text-rd-label">
+                                            {log.description}
+                                        </p>
 
-                                    <p className="mt-3 text-xs text-rd-muted">
+                                        <p className="flex-none text-xs text-rd-muted">
 
-                                        Performed by{" "}
+                                            Performed by{" "}
 
-                                        <span className="font-semibold text-rd-label">
-                                            {log.username}
-                                        </span>
+                                            <span className="font-semibold text-rd-label">
+                                                {log.username}
+                                            </span>
 
-                                    </p>
+                                        </p>
+
+                                    </div>
 
                                 </li>
 

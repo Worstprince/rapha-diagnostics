@@ -172,8 +172,17 @@ html[data-theme="light"] .rd-dnafield {
 }
 
 /* The toggle itself is shared (globals.css). Login is the only place it floats
-   over the page rather than sitting in chrome. */
-.rd-theme {
+   over the page rather than sitting in chrome — hence the .rd-page scope on
+   every rule below that touches it.
+
+   Unscoped, these follow the class onto every other screen that renders a
+   ThemeToggle. The dashboard puts one inside the account menu, and a bare
+   .rd-theme { position: fixed } lifts it out of that row and pins it to the
+   corner of the viewport, leaving the "Dark mode" row with no control at all.
+   In a production build the route stylesheets swap and it never fires; in dev,
+   CSS from a visited route stays in the document, so signing in and landing on
+   the dashboard reproduces it every time. */
+.rd-page .rd-theme {
   position: fixed;
   top: 22px;
   right: 22px;
@@ -742,7 +751,7 @@ html[data-theme="light"] .rd-caps { color: #b45309; }
   animation: rd-mascot-in 760ms cubic-bezier(0.34, 1.26, 0.58, 1) 460ms both;
 }
 
-.rd-theme {
+.rd-page .rd-theme {
   animation: rd-fade 700ms ease 420ms both;
 }
 
@@ -753,12 +762,12 @@ html[data-theme="light"] .rd-caps { color: #b45309; }
     stroke-dashoffset: 0;
     opacity: 0.55;
   }
-  .rd-theme-knob { transition: none !important; }
-  .rd-brand,
-  .rd-card,
-  .rd-mascot,
-  .rd-theme,
-  .rd-dnafield {
+  .rd-page .rd-theme-knob { transition: none !important; }
+  .rd-page .rd-brand,
+  .rd-page .rd-card,
+  .rd-page .rd-mascot,
+  .rd-page .rd-theme,
+  .rd-page .rd-dnafield {
     animation: none !important;
   }
 }

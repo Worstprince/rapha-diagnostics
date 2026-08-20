@@ -87,8 +87,8 @@
     0 28px 48px -28px rgba(15, 39, 71, 0.4);
   --rd-lift: 0 1px 1px rgba(15, 39, 71, 0.05), 0 6px 12px -8px rgba(15, 39, 71, 0.22),
     0 18px 32px -22px rgba(15, 39, 71, 0.32);
-  --rd-toggle-bg: #ffffff;
-  --rd-toggle-border: rgba(15, 39, 71, 0.16);
+  --rd-toggle-bg: #dfe8f2;
+  --rd-toggle-border: rgba(15, 39, 71, 0.22);
 
   --rd-accent-grad: linear-gradient(180deg, #0b7f95 0%, #06596a 100%);
   --rd-accent-shadow: rgba(11, 127, 149, 0.4);
@@ -976,10 +976,14 @@
     transform: translateX(34px);
   }
 
+  /* The knob carries the accent in both themes. It is the only coloured thing
+     in the control and therefore the thing that says which side is live — a
+     white knob on a white track said nothing at all, and the two icons read as
+     equals with no indication of state. */
   html[data-theme="light"] .rd-theme-knob {
     transform: translateX(0);
-    color: #0b2137;
-    background: linear-gradient(180deg, #ffffff, #dbeafe);
+    color: #ffffff;
+    background: linear-gradient(180deg, #0e9fb8, #0a7387);
   }
 
   @media (prefers-reduced-motion: reduce) {
