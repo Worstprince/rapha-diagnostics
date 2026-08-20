@@ -107,6 +107,7 @@ export default function OGTTForm({
                                     onChange={handleChange}
                                     readOnly={readOnly}
                                     range={RANGES.fbs}
+                                    type="number"
                                     sex={patient?.sex}
                                 />
 
@@ -132,6 +133,7 @@ export default function OGTTForm({
                                     onChange={handleChange}
                                     readOnly={readOnly}
                                     range={RANGES.firstHour}
+                                    type="number"
                                     sex={patient?.sex}
                                 />
 
@@ -157,6 +159,7 @@ export default function OGTTForm({
                                     onChange={handleChange}
                                     readOnly={readOnly}
                                     range={RANGES.secondHour}
+                                    type="number"
                                     sex={patient?.sex}
                                 />
 

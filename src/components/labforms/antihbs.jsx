@@ -137,7 +137,7 @@ export default function AntiHBSForm({
         <div className="flex items-center justify-center gap-1 p-4">
 
             <input
-                type="text"
+                type="number"
                 name="value"
                 value={result.value}
                 onChange={handleChange}

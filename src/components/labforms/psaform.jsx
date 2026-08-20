@@ -120,6 +120,7 @@ export default function PSAForm({
                                         onChange={handleChange}
                                         readOnly={readOnly}
                                         range={RANGES.psa}
+                                        type="number"
                                     />
 
                                     <span className="whitespace-nowrap text-sm text-rd-muted">

@@ -152,6 +152,7 @@ export default function RBSForm({
                                     onChange={handleChange}
                                     readOnly={readOnly}
                                     range={RANGES.siUnit}
+                                    type="number"
                                 />
                             </td>
 
@@ -163,6 +164,7 @@ export default function RBSForm({
                                     onChange={handleChange}
                                     readOnly={readOnly}
                                     range={RANGES.conventionalUnit}
+                                    type="number"
                                 />
 
                             </td>
