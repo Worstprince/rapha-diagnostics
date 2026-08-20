@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { NotebookPen as NotebookPenIcon } from "lucide-react";
 
 import AccountMenu from "@/components/AccountMenu";
+import AnimatedMark from "@/components/BrandMark";
 import { useCurrentUser } from "@/lib/session";
 import {
   ActivityIcon,
@@ -114,33 +115,12 @@ const medtechSections = [
 
 const baseSections = [];
 
-function BrandMark() {
-  return (
-    <svg viewBox="0 0 48 48" width="36" height="36" aria-hidden="true" className="flex-none">
-      <defs>
-        <linearGradient id="rd-nav-mk" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#67e8f9" />
-          <stop offset="0.55" stopColor="#22b8e6" />
-          <stop offset="1" stopColor="#2563c9" />
-        </linearGradient>
-      </defs>
-      <rect x="2" y="2" width="44" height="44" rx="14" fill="url(#rd-nav-mk)" />
-      <path
-        d="M7 26 H15 L18 26 L21 15 L26 34 L29 23 L31 26 H41"
-        fill="none"
-        stroke="#ffffff"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
+/* One lockup for every dashboard. The drawn mark carries its own colour
+   token, so it inverts with the theme without anything here having to know. */
 function Wordmark() {
   return (
     <div className="flex items-center gap-3">
-      <BrandMark />
+      <AnimatedMark size={44} className="rd-mark -my-1" />
       <div className="leading-none">
         <p className="text-base font-extrabold tracking-tight text-rd-title">Rapha</p>
         <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-rd-muted">

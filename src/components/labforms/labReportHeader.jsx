@@ -129,7 +129,7 @@ export default function LabReportHeader({ patient, title }) {
             <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 print:gap-2">
 
                 <img
-                    src="/lab/rapha-logo.png"
+                    src="/rapha-logo.png"
                     alt=""
                     className="rd-lab-logo h-16 w-16 flex-none object-contain sm:h-[4.5rem] sm:w-[4.5rem] print:h-[0.8in] print:w-[0.8in]"
                 />

@@ -2,11 +2,31 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Figtree, Noto_Sans } from "next/font/google";
 
+import BrandMark from "@/components/BrandMark";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useTheme } from "@/lib/theme";
 
 import "./login.css";
+
+/* "Medical Clean" pairing: Figtree carries the headings, Noto Sans the running
+   text. Loaded through next/font so the files are self-hosted and the metrics
+   are known up front — no CDN request at runtime and no shift when they land.
+   Exposed as CSS variables because the styling all lives in login.css. */
+const display = Figtree({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--rd-font-display",
+  display: "swap",
+});
+
+const body = Noto_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--rd-font-body",
+  display: "swap",
+});
 
 const ROLE_ROUTES = {
   Administrator: "/dashboard/admin",
@@ -15,6 +35,17 @@ const ROLE_ROUTES = {
   Pathologist: "/dashboard/doctor",
   Physician: "/dashboard/doctor",
 };
+
+/* Named off the route map so the panel cannot advertise a role the app no
+   longer routes anywhere. Display order is intake → bench → sign-out → admin,
+   which is the order a specimen actually passes through. */
+const STAFF_ROLES = [
+  "Reception",
+  "Medical Technologist",
+  "Pathologist",
+  "Physician",
+  "Administrator",
+];
 
 const SKIN = "#f6dfd0";
 const SKIN_SHADE = "#ecc2ac";
@@ -548,16 +579,19 @@ const DNA_DOT_R = 9.5;
 const DNA_FOCUS_STEPS = 6;
 const DNA_STATIC_ANGLE = 1.15;
 
-const DNA_PILL_HUES = ["#e11d48", "#2563eb"];
+/* Two strands, so the helix still reads as two things rather than a rope. Both
+   sit in the blue family now: the rose that used to pair with the blue was the
+   loudest colour on a page whose logo already owns three hues. */
+const DNA_PILL_HUES = ["#0284c7", "#6366f1"];
 
 const DNA_THEME = {
   dark: {
-    core: "#22d3ee",
-    accent: "#f472b6",
+    core: "#38bdf8",
+    accent: "#818cf8",
     shellHi: "#ffffff",
     shellLo: "#9fb3cc",
     rim: "rgba(255,255,255,0.34)",
-    haze: "#e11d48",
+    haze: "#1d4ed8",
     hazeBlend: "lighter",
     hazeAlpha: 0.2,
     glow: 1,
@@ -566,18 +600,21 @@ const DNA_THEME = {
     alphaSpan: 0.5,
   },
   light: {
-    core: "#0e7490",
-    accent: "#be185d",
+    /* Darker and weaker than the dark set across the board. On a pale canvas
+       the field is behind white cards rather than glowing through dark glass,
+       so anything at full strength shows as grubby smudges around the panels. */
+    core: "#0369a1",
+    accent: "#4f46e5",
     shellHi: "#f4f8fd",
-    shellLo: "#64748b",
-    rim: "rgba(23,49,84,0.32)",
-    haze: "#f43f5e",
+    shellLo: "#7c8ba1",
+    rim: "rgba(12,74,110,0.26)",
+    haze: "#3b82f6",
     hazeBlend: "source-over",
-    hazeAlpha: 0.2,
+    hazeAlpha: 0.14,
     glow: 0.42,
-    pillAlpha: 0.32,
-    alphaBase: 0.55,
-    alphaSpan: 0.42,
+    pillAlpha: 0.26,
+    alphaBase: 0.42,
+    alphaSpan: 0.34,
   },
 };
 
@@ -973,6 +1010,16 @@ export default function LoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [status, setStatus] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  /* Shared workstations plus an obscured field is exactly where Caps Lock costs
+     people a login attempt. getModifierState reports it from any key event, so
+     the hint can appear before the form is ever submitted. */
+  const [capsOn, setCapsOn] = useState(false);
+
+  const readCapsLock = useCallback((event) => {
+    if (typeof event.getModifierState === "function") {
+      setCapsOn(event.getModifierState("CapsLock"));
+    }
+  }, []);
 
   const router = useRouter();
   const mascot = useLoginMascot();
@@ -1025,7 +1072,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="rd-page">
+    <main className={`rd-page ${display.variable} ${body.variable}`}>
       <DnaField theme={theme} />
 
       <ThemeToggle theme={theme} onToggle={toggleTheme} />
@@ -1040,33 +1087,30 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <h1 className="rd-hero">Welcome back to your care operations hub.</h1>
+          <h1 className="rd-hero">
+            Every result, <em>traceable</em> end to end.
+          </h1>
           <p className="rd-hero-sub">
-            Manage appointments, results, and workflow handoffs with a calm and dependable
-            experience.
+            From specimen intake to verified report — one record, one chain of custody, visible to
+            everyone who needs it.
           </p>
 
           <EcgLine className="rd-ecg" />
 
-          <div className="rd-secure">
-            <span className="rd-secure-icon">
-              <ShieldIcon />
-            </span>
-            <div>
-              <p className="rd-secure-title">Secure access</p>
-              <p className="rd-secure-copy">
-                Role-based sign-in for administrators, clinicians, medtech staff, and reception
-                teams.
-              </p>
-            </div>
-          </div>
+          <ul className="rd-roles">
+            {STAFF_ROLES.map((role) => (
+              <li key={role} className="rd-role">
+                {role}
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section className="rd-authcol">
           <div className="rd-card">
             <LoginMascot state={mascot.state} caret={mascot.caret} className="rd-mascot" />
 
-            <p className="rd-eyebrow">Portal access</p>
+            <p className="rd-eyebrow">Staff sign-in</p>
             <h2 className="rd-title">Sign in</h2>
             <p className="rd-lede">Use your work email or username and password to continue.</p>
 
@@ -1105,6 +1149,8 @@ export default function LoginPage() {
                     placeholder="Enter your password"
                     className="rd-input"
                     {...mascot.passwordBindings}
+                    onKeyDown={readCapsLock}
+                    onKeyUp={readCapsLock}
                   />
 
                   <button
@@ -1116,9 +1162,20 @@ export default function LoginPage() {
                     aria-label={mascot.showPassword ? "Hide password" : "Show password"}
                     aria-pressed={mascot.showPassword}
                   >
-                    <EyeIcon off={mascot.showPassword} />
+                    {/* The glyph reports the state of the field, not the action of
+                        the button: struck through while the password is hidden, open
+                        once it is showing. The action stays on the aria-label, which
+                        is where a screen reader looks for it. */}
+                    <EyeIcon off={!mascot.showPassword} />
                   </button>
                 </div>
+
+                {capsOn ? (
+                  <p className="rd-caps" role="status">
+                    <CapsIcon />
+                    Caps Lock is on
+                  </p>
+                ) : null}
               </div>
 
               <div className="rd-row">
@@ -1141,6 +1198,7 @@ export default function LoginPage() {
               ) : null}
 
               <button type="submit" className="rd-submit" disabled={submitting}>
+                {submitting ? <span className="rd-spin" aria-hidden="true" /> : null}
                 {submitting ? "Signing in…" : "Continue to dashboard"}
               </button>
             </form>
@@ -1153,55 +1211,45 @@ export default function LoginPage() {
   );
 }
 
-function BrandMark() {
-  const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
-  return (
-    <svg viewBox="0 0 48 48" width="46" height="46" className="rd-mark" aria-hidden="true">
-      <defs>
-        <linearGradient id={`${uid}-mk`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#67e8f9" />
-          <stop offset="0.55" stopColor="#22b8e6" />
-          <stop offset="1" stopColor="#2563c9" />
-        </linearGradient>
-      </defs>
-      <rect x="2" y="2" width="44" height="44" rx="14" fill={`url(#${uid}-mk)`} />
-      <path
-        d="M7 26 H15 L18 26 L21 15 L26 34 L29 23 L31 26 H41"
-        fill="none"
-        stroke="#ffffff"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 
-function ShieldIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 3l7 4v5c0 4.4-2.8 7.6-7 9-4.2-1.4-7-4.6-7-9V7l7-4Z" />
-      <path d="M9.5 12.2l1.7 1.7 3.3-3.5" />
-    </svg>
-  );
-}
+/* Both states share one eye. The struck-through version used to be built from
+   its own set of arcs, and the numbers were wrong: the outline did not close,
+   the halves sat at different heights, and the slash ran the full diagonal of
+   the viewBox so it shot well past the eye at both ends. Drawing the slash over
+   the exact almond the open state uses means the two can no longer disagree —
+   toggling swaps one line in and out, and nothing else moves.
 
+   The iris is dropped when struck. Keeping it puts three strokes through the
+   middle of a 20px glyph, which at this size fills in as a smudge.
+
+   `off` means the eye is shut — i.e. the password is hidden. */
 function EyeIcon({ off }) {
   return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
-      {off ? (
-        <>
-          <path d="M3 3l18 18" />
-          <path d="M10.6 5.2A9.6 9.6 0 0 1 12 5c5 0 9 4.5 9 7a11 11 0 0 1-2.5 3.6M6.6 6.7C4.2 8.2 3 10.4 3 12c0 2.5 4 7 9 7a9.7 9.7 0 0 0 4.2-.9" />
-          <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
-        </>
-      ) : (
-        <>
-          <path d="M3 12s3.5-7 9-7 9 7 9 7-3.5 7-9 7-9-7-9-7Z" />
-          <circle cx="12" cy="12" r="3" />
-        </>
-      )}
+    <svg
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M3 12s3.5-7 9-7 9 7 9 7-3.5 7-9 7-9-7-9-7Z" />
+      {off ? <path d="M4.5 4.5l15 15" /> : <circle cx="12" cy="12" r="3" />}
+    </svg>
+  );
+}
+/* An upward chevron over a bar — the standard Caps Lock glyph. Paired with the
+   words "Caps Lock is on" rather than standing alone, so the warning does not
+   depend on recognising the icon or on seeing the amber. */
+function CapsIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 4 5 11h4v4h6v-4h4L12 4Z" />
+      <path d="M9 19h6" />
     </svg>
   );
 }

@@ -5,13 +5,16 @@ export async function GET() {
 
     const [rows] = await db.query(
         `
-        SELECT
-            id,
-            username
-        FROM tblusers
-        WHERE role = 'Medical Technologist'
-        AND archivestatus = 0
-        ORDER BY username
+        SELECT 
+            u.id,
+            u.username,
+            CONCAT(ui.fname, ' ', ui.lname) AS name
+        FROM tblusers u
+        LEFT JOIN tbluserinfo ui
+            ON ui.userid = u.id
+        WHERE u.role = 'Medical Technologist'
+        AND u.archivestatus = 0
+        ORDER BY u.username;
         `
     );
 
