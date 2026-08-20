@@ -1025,6 +1025,24 @@ export default function LoginPage() {
   const mascot = useLoginMascot();
   const { theme, toggle: toggleTheme } = useTheme();
 
+  /* If someone already has a session cached (e.g. they hit the browser's back
+     button after logging in, or a bfcache restore serves up this page again),
+     bounce straight to their dashboard instead of showing a stale login form.
+     This is a UX convenience only — real access control is enforced server-side
+     via the httpOnly JWT cookie + middleware.ts, not by this check. */
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem("rd-user");
+      if (cached) {
+        const user = JSON.parse(cached);
+        const target = ROLE_ROUTES[user.role] ?? "/dashboard";
+        router.replace(target);
+      }
+    } catch {
+      // ignore malformed/missing cache
+    }
+  }, [router]);
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((current) => ({ ...current, [name]: value }));
@@ -1063,7 +1081,11 @@ export default function LoginPage() {
       mascot.celebrate();
 
       const target = ROLE_ROUTES[result.user.role] ?? "/dashboard";
-      setTimeout(() => router.push(target), 900);
+      /* router.replace, not router.push: swaps this history entry instead of
+         stacking on top of it, so /login never sits behind the dashboard in
+         browser history. Without this, pressing the browser's back button on
+         the dashboard would land the user right back on the login form. */
+      setTimeout(() => router.replace(target), 900);
     } catch {
       setStatus({ tone: "error", text: "Unable to reach the server. Please try again." });
       mascot.shake();
@@ -1183,6 +1205,9 @@ export default function LoginPage() {
                   <input type="checkbox" name="remember" />
                   <span>Remember me</span>
                 </label>
+                <a href="#" className="rd-link">
+                  Forgot password?
+                </a>
               </div>
 
               {status ? (
