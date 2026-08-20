@@ -164,6 +164,7 @@ export default function BillingDetailsPage() {
                                 alt="Rapha Diagnostics"
                                 width={64}
                                 height={64}
+                                unoptimized
                                 className="h-16 w-16 object-contain"
                             />
                             <div>
