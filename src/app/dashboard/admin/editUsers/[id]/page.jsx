@@ -7,6 +7,16 @@ import { useParams, useRouter } from "next/navigation";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { useCurrentUser } from "@/lib/session";
 import { formatDate, formatFull, formatTime } from "@/lib/datetime";
+import {
+    ACCOUNT_ACTIVE,
+    ACCOUNT_ARCHIVED,
+    isArchived,
+    isLocked,
+    statusLabel,
+    statusTone,
+    toStatus
+} from "@/lib/accountStatus";
+import { LOCK_MINUTES, MAX_ATTEMPTS } from "@/lib/loginAttempts";
 
 import Toast from "../../_toast";
 import {
@@ -44,7 +54,7 @@ const BLANK = {
     confirmPassword: "",
     email: "",
     role: "",
-    archivestatus: false,
+    archivestatus: ACCOUNT_ACTIVE,
 };
 
 
@@ -96,8 +106,8 @@ function diff(current, baseline) {
         out.push({
             key: "archivestatus",
             label: "Status",
-            from: baseline.archivestatus ? "Archived" : "Active",
-            to: current.archivestatus ? "Archived" : "Active"
+            from: statusLabel(baseline.archivestatus),
+            to: statusLabel(current.archivestatus)
         });
     }
 
@@ -256,7 +266,7 @@ export default function EditUserPage() {
                     confirmPassword: "",
                     email: result.data.email ?? "",
                     role: result.data.role ?? "",
-                    archivestatus: Boolean(result.data.archivestatus),
+                    archivestatus: toStatus(result.data.archivestatus),
                 };
 
                 setRecord(result.data);
@@ -585,8 +595,8 @@ export default function EditUserPage() {
 
                             <div className="ml-auto flex flex-wrap items-center gap-3">
 
-                                <Badge tone={user.archivestatus ? "neutral" : "emerald"}>
-                                    {user.archivestatus ? "Archived" : "Active"}
+                                <Badge tone={statusTone(user.archivestatus)}>
+                                    {statusLabel(user.archivestatus)}
                                 </Badge>
 
                                 {people.length > 0 && (
@@ -796,18 +806,55 @@ export default function EditUserPage() {
                                 <SectionHeader
                                     title="Account status"
                                     description={
-                                        user.archivestatus
+                                        isArchived(user.archivestatus)
                                             ? "Archived accounts cannot sign in."
                                             : "Archiving keeps the record and its history, but blocks sign-in."
                                     }
                                 />
+
+                                {isLocked(user.archivestatus) && (
+
+                                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-rd-hair p-4">
+
+                                        <div className="min-w-0">
+
+                                            <p className="text-sm font-semibold text-rd-title">
+                                                Locked out of sign-in
+                                            </p>
+
+                                            <p className="mt-0.5 text-sm text-rd-muted">
+                                                Locked after {MAX_ATTEMPTS} failed attempts. It clears
+                                                itself after {LOCK_MINUTES} minutes, or unlock it now if
+                                                they have contacted you.
+                                            </p>
+
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setUser(prev => ({
+                                                    ...prev,
+                                                    archivestatus: ACCOUNT_ACTIVE
+                                                }))
+                                            }
+                                            className="rd-btn-ghost rd-press rd-focus min-h-11 gap-2 py-0 hover:border-emerald-500/50 hover:text-rd-title"
+                                        >
+                                            <RestoreIcon size={16} />
+                                            Unlock account
+                                        </button>
+
+                                    </div>
+
+                                )}
+
 
                                 <div className="flex flex-wrap items-center justify-between gap-3 p-4">
 
                                     <p className="text-sm text-rd-muted">
                                         Currently{" "}
                                         <span className="font-semibold text-rd-title">
-                                            {user.archivestatus ? "archived" : "active"}
+                                            {statusLabel(user.archivestatus).toLowerCase()}
                                         </span>
                                         .
                                     </p>
@@ -816,17 +863,17 @@ export default function EditUserPage() {
                                         type="button"
                                         onClick={() => setArchiveOpen(true)}
                                         className={`rd-btn-ghost rd-press rd-focus min-h-11 gap-2 py-0 ${
-                                            user.archivestatus
+                                            isArchived(user.archivestatus)
                                                 ? "hover:border-emerald-500/50 hover:text-rd-title"
                                                 : "text-rd-danger hover:border-rd-danger-edge hover:bg-rd-danger-bg"
                                         }`}
                                     >
-                                        {user.archivestatus ? (
+                                        {isArchived(user.archivestatus) ? (
                                             <RestoreIcon size={16} />
                                         ) : (
                                             <ArchiveIcon size={16} />
                                         )}
-                                        {user.archivestatus ? "Restore user" : "Archive user"}
+                                        {isArchived(user.archivestatus) ? "Restore user" : "Archive user"}
                                     </button>
 
                                 </div>
@@ -950,21 +997,23 @@ export default function EditUserPage() {
 
             <ConfirmDialog
                 open={archiveOpen}
-                tone={user.archivestatus ? "default" : "danger"}
-                title={user.archivestatus ? "Restore this user?" : "Archive this user?"}
+                tone={isArchived(user.archivestatus) ? "default" : "danger"}
+                title={isArchived(user.archivestatus) ? "Restore this user?" : "Archive this user?"}
                 description={
-                    user.archivestatus
+                    isArchived(user.archivestatus)
                         ? `“${user.username}” will be able to sign in again once you save.`
                         : `“${user.username}” will be blocked from signing in once you save.`
                 }
-                confirmLabel={user.archivestatus ? "Restore user" : "Archive user"}
+                confirmLabel={isArchived(user.archivestatus) ? "Restore user" : "Archive user"}
                 onConfirm={() => {
 
                     setArchiveOpen(false);
 
                     setUser(prev => ({
                         ...prev,
-                        archivestatus: !prev.archivestatus,
+                        archivestatus: isArchived(prev.archivestatus)
+                            ? ACCOUNT_ACTIVE
+                            : ACCOUNT_ARCHIVED,
                     }));
 
                 }}

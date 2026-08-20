@@ -107,6 +107,12 @@ export async function GET(request) {
                 "u.archivestatus = 1"
             );
 
+        } else if (statusFilter === "locked") {
+
+            conditions.push(
+                "u.archivestatus = 2"
+            );
+
         }
 
 

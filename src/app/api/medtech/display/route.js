@@ -13,7 +13,7 @@ export async function GET() {
         LEFT JOIN tbluserinfo ui
             ON ui.userid = u.id
         WHERE u.role = 'Medical Technologist'
-        AND u.archivestatus = 0
+        AND u.archivestatus <> 1
         ORDER BY u.username;
         `
     );
