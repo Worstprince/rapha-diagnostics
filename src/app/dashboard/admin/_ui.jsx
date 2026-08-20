@@ -158,9 +158,14 @@ export function ClockIcon(props) {
     );
 }
 
-const ROLE_LABELS = {
-    Pathologist: "Physician",
-};
+/* Deliberately empty. This used to render the stored role "Pathologist" as
+   "Physician", which was a problem rather than a nicety: "Physician" is itself
+   a separate stored role -- the doctor list selects on
+   `role = 'Physician' OR role = 'Pathologist'`, and login and the middleware
+   both route the two independently. Aliasing one to the other made two
+   distinct roles indistinguishable in every admin table and dropdown. Roles
+   now display under the name they are saved as. */
+const ROLE_LABELS = {};
 
 export function roleLabel(value) {
     const role = String(value ?? "");
@@ -396,5 +401,64 @@ export function HeaderGlow() {
             aria-hidden="true"
             className="pointer-events-none absolute -right-20 -top-24 size-56 rounded-full bg-rd-cyan/10 blur-3xl"
         />
+    );
+}
+
+/* Identity and progress primitives, mirroring the ones the other dashboard
+   sections already carry in their own _ui. Admin had no need for them until the
+   Add User form grew a live preview panel. */
+export function initialsOf(name) {
+    if (!name) return "";
+    return String(name)
+        .split(/[\s._-]+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0].toUpperCase())
+        .join("");
+}
+
+export function Avatar({ name, className = "size-9 text-xs" }) {
+    return (
+        <span
+            aria-hidden="true"
+            className={`grid flex-none place-items-center rounded-full bg-rd-cyan/15 font-bold text-rd-cyan ${className}`}
+        >
+            {initialsOf(name)}
+        </span>
+    );
+}
+
+export function Spinner({ size = 16 }) {
+    return (
+        <svg
+            className="animate-spin motion-reduce:animate-none"
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+        >
+            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.3" strokeWidth="3" />
+            <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+        </svg>
+    );
+}
+
+export function CheckIcon({ size = 16, className = "" }) {
+    return (
+        <svg
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+            aria-hidden="true"
+        >
+            <path d="M20 6 9 17l-5-5" />
+        </svg>
     );
 }
