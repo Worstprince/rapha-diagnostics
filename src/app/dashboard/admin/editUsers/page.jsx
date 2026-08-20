@@ -1,5 +1,5 @@
 "use client";
-
+//app/dashboard/admin/editUsers/page.jsx
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -49,31 +49,37 @@ function EditUserForm() {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [currentUser?.id]);
 
   useEffect(() => {
     if (userId) {
       loadUser(userId);
     }
-  }, [userId]);
+  }, [userId, currentUser?.id]);
 
   async function fetchUsers() {
     const response = await fetch("/api/users/display");
     const data = await response.json();
 
+    const list = Array.isArray(data) ? data : (data?.rows ?? []);
+
+    // Never list the currently logged-in account here —
+    // it should not be selectable for editing/archiving from this screen.
     setUsers(
-      Array.isArray(data)
-        ? data
-        : (data?.rows ?? [])
+      currentUser?.id
+        ? list.filter(
+            (entry) => String(entry.id) !== String(currentUser.id)
+          )
+        : list
     );
   }
 
   async function loadUser(id) {
-    setSelectedUser(id);
     setStatus(null);
     setErrors({});
 
     if (!id) {
+      setSelectedUser("");
       setUser({
         username: "",
         password: "",
@@ -84,6 +90,19 @@ function EditUserForm() {
       });
       return;
     }
+
+    // Defense in depth: block loading your own account even if it's
+    // reached directly via ?id=... in the URL, bypassing the dropdown.
+    if (currentUser?.id && String(id) === String(currentUser.id)) {
+      setSelectedUser("");
+      setStatus({
+        tone: "error",
+        text: "You can't edit or archive your own account from here.",
+      });
+      return;
+    }
+
+    setSelectedUser(id);
 
     const response = await fetch(`/api/users/${id}`);
     const result = await response.json();
@@ -253,8 +272,8 @@ function EditUserForm() {
   const locked = !selectedUser;
 
   const confirmDescription = user.password
-    ? `Changes to “${user.username}” will be saved, including a new password.`
-    : `Changes to “${user.username}” will be saved. Their password stays the same.`;
+    ? `Changes to "${user.username}" will be saved, including a new password.`
+    : `Changes to "${user.username}" will be saved. Their password stays the same.`;
 
   return (
     <>
@@ -595,8 +614,8 @@ function EditUserForm() {
         }
         description={
           user.archivestatus
-            ? `“${user.username}” will be treated as an active user again once you save.`
-            : `“${user.username}” will no longer be treated as an active user once you save.`
+            ? `"${user.username}" will be treated as an active user again once you save.`
+            : `"${user.username}" will no longer be treated as an active user once you save.`
         }
         confirmLabel={
           user.archivestatus
@@ -617,8 +636,8 @@ function EditUserForm() {
           setStatus({
             tone: "success",
             text: archiving
-              ? `“${user.username}” is marked as archived. Choose Save Changes to apply it.`
-              : `“${user.username}” is marked as active. Choose Save Changes to apply it.`,
+              ? `"${user.username}" is marked as archived. Choose Save Changes to apply it.`
+              : `"${user.username}" is marked as active. Choose Save Changes to apply it.`,
           });
         }}
         onCancel={() =>

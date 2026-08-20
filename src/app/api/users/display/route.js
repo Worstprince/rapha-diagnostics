@@ -1,8 +1,11 @@
 import db from "@/lib/db";
 import { NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/serverSession";
 
 export async function GET(request) {
     try {
+
+        const currentUser = await getCurrentUser();
 
         const { searchParams } = new URL(request.url);
 
@@ -33,6 +36,21 @@ export async function GET(request) {
 
         const conditions = [];
         const values = [];
+
+
+        // Never list the currently logged-in account in this table —
+        // it should not be editable/archivable from here.
+        if (currentUser?.id) {
+
+            conditions.push(
+                "u.id <> ?"
+            );
+
+            values.push(
+                currentUser.id
+            );
+
+        }
 
 
         if (search) {

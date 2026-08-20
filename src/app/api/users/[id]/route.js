@@ -211,10 +211,39 @@ export async function PUT(request, { params }) {
     try {
 
         const { id } = await params;
+        const currentUser = await getCurrentUser();
+
+        if (!currentUser) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Authentication required."
+                },
+                {
+                    status: 401
+                }
+            );
+        }
 
         const user = await request.json();
 
-        const { userId } = user;
+        // Prevent a user from archiving their own account.
+        if (
+            String(currentUser.id) === String(id) &&
+            user.archivestatus
+        ) {
+
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "You cannot archive your own account."
+                },
+                {
+                    status: 403
+                }
+            );
+
+        }
 
 
         // Get the user's current information
@@ -341,7 +370,7 @@ export async function PUT(request, { params }) {
         ) {
 
             await logActivity(
-                userId,
+                currentUser.id,
                 "User Archived",
                 `Archived user: ${user.username}`,
                 "User Management"
@@ -355,7 +384,7 @@ export async function PUT(request, { params }) {
         ) {
 
             await logActivity(
-                userId,
+                currentUser.id,
                 "User Restored",
                 `Restored user: ${user.username}`,
                 "User Management"
@@ -366,7 +395,7 @@ export async function PUT(request, { params }) {
         else {
 
             await logActivity(
-                userId,
+                currentUser.id,
                 "User Update",
                 `Updated user: ${user.username}`,
                 "User Management"
